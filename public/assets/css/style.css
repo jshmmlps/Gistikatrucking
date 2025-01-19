@@ -1,4 +1,3 @@
-/* General Styles */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -6,33 +5,42 @@ body {
     background-color: #f8f9fa;
     color: #333;
 }
-/* header */
-.header {
-    background-color: #003366; /* Blue color */
-    color: white; /* Text color */
-    padding: 20px; /* Spacing inside the header */
-    font-size: 24px; /* Font size for header text */
-    font-weight: bold; /* Bold text */
-    text-align: center; /* Center-align text */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
-    border-bottom: 3px solid #002244; /* Optional darker border */
+
+header {
+    padding: 15px;
+    background-color: #003366;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+}
+header img {
+    max-width: 50px;
+    height: auto;
+    vertical-align: middle;
 }
 .container {
+    margin-bottom: 20px;
     display: flex;
     height: 100vh;
 }
 
-/* Sidebar Styles */
 .sidebar {
-    width: 250px;
-    background-color: #fff;
-    border-right: 1px solid #ddd;
-    padding: 20px;
+    margin: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    width: 250px;
+    background-color: #d6d6d6;
+    border-right: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 20px;
+  }
+.sidebar .profile{
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 1px; 
 }
-
 .sidebar .profile img {
     width: 80px;
     border-radius: 50%;
@@ -42,53 +50,53 @@ body {
 .sidebar .profile h4 {
     font-size: 18px;
     margin-bottom: 5px;
-    color: red;
 }
 
 .sidebar nav a {
-    text-decoration: none;
-    color: #333;
     font-size: 14px;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 5px;
     display: flex;
     align-items: center;
+    text-decoration: none;
+    color: #333;
+    background-color: #c6c6c6;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
 }
 
 .sidebar nav a img {
     width: 20px;
-    margin-right: 10px;
+    height: 20px;
+    margin-right: 8px;
 }
 
 .sidebar nav a.active {
-    background-color: #007bff;
+    background-color: #808080;
     color: #fff;
 }
 
 .sidebar .logout {
-    margin-top: auto;
     padding: 10px;
     border-radius: 5px;
-    background-color: #ff0000;
+    background-color: #9a0a0a;
     color: #fff;
     text-align: center;
     text-decoration: none;
     width: 100%;
 }
 
-/* Header Styles */
-.main .header {
-    padding: 15px;
-    background-color: #003366;
-    color: #fff;
-    font-size: 24px;
-    font-weight: bold;
+.sidebar .logout img {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
 }
 
 /* Main Content */
-.main .content {
-    padding: 20px;
+.content {
+    padding: 10px;
+    margin-left:10px;
+    width: calc(100% - 250px);
+    display:  flex;
 }
 
 .visualizations {
@@ -96,6 +104,7 @@ body {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     margin-bottom: 20px;
+    padding-right: 20px;
 }
 
 .visualizations .chart {
@@ -105,18 +114,11 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.visualizations .h4 {
-    font-size: large;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
 .cards {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    margin-bottom: 20px;
 }
 
 .card {
@@ -128,8 +130,11 @@ body {
 }
 
 .card .data {
-    font-size: 36px;
-    color: #007bff;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 32px;
+    color: #b8edea;
+    background-color: #003366;
 }
 
 .map img {
@@ -144,14 +149,6 @@ body {
     background-color: #f8f9fa;
     margin: 0;
     padding: 0;
-}
-
-/* Header */
-.header {
-    background-color: #003366;
-    color: white;
-    padding: 20px;
-    text-align: center;
 }
 
 /* Table Styling */

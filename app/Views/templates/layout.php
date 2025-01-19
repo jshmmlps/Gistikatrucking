@@ -3,18 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $this->renderSection('title') ?></title>
-    <link href=<?=base_url('public/assets/css/style.css');?> rel="stylesheet">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
+
 </head>
-<body style="margin: 0; display: flex;">
+<body>
+    <header class="header">
+        <img src="public/images/logo.png" alt="Juby-An Trucking Services Logo">
+    </header>
+    <div class="container">
+        <!-- Main Content -->
+        <div class="sidebar">
+            <div class="profile">
+                <img src="public/images/strategychae.jpeg" alt="Profile Picture">
+                <h4>Jamaeca Quizon</h4>
+                <p>Admin</p>
+            </div>
+            <nav>
+                <a href="/dashboard" class="active"><img src="public/assets/icons/sidebar/dashboard.png" alt=""> Dashboard</a>
+                <a href="/profile" ><img src="public/assets/icons/sidebar/user.png" alt=""> User Account</a>
+                <a href="/clients"><img src="public/assets/icons/sidebar/client.png" alt=""> Client Management</a>
+                <a href="#"><img src="public/assets/icons/sidebar/driver.png" alt=""> Driver and Conductor Management</a>
+                <a href="#"><img src="public/assets/icons/sidebar/booking.png" alt=""> Booking Management</a>
+                <a href="#"><img src="public/assets/icons/sidebar/truck.png" alt=""> Truck Record and Monitoring Maintenance</a>
+                <a href="#"><img src="public/assets/icons/sidebar/report.png" alt=""> Report Management</a>
+            </nav>
+            <a href="#" class="logout"><img src="public/assets/icons/logout.png" alt="">Logout</a>
+        </div>
 
-    <!-- Sidebar -->
-    <?= $this->include('templates/sidebar') ?>
-
-    <!-- Main Content -->
-    <div style="margin-left: 250px; padding: 20px; width: 100%;">
-        <?= $this->renderSection('content') ?>
+        <div class="main-content" style="margin-left: 10px; padding: 20px;"> 
+            <?= $this->renderSection('content') ?>
+        </div>
     </div>
-
 </body>
 </html>
