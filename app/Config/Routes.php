@@ -6,7 +6,8 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 // Dashboard routes
-$routes->get('/dashboard', 'DashboardController::index');
+$routes->get('/dashboard', 'DashboardController::dashboard');
+
 // Profile routes
 $routes->get('/profile', 'ProfileController::profile');
 $routes->post('/profile',  'ProfileController::profile');

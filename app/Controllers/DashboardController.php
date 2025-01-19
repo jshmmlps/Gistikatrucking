@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 class DashboardController extends BaseController
 {
-    public function index()
+    public function dashboard()
     {
         // Data for the dashboard (this can be fetched from a database)
         $data = [
