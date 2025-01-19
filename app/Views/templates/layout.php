@@ -20,9 +20,9 @@
                 <p>Admin</p>
             </div>
             <nav>
-                <a href="/dashboard" class="active"><img src="public/assets/icons/sidebar/dashboard.png" alt=""> Dashboard</a>
-                <a href="/profile" ><img src="public/assets/icons/sidebar/user.png" alt=""> User Account</a>
-                <a href="/clients"><img src="public/assets/icons/sidebar/client.png" alt=""> Client Management</a>
+                <a href="<?= base_url('dashboard') ?>" class="active"><img src="public/assets/icons/sidebar/dashboard.png" alt=""> Dashboard</a>
+                <a href="<?= base_url('profile') ?>" ><img src="public/assets/icons/sidebar/user.png" alt=""> User Account</a>
+                <a href="<?= base_url('clients') ?>"><img src="public/assets/icons/sidebar/client.png" alt=""> Client Management</a>
                 <a href="#"><img src="public/assets/icons/sidebar/driver.png" alt=""> Driver and Conductor Management</a>
                 <a href="#"><img src="public/assets/icons/sidebar/booking.png" alt=""> Booking Management</a>
                 <a href="#"><img src="public/assets/icons/sidebar/truck.png" alt=""> Truck Record and Monitoring Maintenance</a>

@@ -14,5 +14,5 @@ $routes->post('/profile',  'ProfileController::profile');
 $routes->post('/profile/update', 'ProfileController::update');
 // Client Routes
 $routes->get('/clients', 'ClientController::clients');
-$routes->post('/clients', 'cClientController::clients');
+$routes->post('/clients', 'ClientController::clients');
 $routes->get('clients/view/(:num)', 'ClientController::view/$1');
