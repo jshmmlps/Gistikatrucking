@@ -16,3 +16,6 @@ $routes->post('/profile/update', 'ProfileController::update');
 $routes->get('/clients', 'ClientController::clients');
 $routes->post('/clients', 'ClientController::clients');
 $routes->get('clients/view/(:num)', 'ClientController::view/$1');
+
+$routes->get('booking/view/(:num)', 'BookingController::view/$1');
+$routes->post('booking/uploadTripTicket', 'BookingController::uploadTripTicket');
