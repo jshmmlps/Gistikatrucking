@@ -18,14 +18,16 @@
         <?php endforeach; ?>
     </div>
 
-    <div class="user-details">
-        <h2>Personal Information</h2>
-        <p><strong>Name:</strong> <span id="user-name"></span></p>
-        <p><strong>Email:</strong> <span id="user-email"></span></p>
-        <p><strong>Contact:</strong> <span id="user-contact"></span></p>
-        <p><strong>Address:</strong> <span id="user-address"></span></p>
-        <p><strong>Position:</strong> <span id="user-position"></span></p>
-        <p><strong>Username:</strong> <span id="user-username"></span></p>
+    <div class="user-container">
+        <div class="user-details">
+            <h2>Account Information</h2>
+            <p><strong>Name:</strong> <span id="user-name"></span></p>
+            <p><strong>Email:</strong> <span id="user-email"></span></p>
+            <p><strong>Contact:</strong> <span id="user-contact"></span></p>
+            <p><strong>Address:</strong> <span id="user-address"></span></p>
+            <p><strong>Position:</strong> <span id="user-position"></span></p>
+            <p><strong>Username:</strong> <span id="user-username"></span></p>
+        </div>
     </div>
 </div>
 
