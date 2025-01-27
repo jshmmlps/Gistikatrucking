@@ -10,7 +10,7 @@
 <body>
     <div>
         <header class="header">
-            <img src="./public/images/logo.png" alt="Juby-An Trucking Services Logo">
+            <img src="./public/images/icons/logo.png" alt="Juby-An Trucking Services Logo">
         </header>
     </div>
     
@@ -23,18 +23,18 @@
                 <p>Admin</p>
             </div>
             <nav>
-                <a href="<?= base_url('dashboard') ?>" class="active"><img src="public/assets/icons/sidebar/dashboard.png" alt=""> Dashboard</a>
-                <a href="<?= base_url('user') ?>" ><img src="public/assets/icons/sidebar/user.png" alt=""> User Account</a>
-                <a href="<?= base_url('clients') ?>"><img src="public/assets/icons/sidebar/client.png" alt=""> Client Management</a>
-                <a href="<?= base_url('driver') ?>"><img src="public/assets/icons/sidebar/driver.png" alt=""> Driver and Conductor Management</a>
-                <a href="<?= base_url('booking') ?>"><img src="public/assets/icons/sidebar/booking.png" alt=""> Booking Management</a>
-                <a href="<?= base_url('truckrecord') ?>"><img src="public/assets/icons/sidebar/truck.png" alt=""> Truck Record and Monitoring Maintenance</a>
-                <a href="<?= base_url('reports') ?>"><img src="public/assets/icons/sidebar/report.png" alt=""> Report Management</a>
+                <a href="<?= base_url('dashboard') ?>" class="active"><img src="public/images/icons/sidebar/dashboard.png" alt=""> Dashboard</a>
+                <a href="<?= base_url('user') ?>" ><img src="public/images/icons/sidebar/user.png" alt=""> User Account</a>
+                <a href="<?= base_url('clients') ?>"><img src="public/images/icons/sidebar/client.png" alt=""> Client Management</a>
+                <a href="<?= base_url('driver') ?>"><img src="public/images/icons/sidebar/driver.png" alt=""> Driver and Conductor Management</a>
+                <a href="<?= base_url('booking') ?>"><img src="public/images/icons/sidebar/booking.png" alt=""> Booking Management</a>
+                <a href="<?= base_url('truckrecord') ?>"><img src="public/images/icons/sidebar/truck.png" alt=""> Truck Record and Monitoring Maintenance</a>
+                <a href="<?= base_url('reports') ?>"><img src="public/images/icons/sidebar/report.png" alt=""> Report Management</a>
             </nav>
-            <a href="#" class="logout"><img src="public/assets/icons/logout.png" alt="">Logout</a>
+            <a href="#" class="logout"><img src="public/images/icons/logout.png" alt="">Logout</a>
         </div>
 
-        <div class="main-content" style="margin-left: 10px; padding: 20px;"> 
+        <div class="main-content"> 
             <?= $this->renderSection('content') ?>
         </div>
     </div>
