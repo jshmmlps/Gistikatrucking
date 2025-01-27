@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('/assets/css/style.css') ?>">
 
 </head>
 <body>
@@ -24,9 +24,9 @@
                 <a href="<?= base_url('user') ?>" ><img src="public/assets/icons/sidebar/user.png" alt=""> User Account</a>
                 <a href="<?= base_url('clients') ?>"><img src="public/assets/icons/sidebar/client.png" alt=""> Client Management</a>
                 <a href="<?= base_url('driver') ?>"><img src="public/assets/icons/sidebar/driver.png" alt=""> Driver and Conductor Management</a>
-                <a href="<?= base_url('') ?>"><img src="public/assets/icons/sidebar/booking.png" alt=""> Booking Management</a>
-                <a href="<?= base_url('') ?>"><img src="public/assets/icons/sidebar/truck.png" alt=""> Truck Record and Monitoring Maintenance</a>
-                <a href="<?= base_url('') ?>"><img src="public/assets/icons/sidebar/report.png" alt=""> Report Management</a>
+                <a href="<?= base_url('booking') ?>"><img src="public/assets/icons/sidebar/booking.png" alt=""> Booking Management</a>
+                <a href="<?= base_url('truckrecord') ?>"><img src="public/assets/icons/sidebar/truck.png" alt=""> Truck Record and Monitoring Maintenance</a>
+                <a href="<?= base_url('reports') ?>"><img src="public/assets/icons/sidebar/report.png" alt=""> Report Management</a>
             </nav>
             <a href="#" class="logout"><img src="public/assets/icons/logout.png" alt="">Logout</a>
         </div>
