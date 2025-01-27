@@ -242,9 +242,11 @@ h1 {
 
 .user-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    width: 300px;
+    /* grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); */
     gap: 20px;
 }
+
 
 .user-card {
     background: #fff;
@@ -252,11 +254,14 @@ h1 {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
+    ;
 }
 
+
 .user-card img {
-    width: 80px;
+    width: 150px;
     margin-bottom: 10px;
+    border-radius: 50%;
 }
 
 .user-name {
