@@ -3,7 +3,7 @@
 <?= $this->section('content') ?>
 <link href=<?=base_url('public/assets/css/style.css');?> rel="stylesheet">
 <body>
-<h1>USER ACCOUNT</h1>
+<h1>User Account</h1>
 
 <div class="content">  
     <div class="user-container">
