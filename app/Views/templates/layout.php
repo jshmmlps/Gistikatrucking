@@ -8,9 +8,12 @@
 
 </head>
 <body>
-    <header class="header">
-        <img src="public/images/logo.png" alt="Juby-An Trucking Services Logo">
-    </header>
+    <div>
+        <header class="header">
+            <img src="./public/images/logo.png" alt="Juby-An Trucking Services Logo">
+        </header>
+    </div>
+    
     <div class="container">
         <!-- Main Content -->
         <div class="sidebar">
