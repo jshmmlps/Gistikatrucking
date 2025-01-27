@@ -1,6 +1,7 @@
 <?= $this->extend('templates/layout') ?>
 
 <?= $this->section('content') ?>
+<link href=<?=base_url('public/assets/css/style.css');?> rel="stylesheet">
 <div class="header">Client Management</div>
 
 <div class="content">
