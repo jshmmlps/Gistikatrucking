@@ -247,7 +247,7 @@ h1 {
 }
 
 .user-card {
-    background: #fff;
+    background: #F0F0F0;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -287,7 +287,7 @@ button:hover {
 .user-details {
     width: 300px;
     padding: 20px;
-    background: #fff;
+    background: #F0F0F0;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
