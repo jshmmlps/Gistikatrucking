@@ -9,13 +9,14 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/dashboard', 'DashboardController::dashboard');
 
 // Profile routes
-$routes->get('/profile', 'ProfileController::profile');
-$routes->post('/profile',  'ProfileController::profile');
-$routes->post('/profile/update', 'ProfileController::update');
+$routes->get('/user', 'UserController::user');
+$routes->get('/user/getUserDetails/(:num)', 'UserController::getUserDetails/$1');
+
 // Client Routes
 $routes->get('/clients', 'ClientController::clients');
 $routes->post('/clients', 'ClientController::clients');
 $routes->get('clients/view/(:num)', 'ClientController::view/$1');
-
-$routes->get('booking/view/(:num)', 'BookingController::view/$1');
-$routes->post('booking/uploadTripTicket', 'BookingController::uploadTripTicket');
+//Driver Routes
+$routes->get('/driver', 'DriverController::driver');
+$routes->post('/driver', 'DriverController::driver');
+$routes->get('/driver/getDetails/(:any)', 'DriverController::getDetails/$1');

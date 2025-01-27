@@ -29,3 +29,32 @@ new Chart(barCtx, {
         }]
     }
 });
+
+// For Driver List
+function viewDetails(employeeId) {
+    fetch(`/drivercontroller/getDetails/${employeeId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('name').textContent = `${data.first_name} ${data.last_name}`;
+            document.getElementById('contact').textContent = data.contact_number;
+            document.getElementById('position').textContent = data.position;
+            document.getElementById('employee_id').textContent = data.employee_id;
+            document.getElementById('address').textContent = data.home_address;
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+//User Accounts
+function viewUser(userId) {
+    fetch(`/usercontroller/getUserDetails/${userId}`)
+        .then(response => response.json())
+        .then(user => {
+            document.getElementById('user-name').textContent = user.first_name + " " + user.last_name;
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('user-contact').textContent = user.contact_number;
+            document.getElementById('user-address').textContent = user.address;
+            document.getElementById('user-position').textContent = user.position;
+            document.getElementById('user-username').textContent = user.username;
+        })
+        .catch(error => console.error('Error fetching user:', error));
+}

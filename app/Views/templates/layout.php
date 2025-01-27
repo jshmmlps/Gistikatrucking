@@ -21,12 +21,12 @@
             </div>
             <nav>
                 <a href="<?= base_url('dashboard') ?>" class="active"><img src="public/assets/icons/sidebar/dashboard.png" alt=""> Dashboard</a>
-                <a href="<?= base_url('profile') ?>" ><img src="public/assets/icons/sidebar/user.png" alt=""> User Account</a>
+                <a href="<?= base_url('user') ?>" ><img src="public/assets/icons/sidebar/user.png" alt=""> User Account</a>
                 <a href="<?= base_url('clients') ?>"><img src="public/assets/icons/sidebar/client.png" alt=""> Client Management</a>
-                <a href="#"><img src="public/assets/icons/sidebar/driver.png" alt=""> Driver and Conductor Management</a>
-                <a href="#"><img src="public/assets/icons/sidebar/booking.png" alt=""> Booking Management</a>
-                <a href="#"><img src="public/assets/icons/sidebar/truck.png" alt=""> Truck Record and Monitoring Maintenance</a>
-                <a href="#"><img src="public/assets/icons/sidebar/report.png" alt=""> Report Management</a>
+                <a href="<?= base_url('driver') ?>"><img src="public/assets/icons/sidebar/driver.png" alt=""> Driver and Conductor Management</a>
+                <a href="<?= base_url('') ?>"><img src="public/assets/icons/sidebar/booking.png" alt=""> Booking Management</a>
+                <a href="<?= base_url('') ?>"><img src="public/assets/icons/sidebar/truck.png" alt=""> Truck Record and Monitoring Maintenance</a>
+                <a href="<?= base_url('') ?>"><img src="public/assets/icons/sidebar/report.png" alt=""> Report Management</a>
             </nav>
             <a href="#" class="logout"><img src="public/assets/icons/logout.png" alt="">Logout</a>
         </div>
