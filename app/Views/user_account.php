@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Account</title>
-    <link href=<?=base_url('public/assets/css/style.css');?> rel="stylesheet">
-</head>
+<?= $this->extend('templates/layout.php') ?>
+
+<?= $this->section('content') ?>
+<link href=<?=base_url('public/assets/css/style.css');?> rel="stylesheet">
 <body>
 
 <div class="content">
@@ -36,3 +32,5 @@
 <script src="<?= base_url('assets/js/script.js') ?>"></script>
 </body>
 </html>
+
+<?= $this->endSection() ?>
