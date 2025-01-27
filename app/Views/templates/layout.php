@@ -18,7 +18,7 @@
         <!-- Main Content -->
         <div class="sidebar">
             <div class="profile">
-                <img src="public/images/strategychae.jpeg" alt="Profile Picture">
+                <img src="public/images/luffy.jpg" alt="Profile Picture">
                 <h4>Jamaeca Quizon</h4>
                 <p>Admin</p>
             </div>

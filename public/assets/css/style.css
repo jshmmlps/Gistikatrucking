@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    background-color: #f8f9fa;
+    background-color: #FFFFFF;
     color: #333;
     display: flex;
 }
@@ -34,8 +34,8 @@ header img {
     flex-direction: column;
     width: 200px;
     height: 670px;
-    color:#ffffff;
-    background-color: #B0B0B0;
+    color:#000D16;
+    background-color: #F0F0F0;
     border-right: 1px solid #ccc;
     border-radius: 20px;
     padding: 20px;
@@ -44,7 +44,7 @@ header img {
 .sidebar .profile{
     text-align: center;
     margin-bottom: 20px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #000D16;
     padding-bottom: 1px; 
 }
 .sidebar .profile img {
@@ -63,8 +63,8 @@ header img {
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: #333;
-    background-color: #c6c6c6;
+    color: #000D16;
+    background-color: #D9D9D9;
     margin: 5px 0;
     padding: 10px;
     border-radius: 5px;
@@ -77,7 +77,7 @@ header img {
 }
 
 .sidebar nav a.active {
-    background-color: #808080;
+    background-color: #B0B0B0;
     color: #fff;
 }
 
@@ -116,7 +116,7 @@ header img {
 }
 
 .visualizations .chart {
-    background: #fff;
+    background: #F0F0F0;
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -130,7 +130,7 @@ header img {
 }
 
 .card {
-    background: #fff;
+    background: #F0F0F0;
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
