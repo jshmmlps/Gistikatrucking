@@ -1,4 +1,4 @@
-<?= $this->extend('templates/layout') ?>
+<?= $this->extend('templates/layout.php') ?>
 
 <?= $this->section('content') ?>
 <link href=<?=base_url('public/assets/css/style.css');?> rel="stylesheet">

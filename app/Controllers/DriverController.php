@@ -7,7 +7,7 @@ use CodeIgniter\Controller;
 
 class DriverController extends Controller
 {
-    public function driver()
+    public function drivers()
     {
         $model = new DriverModel();
         $data['drivers'] = $model->findAll();

@@ -18,10 +18,11 @@ $routes->post('/clients', 'ClientController::clients');
 $routes->get('clients/view/(:num)', 'ClientController::view/$1');
 $routes->post('clients/view/(:num)', 'ClientController::view/$1');
 //Driver Routes
-$routes->get('/driver', 'DriverController::driver');
-$routes->post('/driver', 'DriverController::driver');
-$routes->get('/driver/getDetails/(:any)', 'DriverController::getDetails/$1');
+$routes->get('/drivers', 'DriverController::drivers');
+$routes->post('/drivers', 'DriverController::drivers');
+$routes->get('/drivers/getDetails/(:any)', 'DriverController::getDetails/$1');
 //Booking Routes
 $routes->get('/booking', 'BookingController::booking');
 $routes->post('/booking', 'BookingController::booking');
+
 
