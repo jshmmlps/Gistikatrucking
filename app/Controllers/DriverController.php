@@ -10,7 +10,7 @@ class DriverController extends Controller
     public function driver()
     {
         $model = new DriverModel();
-        $data['drivers'] = $model->findAll();
+        $data['driver'] = $model->findAll();
         return view('driver_list', $data);
     }
 

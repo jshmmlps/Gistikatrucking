@@ -21,6 +21,7 @@ $routes->post('clients/view/(:num)', 'ClientController::view/$1');
 $routes->get('/driver', 'DriverController::driver');
 $routes->post('/driver', 'DriverController::driver');
 $routes->get('/drivers/getDetails/(:any)', 'DriverController::getDetails/$1');
+$routes->post('/drivers/getDetails/(:any)', 'DriverController::getDetails/$1');
 //Booking Routes
 $routes->get('/booking', 'BookingController::booking');
 $routes->post('/booking', 'BookingController::booking');

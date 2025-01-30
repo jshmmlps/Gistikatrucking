@@ -64,6 +64,7 @@ CREATE TABLE driver (
     employee_id VARCHAR(20) UNIQUE NOT NULL
 );
 
-INSERT INTO drivers (first_name, last_name, contact_number, position, home_address, employee_id)
+INSERT INTO driver (first_name, last_name, contact_number, position, home_address, employee_id)
 VALUES 
 ('Juan', 'Dela Cruz', '09563540192', 'Driver', 'Sampaloc, Manila City', '202212345');
+
