@@ -20,5 +20,5 @@ $routes->get('/drivers', 'DriverController::drivers');
 $routes->post('/drivers', 'DriverController::drivers');
 
 //Booking Routes
-$routes->get('bookings', 'BookingController::bookings');
-$routes->post('bookings', 'BookingController::bookings');
+$routes->get('/bookings', 'BookingController::bookings');
+$routes->post('/bookings', 'BookingController::bookings');

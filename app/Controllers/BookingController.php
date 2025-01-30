@@ -14,7 +14,7 @@ class BookingController extends Controller
         $this->bookingModel = new BookingModel();
     }
 
-    public function index()
+    public function bookings()
     {
         $data['bookings'] = $this->bookingModel->findAll();
         return view('booking_management', $data);
