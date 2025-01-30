@@ -16,9 +16,8 @@ $routes->get('/user/getUserDetails/(:num)', 'UserController::getUserDetails/$1')
 $routes->get('/clients', 'ClientController::clients');
 $routes->post('/clients', 'ClientController::clients');
 //Driver Routes
-$routes->get('drivers', 'DriverController::drivers');
-$routes->post('drivers', 'DriverController::drivers');
-$routes->get('drivers/details/(:num)', 'DriverController::details/$1');
+$routes->get('/drivers', 'DriverController::drivers');
+$routes->post('/drivers', 'DriverController::drivers');
 
 //Booking Routes
 $routes->get('/booking', 'BookingController::booking');

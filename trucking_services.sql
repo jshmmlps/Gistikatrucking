@@ -49,22 +49,36 @@ VALUES
 
 
 
--- Drivers
+-- Create Database if not exists
 CREATE DATABASE IF NOT EXISTS trucking_services;
 
+IF EXISTS USE trucking_services;
+
+-- Use the database
 USE trucking_services;
 
-CREATE TABLE driver (
+-- Create the drivers table with additional fields
+CREATE TABLE drivers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     contact_number VARCHAR(15) NOT NULL,
     position ENUM('Driver', 'Conductor') NOT NULL,
     home_address VARCHAR(255) NOT NULL,
-    employee_id VARCHAR(20) UNIQUE NOT NULL
+    employee_id VARCHAR(20) UNIQUE NOT NULL,
+    date_of_employment DATE NOT NULL,
+    last_truck_assigned VARCHAR(50) NULL,
+    license_number VARCHAR(50) UNIQUE NOT NULL,
+    license_expiry_date DATE NOT NULL,
+    birthday DATE NOT NULL,
+    medical_record TEXT NULL,
+    trips_completed INT DEFAULT 0,
+    notes TEXT NULL
 );
 
-INSERT INTO driver (first_name, last_name, contact_number, position, home_address, employee_id)
+-- Insert sample data
+INSERT INTO drivers (first_name, last_name, contact_number, position, home_address, employee_id, date_of_employment, last_truck_assigned, license_number, license_expiry_date, birthday, medical_record, trips_completed, notes)
 VALUES 
-('Juan', 'Dela Cruz', '09563540192', 'Driver', 'Sampaloc, Manila City', '202212345');
+('Juan', 'Dela Cruz', '09563540192', 'Driver', 'Sampaloc, Manila City', '202212345', '2022-01-15', 'Truck-101', 'DL-987654', '2025-06-30', '1985-04-20', 'No major illnesses', 120, 'Excellent driver with clean record'),
+('Pedro', 'Santos', '09123456789', 'Conductor', 'Makati City, NCR', '202345678', '2021-09-10', 'Truck-202', 'DL-123456', '2024-12-15', '1990-08-15', 'Asthma (managed)', 90, 'Punctual and responsible');
 
