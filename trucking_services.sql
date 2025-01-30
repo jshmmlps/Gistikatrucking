@@ -1,3 +1,6 @@
+-- Users accounts
+CREATE DATABASE IF NOT EXISTS trucking_services;
+
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
@@ -16,9 +19,6 @@ CREATE TABLE users (
 INSERT INTO users (first_name, last_name, email, contact_number, address, position, user_id, username, birthday, gender)
 VALUES
 ('Jamaeca', 'Quizon', 'jamaecaquizon@gmail.com', '09771002413', 'Malolos City, Bulacan', 'Admin', '202110719', 'QUIZON@123', '2003-04-24', 'Female');
-
--- Users accounts
-CREATE DATABASE IF NOT EXISTS trucking_services;
 
 USE trucking_services;
 
@@ -46,16 +46,6 @@ VALUES
 ('Lilo', 'Snitch', 'Conductor', 'lilo@example.com', '09789012345', 'Paranaque, Manila', 'lilo123', 'Conductor'),
 ('Arman', 'Salon', 'Conductor', 'arman@example.com', '09890123456', 'Las Pinas, Manila', 'arman123', 'Conductor');
 
-
-
-
--- Create Database if not exists
-CREATE DATABASE IF NOT EXISTS trucking_services;
-
-IF EXISTS USE trucking_services;
-
--- Use the database
-USE trucking_services;
 
 -- Create the drivers table with additional fields
 CREATE TABLE drivers (
