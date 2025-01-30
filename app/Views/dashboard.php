@@ -11,7 +11,7 @@
         <div class="chart">
             <h4>Data Visualization</h4>
             <!--<canvas id="pieChart"></canvas>-->
-            <img src="charts.png" alt="chart">
+            <img src="public/images/charts.png" alt="chart">
         </div>
         <div class="chart">
             <h4>Days Until Maintenance</h4>
@@ -28,7 +28,7 @@
         <div class="card">
             <h3>Geolocation</h3>
             <div class="map">
-                <img src="maps.jpg" alt="Map">
+                <img src="public/images/maps.jpg" alt="Map">
             </div>
         </div>
     </div>
