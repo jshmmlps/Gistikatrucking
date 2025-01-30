@@ -13,7 +13,7 @@
                     <img src="<?= base_url('public/images/luffy.jpg') ?>" alt="User Icon">
                 </div>
                 <p class="user-name"><?= strtoupper($user['first_name'] . ' ' . $user['last_name']) ?></p>
-                <button onclick="viewUser(<?= $user['id'] ?>)">View</button>
+                <button onclick="viewUser(<?= $user['id'] ?>)">Upload</button>
             </div>
         <?php endforeach; ?>
     </div>
