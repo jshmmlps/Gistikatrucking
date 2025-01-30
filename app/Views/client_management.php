@@ -28,11 +28,55 @@
                     <td><?= $client['cargo_type'] ?></td>
                     <td><?= $client['drop_off'] ?></td>
                     <td><?= $client['status'] ?></td>
-                    <td><a href="<?= base_url('clients/view/' . $client['id']) ?>">View</a></td>
+                    <td><a href="#" class="view-client" data-id="<?= $client['id'] ?>">View</a></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
+
+    <!-- Client Details Section -->
+    <div class="client-details">
+        <h2>CLIENT DETAILS</h2>
+        <div id="client-info">
+            <p><strong>CLIENT NAME:</strong> <span id="client-name"></span></p>
+            <p><strong>EMAIL:</strong> <span id="client-email"></span></p>
+            <p><strong>ADDRESS:</strong> <span id="client-address"></span></p>
+            <p><strong>BUSINESS TYPE:</strong> <span id="client-business"></span></p>
+            <p><strong>CARGO TYPE:</strong> <span id="client-cargo"></span></p>
+            <p><strong>PICK-UP LOCATION:</strong> <span id="client-pickup"></span></p>
+            <p><strong>DROP-OFF LOCATION:</strong> <span id="client-dropoff"></span></p>
+            <p><strong>CLIENT SINCE:</strong> <span id="client-since"></span></p>
+            <p><strong>NOTES:</strong> <textarea id="client-notes"></textarea></p>
+        </div>
+    </div>
 </div>
+
+<!-- JavaScript to Handle Click Event -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".view-client").forEach(button => {
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+            let clientId = this.getAttribute("data-id");
+
+            fetch("<?= base_url('clients/details/') ?>" + clientId)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("client-name").innerText = data.name;
+                    document.getElementById("client-email").innerText = data.email;
+                    document.getElementById("client-address").innerText = data.address;
+                    document.getElementById("client-business").innerText = data.business_type;
+                    document.getElementById("client-cargo").innerText = data.cargo_type;
+                    document.getElementById("client-pickup").innerText = data.pickup_location;
+                    document.getElementById("client-dropoff").innerText = data.drop_off;
+                    document.getElementById("client-since").innerText = data.client_since;
+                    document.getElementById("client-notes").value = data.notes || "";
+                })
+                .catch(error => console.error("Error fetching client details:", error));
+        });
+    });
+});
+</script>
+
 <?= $this->endSection() ?>
