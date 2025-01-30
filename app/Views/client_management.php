@@ -6,7 +6,7 @@
 
 <div class="content">
     <div class="client-list">
-        <h2>Client List</h2>
+        <div class="client-list-header">Client List</div>
         <table>
             <thead>
                 <tr>

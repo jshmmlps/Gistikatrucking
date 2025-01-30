@@ -110,12 +110,27 @@ header img {
     padding: 10px;
 }
 
+.client-list-header{
+    font-size: 25px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
 .client-details{
-    padding: 20px 100px;
+    padding: 20px 10px;
     margin: 10px;
     background-color: #F0F0F0;
     border-radius: 10px;
     justify-content: space-between;
+}
+
+#client-info{
+    width: 300px;
+    padding: 5px 10px;
+    text-align: left;
+    justify-content: space-between;
+    margin-bottom: 10px;
 }
 
 /* Dashboard CSS Start */
