@@ -54,7 +54,7 @@ CREATE DATABASE IF NOT EXISTS trucking_services;
 
 USE trucking_services;
 
-CREATE TABLE drivers (
+CREATE TABLE driver (
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,

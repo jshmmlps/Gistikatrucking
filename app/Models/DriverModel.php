@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class DriverModel extends Model
 {
-    protected $table = 'drivers';
+    protected $table = 'driver';
     protected $primaryKey = 'id';
     protected $allowedFields = ['first_name', 'last_name', 'contact_number', 'position', 'home_address', 'employee_id'];
 }
