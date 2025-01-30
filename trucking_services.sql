@@ -104,4 +104,7 @@ VALUES
 
 -- Verify Data
 SELECT * FROM bookings;
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
