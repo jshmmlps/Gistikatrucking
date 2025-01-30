@@ -279,14 +279,16 @@ h2{
 }
 
 .user-card {
+    width: 300px;
     background: #F0F0F0;
     padding: 30px;
+    padding-top: 80px;
     border-radius: 10px;
     text-align: center;
 }
 
 .user-card img {
-    width: 150px;
+    width: 250px;
     margin-bottom: 10px;
     border-radius: 50%;
 }
@@ -316,8 +318,16 @@ button:hover {
     background: #2980b9;
 }
 
+.user-profile{
+    padding: 20px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
 .user-details {
-    width: 300px;
+    width: 700px;
     padding: 20px;
     background: #F0F0F0;
     border-radius: 10px;

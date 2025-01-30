@@ -6,7 +6,7 @@
 <h1>User Account</h1>
 
 <div class="content">  
-    <div class="user-container">
+    <div class="user-profile">
         <?php foreach ($users as $user): ?>
             <div class="user-card">
                 <div class="user-icon">
