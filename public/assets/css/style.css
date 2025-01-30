@@ -31,7 +31,7 @@ header img {
 
 .sidebar {
     width: 200px; 
-    min-height: 100vh; /* Full height */
+    min-height: 630px; /* Full height */
     background-color: #F0F0F0;
     border-right: 1px solid #ccc;
     border-radius: 20px;
@@ -40,7 +40,6 @@ header img {
     position: fixed; 
     top: 80px; 
     left: 20px; 
-    overflow-y: auto; 
 }
 
 .sidebar .profile{
