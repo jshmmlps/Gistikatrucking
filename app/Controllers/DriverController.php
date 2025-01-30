@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Models\DriverModel;
 use CodeIgniter\Controller;
 
-class DriverController extends Controller
+class DriverController extends BaseController
 {
     protected $driverModel;
 
@@ -14,7 +14,7 @@ class DriverController extends Controller
         $this->driverModel = new DriverModel();
     }
 
-    public function index()
+    public function drivers()
     {
         $data['drivers'] = $this->driverModel->findAll();
         return view('driver_management', $data);
