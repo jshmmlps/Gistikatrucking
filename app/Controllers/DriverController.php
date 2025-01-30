@@ -7,17 +7,22 @@ use CodeIgniter\Controller;
 
 class DriverController extends Controller
 {
-    public function driver()
+    protected $driverModel;
+
+    public function __construct()
     {
-        $model = new DriverModel();
-        $data['driver'] = $model->findAll();
-        return view('driver_list', $data);
+        $this->driverModel = new DriverModel();
     }
 
-    public function getDetails($employee_id)
+    public function index()
     {
-        $model = new DriverModel();
-        $driver = $model->where('employee_id', $employee_id)->first();
+        $data['drivers'] = $this->driverModel->findAll();
+        return view('driver_management', $data);
+    }
+
+    public function details($id)
+    {
+        $driver = $this->driverModel->find($id);
         return $this->response->setJSON($driver);
     }
 }
