@@ -30,18 +30,18 @@ header img {
 }
 
 .sidebar {
-    margin: 20px;
-    display: flex;
-    flex-direction: column;
-    width: 200px;
-    height: 670px;
-    color:#000D16;
+    width: 200px; 
+    min-height: 100vh; /* Full height */
     background-color: #F0F0F0;
     border-right: 1px solid #ccc;
     border-radius: 20px;
     padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+    position: fixed; 
+    top: 80px; 
+    left: 20px; 
+    overflow-y: auto; 
+}
 
 .sidebar .profile{
     text-align: center;
@@ -84,12 +84,14 @@ header img {
 }
 
 .sidebar .logout {
-    padding: 10px;
+    padding: 10px 60px;
     border-radius: 5px;
     background-color: #9a0a0a;
     color: #fff;
     text-align: center;
     text-decoration: none;
+    display: block; 
+    margin-top: 20px; 
 }
 
 .sidebar .logout img {
@@ -106,8 +108,11 @@ header img {
 }
 
 .main-content {
-    width: 100%;
-    padding: 10px;
+    margin-left: 270px;
+    padding: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
+    width: calc(100% - 270px);
 }
 
 .client-list-header{
