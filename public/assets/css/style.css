@@ -338,7 +338,9 @@ button:hover {
     border-radius: 10px;
 }
 
-@media screen and (max-width: 1080px) {
+
+/* RESPONSIVE */
+@media screen and (max-width: 992px) {
     .sidebar {
         width: 150px;
         min-height: 630px;
@@ -419,6 +421,10 @@ button:hover {
         text-align: left;
         justify-content: space-between;
         margin-bottom: 10px;
+    }
+
+    .content {
+        display:  inline;
     }
 }
 
@@ -516,4 +522,6 @@ button:hover {
         border-collapse: collapse;
         margin: 20px 0;
     }
+
+
 }

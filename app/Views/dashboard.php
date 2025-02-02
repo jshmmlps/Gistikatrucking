@@ -18,8 +18,7 @@
             <canvas id="barChart"></canvas>
         </div>
     </div>
-</div>
-<div>
+
     <!-- Cards Section -->
     <div class="cards">
         <div class="card">
