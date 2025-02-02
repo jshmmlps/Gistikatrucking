@@ -30,16 +30,17 @@ header img {
 }
 
 .sidebar {
-    width: 200px; 
-    min-height: 630px; /* Full height */
+    width: 200px;
+    min-height: 630px;
     background-color: #F0F0F0;
     border-right: 1px solid #ccc;
     border-radius: 20px;
     padding: 20px;
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
-    position: fixed; 
-    top: 80px; 
-    left: 20px; 
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    transition: transform 0.3s ease-in-out;
 }
 
 .sidebar .profile{
@@ -129,7 +130,7 @@ header img {
     justify-content: space-between;
     position: fixed; 
     top: 80px;
-    left: 1320px;
+    left: 65%;
 }
 
 #client-info, #driver-info, #booking-info{
@@ -337,3 +338,182 @@ button:hover {
     border-radius: 10px;
 }
 
+@media screen and (max-width: 1080px) {
+    .sidebar {
+        width: 150px;
+        min-height: 630px;
+        background-color: #F0F0F0;
+        border-right: 1px solid #ccc;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+        position: fixed;
+        top: 80px;
+        left: 20px;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar nav a {
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #000D16;
+        background-color: #D9D9D9;
+        margin: 5px 0;
+        padding: 8px 15px;
+        border-radius: 5px;
+    }
+    
+    .sidebar nav a img {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+    }
+
+    .logout {
+        padding: 8px 15px;
+        border-radius: 5px;
+        background-color: #9a0a0a;
+        color: #fff;
+        text-align: center;
+        text-decoration: none;
+        display: block; 
+        margin-top: 20px; 
+    }
+
+    .sidebar .logout img {
+        width: 15px;
+        height: 15px;
+        margin-right: 5px;
+    }
+
+    .main-content {
+        margin-left: 210px;
+        padding: 20px;
+        min-height: 100vh;
+        box-sizing: border-box;
+        width: calc(100% - 270px);
+    }
+
+    table {
+        width: 80%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+
+    .client-details, .driver-details, .booking-details{
+        padding: 20px 10px;
+        margin-left: 180px;
+        background-color: #F0F0F0;
+        border-radius: 10px;
+        justify-content: space-between;
+        position: fixed; 
+        top: 80px;
+        left: 65%;
+    }
+    
+    #client-info, #driver-info, #booking-info{
+        width: 200px;
+        padding: 5px 10px;
+        text-align: left;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .sidebar {
+        width: 125px;
+        min-height: 630px;
+        background-color: #F0F0F0;
+        border-right: 1px solid #ccc;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+        position: fixed;
+        top: 80px;
+        left: 20px;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .logout {
+        font-size: 12px;
+        padding: 8px 15px;
+        border-radius: 5px;
+        background-color: #9a0a0a;
+        color: #fff;
+        text-align: center;
+        text-decoration: none;
+        display: block; 
+        margin-top: 20px; 
+    }
+
+    .main-content {
+        margin-left: 185px;
+        padding: 20px;
+        min-height: 100vh;
+        box-sizing: border-box;
+        width: calc(100% - 270px);
+    }
+
+    table {
+        width: 70%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .sidebar {
+        width: 100px;
+        min-height: 630px;
+        background-color: #F0F0F0;
+        border-right: 1px solid #ccc;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+        position: fixed;
+        top: 80px;
+        left: 20px;
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    .logout {
+        font-size: 9px;
+        padding: 8px 15px;
+        border-radius: 5px;
+        background-color: #9a0a0a;
+        color: #fff;
+        text-align: center;
+        text-decoration: none;
+        display: block; 
+        margin-top: 20px; 
+    }
+
+    .sidebar nav a {
+        font-size: 9px;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #000D16;
+        background-color: #D9D9D9;
+        margin: 5px 0;
+        padding: 8px 15px;
+        border-radius: 5px;
+    }
+
+    .main-content {
+        margin-left: 160px;
+        padding: 20px;
+        min-height: 100vh;
+        box-sizing: border-box;
+        width: calc(100% - 270px);
+    }
+
+    table {
+        width: 60%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+}
