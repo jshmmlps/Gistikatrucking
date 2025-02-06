@@ -2,41 +2,38 @@
 
 <?= $this->section('content') ?>
 <link href="<?= base_url('public/assets/css/style.css'); ?>" rel="stylesheet">
+<h1>Truck Record and Maintenance Management</h1>
 
-<div class="container">
-    <h1 class="title">Truck Record and Maintenance Management</h1>
-
-    <div class="content-container">
-        <!-- Truck Table -->
-        <div class="table-container">
-            <h2>Truck List</h2>
-            <table class="truck-table">
-                <thead>
+<div class="content">
+    <div class="table-container">
+        <h2>Truck List</h2>
+        <table>
+            <thead>
+                 <tr>
+                    <th>License Plate</th>
+                    <th>Truck Name</th>
+                    <th>Fuel Type</th>
+                    <th>Registration Expiry</th>
+                    <th>Truck Type</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($trucks as $row): ?>
                     <tr>
-                        <th>License Plate</th>
-                        <th>Truck Name</th>
-                        <th>Fuel Type</th>
-                        <th>Registration Expiry</th>
-                        <th>Truck Type</th>
-                        <th>Action</th>
+                        <td><?= esc($row['plate_number']) ?></td>
+                        <td><?= esc($row['name']) ?></td>
+                        <td><?= esc($row['fuel_type']) ?></td>
+                        <td><?= esc($row['registration_expiry']) ?></td>
+                        <td><?= esc($row['type']) ?></td>
+                        <td>
+                            <a href="#" class="view-button" onclick="showTruckDetails(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">View</a>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($trucks as $row): ?>
-                        <tr>
-                            <td><?= esc($row['plate_number']) ?></td>
-                            <td><?= esc($row['name']) ?></td>
-                            <td><?= esc($row['fuel_type']) ?></td>
-                            <td><?= esc($row['registration_expiry']) ?></td>
-                            <td><?= esc($row['type']) ?></td>
-                            <td>
-                                <a href="#" class="view-button" onclick="showTruckDetails(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">View</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 
         <!-- Truck Details Panel -->
         <div class="details-panel">
@@ -58,12 +55,11 @@
                 <tr><th>Maintenance Technician:</th> <td id="detail-technician"></td></tr>
             </table>
         </div>
-    </div>
 </div>
 
 <!-- Styling -->
+<!--
 <style>
-.container { text-align: center; padding: 20px; }
 .title { font-size: 24px; margin-bottom: 15px; }
 .content-container { display: flex; justify-content: space-between; gap: 20px; }
 .table-container { width: 60%; }
@@ -75,5 +71,5 @@
 .view-button { color: blue; text-decoration: none; cursor: pointer; }
 .details-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
 </style>
-
+                -->
 <?= $this->endSection() ?>

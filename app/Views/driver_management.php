@@ -1,8 +1,7 @@
 <?= $this->extend('templates/layout.php') ?>
 
 <?= $this->section('content') ?>
-<link href=<?= base_url('public/assets/css/style.css'); ?> rel="stylesheet">
-
+<link href=<?=base_url('public/assets/css/style.css'); ?> rel="stylesheet">
 <h1>Driver and Conductor Management</h1>
 
 <div class="content">

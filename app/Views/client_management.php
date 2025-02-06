@@ -1,4 +1,4 @@
-<?= $this->extend('templates/layout') ?>
+<?= $this->extend('templates/layout.php') ?>
 
 <?= $this->section('content') ?>
 <link href=<?=base_url('public/assets/css/style.css');?> rel="stylesheet">
@@ -6,7 +6,7 @@
 
 <div class="content">
     <div class="client-list">
-        <div class="client-list-header">Client List</div>
+        <h2>Client list</h2>
         <table>
             <thead>
                 <tr>

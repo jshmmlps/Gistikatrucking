@@ -2,17 +2,15 @@
 
 <?= $this->section('content') ?>
 <link href=<?= base_url('public/assets/css/style.css'); ?> rel="stylesheet">
-
-<div class="container">
-    <h1 class="title">Report Management</h1>
-    
-    <h2 class="subtitle">Delivery Report</h2>
-
-    <div class="search-bar">
+<h1 class="title">Report Management</h1>
+<div class="search-bar">
         <input type="text" placeholder="Search">
     </div>
 
-    <table class="report-table">
+<div class="content">
+    <div>
+    <h2>Delivery Report</h2>
+    <table>
         <thead>
             <tr>
                 <th>Report Number</th>
@@ -32,8 +30,11 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
 </div>
 
+
+<!--
 <style>
 .container { text-align: center; }
 .title { font-size: 24px; margin: 20px 0; }
@@ -44,5 +45,5 @@
 .report-table th, .report-table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
 .view-button { color: blue; text-decoration: none; }
 </style>
-
+            -->
 <?= $this->endSection() ?>

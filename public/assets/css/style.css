@@ -115,13 +115,7 @@ header img {
     width: calc(100% - 270px);
 }
 
-.client-list-header{
-    font-size: 25px;
-    font-weight: bold;
-    text-align: left;
-    margin-bottom: 20px;
-}
-
+/*  Client/Driver/Booking details*/
 .client-details, .driver-details, .booking-details{
     padding: 20px 10px;
     margin-left: 230px;
@@ -187,11 +181,6 @@ header img {
 }
 /* Dashboard CSS End */
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-}
 
 table th, table td {
     border: 1px solid #ddd;
@@ -245,8 +234,9 @@ button {
 }
 
 table {
-    width: 135%;
+    width: 150%;
     border-collapse: collapse;
+    margin: 20px 0;
 }
 
 th, td {
@@ -273,14 +263,7 @@ h1 {
 }
 h2{
     font-size: 24px;
-    text-align: center;
-}
-
-.user-container {
-    padding: 10px 90px;
-    display: grid;
-    width: 100%;
-    gap: 20px;
+    
 }
 
 .user-card {
@@ -323,6 +306,13 @@ button:hover {
     background: #2980b9;
 }
 
+.user-container {
+    padding: 10px 90px;
+    display: grid;
+    width: 100%;
+    gap: 20px;
+}
+
 .user-profile{
     padding: 20px 50px;
     display: flex;
@@ -332,7 +322,7 @@ button:hover {
 }
 
 .user-details {
-    width: 700px;
+    width: 200%;
     padding: 20px;
     background: #F0F0F0;
     border-radius: 10px;
@@ -522,6 +512,4 @@ button:hover {
         border-collapse: collapse;
         margin: 20px 0;
     }
-
-
 }
