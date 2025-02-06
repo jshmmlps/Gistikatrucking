@@ -36,9 +36,9 @@
     </div>
 
         <!-- Truck Details Panel -->
-        <div class="details-panel">
-            <h3 class="details-title">Truck Details</h3>
-            <table class="details-table">
+        <div class="truck-details">
+            <h2>Truck Details</h2>
+            <table id="truck-info">
                 <tr><th>Truck Model:</th> <td id="detail-name">Select a truck</td></tr>
                 <tr><th>Plate Number:</th> <td id="detail-plate"></td></tr>
                 <tr><th>Engine Number:</th> <td id="detail-engine"></td></tr>
