@@ -22,3 +22,9 @@ $routes->post('/drivers', 'DriverController::drivers');
 //Booking Routes
 $routes->get('/bookings', 'BookingController::bookings');
 $routes->post('/bookings', 'BookingController::bookings');
+
+// Truck Monitoring Routes
+$routes->get('/trucks', 'TruckController::trucks');
+$routes->post('/trucks', 'TruckController::trucks');
+$routes->get('trucks/view/(:num)', 'TruckController::view/$1');
+

@@ -108,3 +108,17 @@ SELECT * FROM bookings;
 
 =======
 >>>>>>> Stashed changes
+
+CREATE TABLE trucks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    plate_number VARCHAR(20) NOT NULL UNIQUE,
+    type VARCHAR(50),
+    wheels INT NOT NULL,
+    status ENUM('Active', 'Maintenance', 'Inactive') DEFAULT 'Active'
+);
+
+INSERT INTO trucks (name, plate_number, type, wheels, status) VALUES
+('Isuzu F-Series FSR34', 'NBD 1234', '6-Wheeler', 6, 'Active'),
+('Isuzu Giga 10-Wheeler', 'ABM 9876', '10-Wheeler', 10, 'Active'),
+('Toyota HiAce Super Grandia', 'TQR 4567', 'Utility Van', 4, 'Active');
