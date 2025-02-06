@@ -29,7 +29,7 @@
                 <a href="<?= base_url('drivers') ?>" class="<?= (current_url() == base_url('drivers')) ? 'active' : '' ?>"><img src="public/images/icons/sidebar/driver.png" alt=""> Driver and Conductor Management</a>
                 <a href="<?= base_url('bookings') ?>" class="<?= (current_url() == base_url('bookings')) ? 'active' : '' ?>"><img src="public/images/icons/sidebar/booking.png" alt=""> Booking Management</a>
                 <a href="<?= base_url('trucks') ?>" class="<?= (current_url() == base_url('trucks')) ? 'active' : '' ?>"><img src="public/images/icons/sidebar/truck.png" alt=""> Truck Record and Monitoring Maintenance</a>
-                <a href="<?= base_url('reports') ?>" class="<?= (current_url() == base_url('reports')) ? 'active' : '' ?>"><img src="public/images/icons/sidebar/report.png" alt=""> Report Management</a>
+                <a href="<?= base_url('maintenance') ?>" class="<?= (current_url() == base_url('maintenance')) ? 'active' : '' ?>"><img src="public/images/icons/sidebar/report.png" alt=""> Report Management</a>
             </nav>
             <a href="#" class="logout"><img src="public/images/icons/logout.png" alt="">Logout</a>
         </div>

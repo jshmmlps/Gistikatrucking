@@ -28,3 +28,10 @@ $routes->get('/trucks', 'TruckController::trucks');
 $routes->post('/trucks', 'TruckController::trucks');
 $routes->get('trucks/view/(:num)', 'TruckController::view/$1');
 
+//Maintenance Routes
+$routes->get('maintenance', 'MaintenanceController::maintenance');
+$routes->post('maintenance', 'MaintenanceController::maintenance');
+$routes->get('maintenance/view/(:num)', 'MaintenanceController::view/$1');
+
+
+

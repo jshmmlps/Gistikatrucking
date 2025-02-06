@@ -108,17 +108,48 @@ SELECT * FROM bookings;
 
 =======
 >>>>>>> Stashed changes
-
+-- Truck SQL (Improved)
 CREATE TABLE trucks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     plate_number VARCHAR(20) NOT NULL UNIQUE,
+    engine_number VARCHAR(50) NOT NULL,
+    chassis_number VARCHAR(50) NOT NULL,
+    color VARCHAR(50),
+    certificate_registration VARCHAR(100),
+    insurance_details VARCHAR(255),
+    license_plate_expiry DATE,
+    registration_expiry DATE,
     type VARCHAR(50),
     wheels INT NOT NULL,
+    fuel_type VARCHAR(50),
+    truck_length VARCHAR(50),
+    load_capacity VARCHAR(50),
+    maintenance_technician VARCHAR(255),
     status ENUM('Active', 'Maintenance', 'Inactive') DEFAULT 'Active'
 );
 
-INSERT INTO trucks (name, plate_number, type, wheels, status) VALUES
-('Isuzu F-Series FSR34', 'NBD 1234', '6-Wheeler', 6, 'Active'),
-('Isuzu Giga 10-Wheeler', 'ABM 9876', '10-Wheeler', 10, 'Active'),
-('Toyota HiAce Super Grandia', 'TQR 4567', 'Utility Van', 4, 'Active');
+INSERT INTO trucks (name, plate_number, engine_number, chassis_number, color, certificate_registration, insurance_details, license_plate_expiry, registration_expiry, type, wheels, fuel_type, truck_length, load_capacity, maintenance_technician, status) VALUES
+('Isuzu F-Series FSR34', 'NBD 1234', '4HK1-1234567', 'JALF6D1N3S0009876', 'White', 'CR-458320-2023', 'Comprehensive, XYZ Insurance, Policy # 901234567', '2025-12-01', '2025-12-01', '6-Wheeler', 6, 'Diesel', '7.33 meters / 24 feet', '8,000 kg', 'JBC Truck Service Center, Quezon City', 'Active'),
+('Isuzu Giga 10-Wheeler', 'ABM 9876', '6WG1-9876543', 'JALF6D1N3S0001234', 'Blue', 'CR-123450-2023', 'Basic, ABC Insurance, Policy # 123456789', '2026-08-15', '2026-08-15', '10-Wheeler', 10, 'Diesel', '10.5 meters / 34 feet', '15,000 kg', 'ABC Truck Maintenance, Manila', 'Active');
+
+
+-- Maintenance Sql
+CREATE TABLE maintenance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    report_number VARCHAR(20) NOT NULL UNIQUE,
+    report_type VARCHAR(50) NOT NULL,
+    date DATE NOT NULL
+);
+
+INSERT INTO maintenance (report_number, report_type, date) VALUES
+('R000001', 'Delivery Report', '2024-11-19'),
+('R000002', 'Discrepancy Report', '2024-11-17'),
+('R000003', 'Discrepancy Report', '2024-11-17'),
+('R000004', 'Delivery Report', '2024-11-16'),
+('R000005', 'Delivery Report', '2024-11-15'),
+('R000006', 'Delivery Report', '2024-11-14'),
+('R000007', 'Delivery Report', '2024-11-13'),
+('R000008', 'Delivery Report', '2024-11-13'),
+('R000009', 'Discrepancy Report', '2024-11-13');
+

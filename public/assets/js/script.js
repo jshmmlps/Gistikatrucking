@@ -59,4 +59,20 @@ function viewUser(userId) {
         .catch(error => console.error('Error fetching user:', error));
 }
 
+function showTruckDetails(truck) {
+    document.getElementById("detail-name").innerText = truck.name || "N/A";
+    document.getElementById("detail-plate").innerText = truck.plate_number || "N/A";
+    document.getElementById("detail-engine").innerText = truck.engine_number || "N/A";
+    document.getElementById("detail-chassis").innerText = truck.chassis_number || "N/A";
+    document.getElementById("detail-color").innerText = truck.color || "N/A";
+    document.getElementById("detail-cert").innerText = truck.certificate_registration || "N/A";
+    document.getElementById("detail-insurance").innerText = truck.insurance_details || "N/A";
+    document.getElementById("detail-license-expiry").innerText = truck.license_plate_expiry || "N/A";
+    document.getElementById("detail-registration-expiry").innerText = truck.registration_expiry || "N/A";
+    document.getElementById("detail-type").innerText = truck.type || "N/A";
+    document.getElementById("detail-fuel").innerText = truck.fuel_type || "N/A";
+    document.getElementById("detail-length").innerText = truck.truck_length || "N/A";
+    document.getElementById("detail-load").innerText = truck.load_capacity || "N/A";
+    document.getElementById("detail-technician").innerText = truck.maintenance_technician || "N/A";
+}
 
