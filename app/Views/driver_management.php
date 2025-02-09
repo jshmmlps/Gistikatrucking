@@ -2,6 +2,7 @@
 
 <?= $this->section('content') ?>
 <link href=<?=base_url('public/assets/css/style.css'); ?> rel="stylesheet">
+<title>Driver and Conductor Management</title>
 <h1>Driver and Conductor Management</h1>
 
 <div class="content">

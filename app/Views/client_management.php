@@ -2,6 +2,7 @@
 
 <?= $this->section('content') ?>
 <link href=<?=base_url('public/assets/css/style.css');?> rel="stylesheet">
+<title>Client Management</title>
 <h1>Client Management</h1>
 
 <div class="content">

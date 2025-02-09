@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <link href=<?= base_url('public/assets/css/style.css'); ?> rel="stylesheet">
-
+<title>Booking Management</title>
 <h1>Booking Management</h1>
 
 <div class="content">

@@ -2,6 +2,7 @@
 
 <?= $this->section('content') ?>
 <link href="<?= base_url('public/assets/css/style.css'); ?>" rel="stylesheet">
+<title>Truck Record and Maintenance Management</title>
 <h1>Truck Record and Maintenance Management</h1>
 
 <div class="content">

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    
     <link rel="stylesheet" href="<?= base_url('/assets/css/style.css') ?>">
     <link href="<?= base_url('/public/assets/css/bootstrap.min.css');?>" rel="stylesheet"> 
 
@@ -15,7 +15,7 @@
         </header>
     </div>
     
-    <div class="container">
+    <div class="container-fluid">
         <!-- Main Content -->
         <div class="sidebar">
             <div class="profile">

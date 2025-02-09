@@ -3,6 +3,7 @@
 <?= $this->section('content') ?>
 <link href=<?= base_url('public/assets/css/style.css'); ?> rel="stylesheet">
 <h1 class="title">Report Management</h1>
+<title>Report Management</title>
 <div class="search-bar">
         <input type="text" placeholder="Search">
     </div>
