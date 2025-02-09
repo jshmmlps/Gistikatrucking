@@ -28,7 +28,7 @@
                     <td><?= $client['cargo_type'] ?></td>
                     <td><?= $client['drop_off'] ?></td>
                     <td><?= $client['status'] ?></td>
-                    <td><a href="#" class="view-client" data-id="<?= $client['id'] ?>">View</a></td>
+                    <td><button type="button" class="btn btn-dark"><a href="#" class="view-client" data-id="<?= $client['id'] ?>">View</a></button></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

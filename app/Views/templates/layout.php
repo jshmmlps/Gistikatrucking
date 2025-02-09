@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="<?= base_url('/assets/css/style.css') ?>">
+    <link href="<?= base_url('/public/assets/css/bootstrap.min.css');?>" rel="stylesheet"> 
 
 </head>
 <body>
@@ -38,5 +39,8 @@
             <?= $this->renderSection('content') ?>
         </div>
     </div>
+    <script src="<?php echo base_url('/public/assets/js/jquery-3.7.1.js'); ?>"></script> 
+    <script src="<?php echo base_url('/public/assets/js/popper.min.js'); ?>"></script> 
+    <script src="<?php echo base_url('/public/assets/js/bootstrap.bundle.min.js'); ?>"></script>
 </body>
 </html>
