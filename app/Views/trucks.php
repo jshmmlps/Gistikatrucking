@@ -27,35 +27,38 @@
                         <td><?= esc($row['fuel_type']) ?></td>
                         <td><?= esc($row['registration_expiry']) ?></td>
                         <td><?= esc($row['type']) ?></td>
-                        <td>
-                            <a href="#" class="view-button" onclick="showTruckDetails(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">View</a>
+                        <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-truck" onclick="showTruckDetails(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">View</a></button>
+                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+                                <div class="offcanvas-header">
+                                    <h5 class="offcanvas-title" id="offcanvasRightLabel">Truck Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                </div>
+                                <div class="offcanvas-body">
+                                    <!-- Truck Details Panel -->
+                                    <table id="truck-info">
+                                        <tr><th>Truck Model:</th> <td id="detail-name">Select a truck</td></tr>
+                                        <tr><th>Plate Number:</th> <td id="detail-plate"></td></tr>
+                                        <tr><th>Engine Number:</th> <td id="detail-engine"></td></tr>
+                                        <tr><th>Chassis Number:</th> <td id="detail-chassis"></td></tr>
+                                        <tr><th>Color:</th> <td id="detail-color"></td></tr>
+                                        <tr><th>Certificate of Registration:</th> <td id="detail-cert"></td></tr>
+                                        <tr><th>Insurance Details:</th> <td id="detail-insurance"></td></tr>
+                                        <tr><th>License Plate Expiry:</th> <td id="detail-license-expiry"></td></tr>
+                                        <tr><th>Registration Expiry Date:</th> <td id="detail-registration-expiry"></td></tr>
+                                        <tr><th>Truck Type:</th> <td id="detail-type"></td></tr>
+                                        <tr><th>Fuel Type:</th> <td id="detail-fuel"></td></tr>
+                                        <tr><th>Truck Length:</th> <td id="detail-length"></td></tr>
+                                        <tr><th>Load Capacity:</th> <td id="detail-load"></td></tr>
+                                        <tr><th>Maintenance Technician:</th> <td id="detail-technician"></td></tr>
+                                    </table>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
-
-        <!-- Truck Details Panel -->
-        <div class="truck-details">
-            <h2>Truck Details</h2>
-            <table id="truck-info">
-                <tr><th>Truck Model:</th> <td id="detail-name">Select a truck</td></tr>
-                <tr><th>Plate Number:</th> <td id="detail-plate"></td></tr>
-                <tr><th>Engine Number:</th> <td id="detail-engine"></td></tr>
-                <tr><th>Chassis Number:</th> <td id="detail-chassis"></td></tr>
-                <tr><th>Color:</th> <td id="detail-color"></td></tr>
-                <tr><th>Certificate of Registration:</th> <td id="detail-cert"></td></tr>
-                <tr><th>Insurance Details:</th> <td id="detail-insurance"></td></tr>
-                <tr><th>License Plate Expiry:</th> <td id="detail-license-expiry"></td></tr>
-                <tr><th>Registration Expiry Date:</th> <td id="detail-registration-expiry"></td></tr>
-                <tr><th>Truck Type:</th> <td id="detail-type"></td></tr>
-                <tr><th>Fuel Type:</th> <td id="detail-fuel"></td></tr>
-                <tr><th>Truck Length:</th> <td id="detail-length"></td></tr>
-                <tr><th>Load Capacity:</th> <td id="detail-load"></td></tr>
-                <tr><th>Maintenance Technician:</th> <td id="detail-technician"></td></tr>
-            </table>
-        </div>
 </div>
 
 <!-- Styling -->

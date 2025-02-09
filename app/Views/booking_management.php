@@ -29,34 +29,40 @@
                     <td><?= $booking['cargo_type'] ?></td>
                     <td><?= $booking['drop_off_location'] ?></td>
                     <td><?= $booking['status'] ?></td>
-                    <td><a href="#" class="view-booking" data-id="<?= $booking['id'] ?>">View</a></td>
+                    <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-booking" data-id="<?= $booking['id'] ?>">View</a></button>
+                        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+                            <div class="offcanvas-header">
+                                <h5 class="offcanvas-title" id="offcanvasRightLabel">Booking Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                            </div>
+                            <div class="offcanvas-body">
+                                <h2>Load Assignment</h2>
+                                <!-- Booking Details Section -->
+                                <div id="booking-info">
+                                    <p><strong>BOOKING ID:</strong> <span id="booking-id"></span></p>
+                                    <p><strong>CLIENT NAME:</strong> <span id="booking-client"></span></p>
+                                    <p><strong>BOOKING DATE:</strong> <span id="booking-date"></span></p>
+                                    <p><strong>DISPATCH DATE:</strong> <span id="booking-dispatch"></span></p>
+                                    <p><strong>CARGO TYPE:</strong> <span id="booking-cargo"></span></p>
+                                    <p><strong>CARGO WEIGHT:</strong> <span id="booking-weight"></span></p>
+                                    <p><strong>DROP OFF LOCATION:</strong> <span id="booking-dropoff"></span></p>
+                                    <p><strong>CONTACT NUMBER:</strong> <span id="booking-contact"></span></p>
+                                    <p><strong>PICK UP LOCATION:</strong> <span id="booking-pickup"></span></p>
+                                    <p><strong>TRUCK MODEL:</strong> <span id="booking-truck"></span></p>
+                                    <p><strong>CONDUCTOR NAME:</strong> <span id="booking-conductor"></span></p>
+                                    <p><strong>LICENSE PLATE:</strong> <span id="booking-license"></span></p>
+                                    <p><strong>DRIVER NAME:</strong> <span id="booking-driver"></span></p>
+                                    <p><strong>DISTANCE:</strong> <span id="booking-distance"></span></p>
+                                    <p><strong>TYPE OF TRUCK:</strong> <span id="booking-truck-type"></span></p>
+                                    <p><strong>PERSON OF CONTACT:</strong> <span id="booking-contact-person"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
-    </div>
-
-    <!-- Booking Details Section -->
-    <div class="booking-details">
-        <h2>Load Assignment</h2>
-        <div id="booking-info">
-            <p><strong>BOOKING ID:</strong> <span id="booking-id"></span></p>
-            <p><strong>CLIENT NAME:</strong> <span id="booking-client"></span></p>
-            <p><strong>BOOKING DATE:</strong> <span id="booking-date"></span></p>
-            <p><strong>DISPATCH DATE:</strong> <span id="booking-dispatch"></span></p>
-            <p><strong>CARGO TYPE:</strong> <span id="booking-cargo"></span></p>
-            <p><strong>CARGO WEIGHT:</strong> <span id="booking-weight"></span></p>
-            <p><strong>DROP OFF LOCATION:</strong> <span id="booking-dropoff"></span></p>
-            <p><strong>CONTACT NUMBER:</strong> <span id="booking-contact"></span></p>
-            <p><strong>PICK UP LOCATION:</strong> <span id="booking-pickup"></span></p>
-            <p><strong>TRUCK MODEL:</strong> <span id="booking-truck"></span></p>
-            <p><strong>CONDUCTOR NAME:</strong> <span id="booking-conductor"></span></p>
-            <p><strong>LICENSE PLATE:</strong> <span id="booking-license"></span></p>
-            <p><strong>DRIVER NAME:</strong> <span id="booking-driver"></span></p>
-            <p><strong>DISTANCE:</strong> <span id="booking-distance"></span></p>
-            <p><strong>TYPE OF TRUCK:</strong> <span id="booking-truck-type"></span></p>
-            <p><strong>PERSON OF CONTACT:</strong> <span id="booking-contact-person"></span></p>
-        </div>
     </div>
 </div>
 

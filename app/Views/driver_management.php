@@ -29,7 +29,31 @@
                     <td><?= $driver['position'] ?></td>
                     <td><?= $driver['home_address'] ?></td>
                     <td><?= $driver['employee_id'] ?></td>
-                    <td><a href="#" class="view-driver" data-id="<?= $driver['id'] ?>">View</a></td>
+                    <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-driver" data-id="<?= $driver['id'] ?>">View</a></button>
+                        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+                            <div class="offcanvas-header">
+                                <h5 class="offcanvas-title" id="offcanvasRightLabel">Driver Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                            </div>
+                        <div class="offcanvas-body">
+                            <!-- Client Details Section -->
+                                <h2>COMPLETE DETAILS</h2>
+                                <div id="driver-info">
+                                    <p><strong>NAME:</strong> <span id="driver-name"></span></p>
+                                    <p><strong>DATE OF EMPLOYMENT:</strong> <span id="driver-employment"></span></p>
+                                    <p><strong>POSITION:</strong> <span id="driver-position"></span></p>
+                                    <p><strong>LAST TRUCK ASSIGNED:</strong> <span id="driver-truck"></span></p>
+                                    <p><strong>LICENSE NUMBER:</strong> <span id="driver-license"></span></p>
+                                    <p><strong>LICENSE EXPIRY DATE:</strong> <span id="driver-expiry"></span></p>
+                                    <p><strong>BIRTHDAY:</strong> <span id="driver-birthday"></span></p>
+                                    <p><strong>MEDICAL RECORD:</strong> <span id="driver-medical"></span></p>
+                                    <p><strong>TRIPS COMPLETED:</strong> <span id="driver-trips"></span></p>
+                                    <p><strong>NOTES:</strong> <textarea id="driver-notes"></textarea></p>
+                                </div>
+                            </div>
+                        
+                        </div>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -37,21 +61,7 @@
     </div>
 
     <!-- Driver Details Section -->
-    <div class="driver-details">
-        <h2>COMPLETE DETAILS</h2>
-        <div id="driver-info">
-            <p><strong>NAME:</strong> <span id="driver-name"></span></p>
-            <p><strong>DATE OF EMPLOYMENT:</strong> <span id="driver-employment"></span></p>
-            <p><strong>POSITION:</strong> <span id="driver-position"></span></p>
-            <p><strong>LAST TRUCK ASSIGNED:</strong> <span id="driver-truck"></span></p>
-            <p><strong>LICENSE NUMBER:</strong> <span id="driver-license"></span></p>
-            <p><strong>LICENSE EXPIRY DATE:</strong> <span id="driver-expiry"></span></p>
-            <p><strong>BIRTHDAY:</strong> <span id="driver-birthday"></span></p>
-            <p><strong>MEDICAL RECORD:</strong> <span id="driver-medical"></span></p>
-            <p><strong>TRIPS COMPLETED:</strong> <span id="driver-trips"></span></p>
-            <p><strong>NOTES:</strong> <textarea id="driver-notes"></textarea></p>
-        </div>
-    </div>
+    
 </div>
 
 <!-- JavaScript to Handle Click Event -->

@@ -328,7 +328,7 @@ button:hover {
 }
 
 
-.view-client{
+.view-client, .view-driver, .view-booking, .view-truck {
     text-decoration: none;
     color: #e2e2e2;
 }
