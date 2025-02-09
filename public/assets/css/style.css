@@ -108,8 +108,8 @@ header img {
 }
 
 .main-content {
-    margin-left: 270px;
-    padding: 20px;
+    margin-left: 190px;
+    padding: 25px;
     min-height: 100vh;
     box-sizing: border-box;
     width: calc(100% - 270px);
@@ -198,7 +198,6 @@ table tr:nth-child(even) {
 }
 
 a {
-    /* color: #007bff; */
     text-decoration: none;
 }
 
@@ -446,7 +445,7 @@ button:hover {
     }
 
     .main-content {
-        margin-left: 185px;
+        margin-left: 155px;
         padding: 20px;
         min-height: 100vh;
         box-sizing: border-box;
@@ -500,7 +499,7 @@ button:hover {
     }
 
     .main-content {
-        margin-left: 160px;
+        margin-left: 100px;
         padding: 20px;
         min-height: 100vh;
         box-sizing: border-box;

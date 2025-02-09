@@ -28,7 +28,7 @@
                     <td><?= $client['cargo_type'] ?></td>
                     <td><?= $client['drop_off'] ?></td>
                     <td><?= $client['status'] ?></td>
-                    <td><button type="button" class="btn btn-dark"><a href="#" class="view-client" data-id="<?= $client['id'] ?>">View</a></button></td>
+                    <td><button type="button" class="btn btn-secondary"><a href="#" class="view-client" data-id="<?= $client['id'] ?>">View</a></button></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Client Details Section -->
-    <div class="client-details">
+    <!-- <div class="client-details">
         <h2>CLIENT DETAILS</h2>
         <div id="client-info">
             <p><strong>CLIENT NAME:</strong> <span id="client-name"></span></p>
@@ -50,7 +50,7 @@
             <p><strong>NOTES:</strong> <textarea id="client-notes"></textarea></p>
         </div>
     </div>
-</div>
+</div> -->
 
 <!-- JavaScript to Handle Click Event -->
 <script>
