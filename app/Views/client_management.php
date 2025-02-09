@@ -28,29 +28,33 @@
                     <td><?= $client['cargo_type'] ?></td>
                     <td><?= $client['drop_off'] ?></td>
                     <td><?= $client['status'] ?></td>
-                    <td><button type="button" class="btn btn-secondary"><a href="#" class="view-client" data-id="<?= $client['id'] ?>">View</a></button></td>
+                    <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-client" data-id="<?= $client['id'] ?>">View</a></button>
+                        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+                        <div class="offcanvas-header">
+                            <h5 class="offcanvas-title" id="offcanvasRightLabel">Client Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <!-- Client Details Section -->
+                            <div id="client-info">
+                                <p><strong>CLIENT NAME:</strong> <span id="client-name"></span></p>
+                                <p><strong>EMAIL:</strong> <span id="client-email"></span></p>
+                                <p><strong>ADDRESS:</strong> <span id="client-address"></span></p>
+                                <p><strong>BUSINESS TYPE:</strong> <span id="client-business"></span></p>
+                                <p><strong>CARGO TYPE:</strong> <span id="client-cargo"></span></p>
+                                <p><strong>PICK-UP LOCATION:</strong> <span id="client-pickup"></span></p>
+                                <p><strong>DROP-OFF LOCATION:</strong> <span id="client-dropoff"></span></p>
+                                <p><strong>CLIENT SINCE:</strong> <span id="client-since"></span></p>
+                                <p><strong>NOTES:</strong> <textarea id="client-notes"></textarea></p>
+                            </div>
+                        </div>
+                        </div>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
-
-    <!-- Client Details Section -->
-    <!-- <div class="client-details">
-        <h2>CLIENT DETAILS</h2>
-        <div id="client-info">
-            <p><strong>CLIENT NAME:</strong> <span id="client-name"></span></p>
-            <p><strong>EMAIL:</strong> <span id="client-email"></span></p>
-            <p><strong>ADDRESS:</strong> <span id="client-address"></span></p>
-            <p><strong>BUSINESS TYPE:</strong> <span id="client-business"></span></p>
-            <p><strong>CARGO TYPE:</strong> <span id="client-cargo"></span></p>
-            <p><strong>PICK-UP LOCATION:</strong> <span id="client-pickup"></span></p>
-            <p><strong>DROP-OFF LOCATION:</strong> <span id="client-dropoff"></span></p>
-            <p><strong>CLIENT SINCE:</strong> <span id="client-since"></span></p>
-            <p><strong>NOTES:</strong> <textarea id="client-notes"></textarea></p>
-        </div>
-    </div>
-</div> -->
 
 <!-- JavaScript to Handle Click Event -->
 <script>
