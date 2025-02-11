@@ -96,7 +96,7 @@ span img {
     padding: 20px;
     min-height: 100vh;
     box-sizing: border-box;
-    width: calc(100% - 270px);
+    width: 100%;
 }
 
 /*  Client/Driver/Booking/Truck details*/
@@ -330,7 +330,6 @@ button:hover {
         padding: 20px;
         min-height: 100vh;
         box-sizing: border-box;
-        width: calc(100% - 270px);
     }
 
     table {
@@ -371,7 +370,6 @@ button:hover {
         padding: 20px;
         min-height: 100vh;
         box-sizing: border-box;
-        width: calc(100% - 270px);
     }
 
     table {
@@ -390,7 +388,6 @@ button:hover {
         padding: 20px;
         min-height: 100vh;
         box-sizing: border-box;
-        width: calc(100% - 270px);
     }
 
     table {
