@@ -64,11 +64,13 @@ a .img{
 .sidebar .nav-link:hover {
     background-color: #003366;
     color: #ddd;
+    text-decoration: none;
 }
 
 .logout:hover {
     background-color: #9a0a0a;
     color: #fff;
+    text-decoration: none;
 }
 .img-header{ 
     width: 175px;
