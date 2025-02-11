@@ -1,0 +1,12 @@
+CRITICAL - 2025-02-11 02:20:46 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "maintenance_view.php"
+[Method: GET, Route: maintenance/view/2]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 41.
+ 1 SYSTEMPATH\View\View.php(222): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('maintenance_view.php')
+ 2 SYSTEMPATH\Common.php(1171): CodeIgniter\View\View->render('maintenance_view', [], true)
+ 3 APPPATH\Controllers\MaintenanceController.php(27): view('maintenance_view', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\MaintenanceController->view('2')
+ 5 SYSTEMPATH\CodeIgniter.php(509): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\MaintenanceController))
+ 6 SYSTEMPATH\CodeIgniter.php(355): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(56): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
