@@ -3,7 +3,9 @@
 <?= $this->section('content') ?>
 <link href=<?=base_url('public/assets/css/style.css');?> rel="stylesheet">
 <title>Dashboard</title>
-<h1>Dashboard</h1>
+<div class="headerbg">
+    <h1>Dashboard</h1>
+</div>
 
 <div class="content">
     <!-- Data Visualization Section -->

@@ -62,7 +62,8 @@ a .img{
 }
 
 .sidebar .nav-link:hover {
-    background-color: #2980b9;
+    background-color: #003366;
+    color: #ddd;
 }
 
 .logout:hover {
@@ -237,9 +238,14 @@ th {
 }
 
 
+
 h1 {
     font-size: 28px;
+    font-weight: bold;
     margin-bottom: 20px;
+    background-color: #003366;
+    color: white;
+    padding: 10px 30px;
 }
 h2{
     font-size: 24px;
