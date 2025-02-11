@@ -11,7 +11,7 @@
 <div class="content">
     <div>
     <h2>Delivery Report</h2>
-    <table>
+    <table class="table table-striped" style="width:100%">
         <thead>
             <tr>
                 <th>Report Number</th>

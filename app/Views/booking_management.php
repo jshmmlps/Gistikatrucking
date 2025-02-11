@@ -8,7 +8,7 @@
 <div class="content">
     <div class="booking-list">
         <h2>View Booking</h2>
-        <table>
+        <table class="table table-striped" style="width:100%">
             <thead>
                 <tr>
                     <th>Client Name</th>

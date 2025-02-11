@@ -165,22 +165,6 @@ span img {
 }
 /* Dashboard CSS End */
 
-
-table th, table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-}
-
-table th {
-    background-color: #003366;
-    color: white;
-}
-
-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
 a {
     text-decoration: none;
 }
@@ -214,23 +198,6 @@ button {
     padding: 10px;
     border: none;
     cursor: pointer;
-}
-
-table {
-    width: 150%;
-    border-collapse: collapse;
-    margin: 20px 0;
-}
-
-th, td {
-    padding: 15px;
-    text-align: left;
-    border: 1px solid #ddd;
-}
-
-th {
-    background: #3498db;
-    color: white;
 }
 
 .details {

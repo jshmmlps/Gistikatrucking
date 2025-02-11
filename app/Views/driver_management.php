@@ -8,7 +8,7 @@
 <div class="content">
     <div class="driver-list">
         <h2>Information List</h2>
-        <table>
+        <table class="table table-striped" style="width:100%">
             <thead>
                 <tr>
                     <th>First Name</th>

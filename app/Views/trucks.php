@@ -8,7 +8,7 @@
 <div class="content">
     <div class="table-container">
         <h2>Truck List</h2>
-        <table>
+        <table class="table table-striped" style="width:100%">
             <thead>
                  <tr>
                     <th>License Plate</th>
