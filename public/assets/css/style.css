@@ -72,6 +72,11 @@ a .img{
     color: #fff;
     text-decoration: none;
 }
+
+.logout:hover img {
+    transform: rotate(10deg); /* Slight rotation effect on hover */
+}
+
 .img-header{ 
     width: 175px;
     height: auto;
@@ -80,7 +85,6 @@ span img {
     width: 30px;
     height: auto;
 }
-
 
 /*Sidebar END*/
 
