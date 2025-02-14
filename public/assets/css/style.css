@@ -91,8 +91,7 @@ span img {
 /*Main content*/
 .content {
     padding: 10px;
-    width: calc(100% - 250px);
-    display:  flex;
+    width: 100%;
 }
 
 .main-content {
