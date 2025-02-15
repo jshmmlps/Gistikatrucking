@@ -34,4 +34,6 @@ $routes->post('maintenance', 'MaintenanceController::maintenance');
 $routes->get('maintenance/view/(:num)', 'MaintenanceController::view/$1');
 
 
-
+//Test
+$routes->get('firebase-test', 'FirebaseTestController::index');
+$routes->get('firebase-test-read', 'FirebaseTestController::read');

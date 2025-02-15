@@ -3,6 +3,8 @@
 namespace Config;
 
 use CodeIgniter\Config\BaseService;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\ServiceAccount;
 
 /**
  * Services Configuration file.
@@ -19,14 +21,33 @@ use CodeIgniter\Config\BaseService;
  */
 class Services extends BaseService
 {
-    /*
-     * public static function example($getShared = true)
-     * {
-     *     if ($getShared) {
-     *         return static::getSharedInstance('example');
-     *     }
+    /**
+     * Firebase Realtime Database Service
      *
-     *     return new \CodeIgniter\Example();
-     * }
+     * Usage:
+     *   1) $db = service('firebase');
+     *   2) $db = Services::firebase();
+     *
+     * @param bool $getShared If true, returns a shared instance of the database.
      */
+    public static function firebase($getShared = true)
+    {
+        if ($getShared) {
+            // Return shared instance if it already exists
+            return static::getSharedInstance('firebase');
+        }
+
+        // Load service account credentials from .env
+        $serviceAccountPath = env('FIREBASE_CREDENTIALS_PATH');
+        $databaseUri        = env('FIREBASE_DATABASE_URI');
+
+        // Create a new Firebase Factory
+        $factory = (new Factory)
+            ->withServiceAccount($serviceAccountPath)
+            ->withDatabaseUri($databaseUri);
+
+        // Return the Realtime Database instance
+        return $factory->createDatabase();
+    }
 }
+
