@@ -198,6 +198,7 @@ in APPPATH\Views\trucks.php on line 34.
  9 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
 10 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
 11 FCPATH\index.php(56): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+<<<<<<< Updated upstream
 CRITICAL - 2025-02-06 18:06:56 --> ErrorException: Undefined array key "fuel_type"
 [Method: GET, Route: trucks]
 in APPPATH\Views\trucks.php on line 29.
@@ -305,6 +306,9 @@ in SYSTEMPATH\Exceptions\FrameworkException.php on line 41.
  8 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
  9 FCPATH\index.php(56): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
 CRITICAL - 2025-02-06 18:25:08 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "maintenance_view.php"
+=======
+CRITICAL - 2025-02-06 19:02:01 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "maintenance_view.php"
+>>>>>>> Stashed changes
 [Method: GET, Route: maintenance/view/1]
 in SYSTEMPATH\Exceptions\FrameworkException.php on line 41.
  1 SYSTEMPATH\View\View.php(222): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('maintenance_view.php')
