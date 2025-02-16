@@ -2,21 +2,21 @@
 
 namespace App\Controllers;
 
-use App\Models\UserModel;
+use App\Models\UserModels;
 use CodeIgniter\Controller;
 
 class UserController extends Controller
 {
     public function user()
     {
-        $model = new UserModel();
+        $model = new UserModels();
         $data['users'] = $model->findAll();
         return view('user_account', $data);
     }
 
     public function getUserDetails($id)
     {
-        $model = new UserModel();
+        $model = new UserModels();
         $user = $model->find($id);
         return $this->response->setJSON($user);
     }

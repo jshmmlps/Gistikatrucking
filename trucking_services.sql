@@ -1,24 +1,24 @@
 -- Users accounts
 CREATE DATABASE IF NOT EXISTS trucking_services;
 
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    contact_number VARCHAR(15) NOT NULL,
-    address VARCHAR(255) NOT NULL,
-    position VARCHAR(50) NOT NULL,
-    user_id VARCHAR(20) UNIQUE NOT NULL,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    birthday DATE NOT NULL,
-    gender ENUM('Male', 'Female') NOT NULL
-);
+-- CREATE TABLE users (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     first_name VARCHAR(50) NOT NULL,
+--     last_name VARCHAR(50) NOT NULL,
+--     email VARCHAR(100) UNIQUE NOT NULL,
+--     contact_number VARCHAR(15) NOT NULL,
+--     address VARCHAR(255) NOT NULL,
+--     position VARCHAR(50) NOT NULL,
+--     user_id VARCHAR(20) UNIQUE NOT NULL,
+--     username VARCHAR(50) UNIQUE NOT NULL,
+--     birthday DATE NOT NULL,
+--     gender ENUM('Male', 'Female') NOT NULL
+-- );
 
--- Insert sample data
-INSERT INTO users (first_name, last_name, email, contact_number, address, position, user_id, username, birthday, gender)
-VALUES
-('Jamaeca', 'Quizon', 'jamaecaquizon@gmail.com', '09771002413', 'Malolos City, Bulacan', 'Admin', '202110719', 'QUIZON@123', '2003-04-24', 'Female');
+-- -- Insert sample data
+-- INSERT INTO users (first_name, last_name, email, contact_number, address, position, user_id, username, birthday, gender)
+-- VALUES
+-- ('Jamaeca', 'Quizon', 'jamaecaquizon@gmail.com', '09771002413', 'Malolos City, Bulacan', 'Admin', '202110719', 'QUIZON@123', '2003-04-24', 'Female');
 
 USE trucking_services;
 
@@ -47,7 +47,7 @@ VALUES
 ('Arman', 'Salon', 'Conductor', 'arman@example.com', '09890123456', 'Las Pinas, Manila', 'arman123', 'Conductor');
 
 
---Drivers
+-- Drivers
 CREATE TABLE drivers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
@@ -72,7 +72,7 @@ VALUES
 ('Juan', 'Dela Cruz', '09563540192', 'Driver', 'Sampaloc, Manila City', '202212345', '2022-01-15', 'Truck-101', 'DL-987654', '2025-06-30', '1985-04-20', 'No major illnesses', 120, 'Excellent driver with clean record'),
 ('Pedro', 'Santos', '09123456789', 'Conductor', 'Makati City, NCR', '202345678', '2021-09-10', 'Truck-202', 'DL-123456', '2024-12-15', '1990-08-15', 'Asthma (managed)', 90, 'Punctual and responsible');
 
---Bookings SQL
+-- Bookings SQL
 
 -- Create Bookings Table
 CREATE TABLE IF NOT EXISTS bookings (
@@ -104,10 +104,7 @@ VALUES
 
 -- Verify Data
 SELECT * FROM bookings;
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 -- Truck SQL (Improved)
 CREATE TABLE trucks (
     id INT AUTO_INCREMENT PRIMARY KEY,
