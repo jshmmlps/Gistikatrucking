@@ -2,8 +2,13 @@
 <html>
 <head>
     <title>Admin Login</title>
-    <link rel="stylesheet" href="<?= base_url('/public/assets/css/login.css') ?>">
-    <link href="<?= base_url('/public/assets/css/bootstrap.min.css');?>" rel="stylesheet">
+    <link rel="stylesheet" href="<?= base_url('/public/assets/css/style.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('/public/assets/css/bootstrap.min.css'); ?>">
+    <style>
+        body .container {
+        margin-top: 0 !important;
+    }
+    </style>
 </head>
 <body style="background:linear-gradient(135deg, #003366, #00c6ff);">
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
@@ -15,7 +20,7 @@
             </div>
             <div class="col-md-6 right-box">
                 <div class="row align-items-center">
-                    <div class="header-text mb-4">
+                    <div class="header-text mb-4">  
                         <h2>Admin Login</h2>
                         <?php if(session()->getFlashdata('error')): ?>
                             <p style="color:red;"><?= session()->getFlashdata('error') ?></p>
@@ -38,7 +43,7 @@
                             </div>
                         </div>
                         <div class="input-group mb-3">
-                            <button class="btn btn-lg btn-primary w-100 fs-6">Login</button>
+                            <button class="btn btn-lg login-btn w-100 fs-6">Login</button>
                         </div>
                         <div class="row ">
                             <small>Don't have an account? <a href="#">Sign Up</a></small>

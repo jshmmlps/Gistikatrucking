@@ -28,14 +28,27 @@ header img {
     display: flex;
     height: 100vh;
 }
-
-
 a .img{
     width: 75px;
     height: auto;
     vertical-align: middle;
 }
 /* Layout CSS End */
+
+/* Login & Create Account CSS Start */
+.box-area {
+    max-width: 800px;
+}
+.form-label {
+    font-weight: bold;
+}
+
+.login-btn, .create-btn{
+    background-color: #003366 !important;
+    color: #ddd !important;
+    text-decoration: none !important;
+}
+/* Login & Create Account CSS End */
 
 /*Sidebar*/
 .sidebar {
