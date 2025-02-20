@@ -5,14 +5,12 @@
     <link rel="stylesheet" href="<?= base_url('/public/assets/css/login.css') ?>">
     <link href="<?= base_url('/public/assets/css/bootstrap.min.css');?>" rel="stylesheet">
 </head>
-<body style="background: #cecece;">
+<body style="background:linear-gradient(135deg, #003366, #00c6ff);">
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
         <div class="row border rounded-5 p-3 bg-white shadow box-area">
-            <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box" style="background: #cecece;">
+            <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box" >
                 <div class="featured-img">
-                    <img src="trucking_logo.png" alt="#" style="width: 250px;">
-                    <p class="text-white fs-2" style="font-family: Arial, sans-serif;">INSERT IMAGE</p>
-                    <small class="text-white text-wrap text-center" style="font-family: Arial, sans-serif;">INSERT IMAGE</small>
+                    <img src="<?= base_url('/public/images/icons/logo.png'); ?>" alt="Logo" style="width: 300px;">
                 </div>
             </div>
             <div class="col-md-6 right-box">
@@ -23,7 +21,7 @@
                             <p style="color:red;"><?= session()->getFlashdata('error') ?></p>
                         <?php endif; ?>
                     </div>
-                    <form action="<?= base_url('/admin/login/process') ?>" method="post"> <?= csrf_field() ?>>     
+                    <form action="<?= base_url('/admin/login/process') ?>" method="post"> <?= csrf_field() ?>
                         <div class="input-group mb-3">
                             <input type="text" name="username" required autofocus class="form-control form-control-lg bg-light fs-6"id="emailAddress" placeholder="Email address">
                         </div>
@@ -43,7 +41,7 @@
                             <button class="btn btn-lg btn-primary w-100 fs-6">Login</button>
                         </div>
                         <div class="row ">
-                            <small>Don't have an account?<a href="#">Sign Up</a></small>
+                            <small>Don't have an account? <a href="#">Sign Up</a></small>
                         </div>
                     </form>
                 </div>
