@@ -222,3 +222,7 @@ class Routes extends BaseCommand
         CLI::write(' Required After Filters: ' . implode(', ', $filters));
     }
 }
+
+// try lang 
+
+// $routes->get('fetch-details/(:segment)/(:num)', 'DetailsController::fetchDetails/$1/$2');

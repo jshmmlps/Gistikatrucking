@@ -8,8 +8,8 @@
 <div class="content">
     <div class="driver-list">
         <h2>Information List</h2>
-        <table class="table table-striped" style="width:100%">
-            <thead>
+        <table class="table table-bordered table-hover align-middle text-center" style="width:100%">
+            <thead class="table-light text-dark">
                 <tr>
                     <th>First Name</th>
                     <th>Last Name</th>
@@ -29,47 +29,53 @@
                     <td><?= $driver['position'] ?></td>
                     <td><?= $driver['home_address'] ?></td>
                     <td><?= $driver['employee_id'] ?></td>
-                    <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-driver" data-id="<?= $driver['id'] ?>">View</a></button>
-                        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-                            <div class="offcanvas-header">
-                                <h5 class="offcanvas-title" id="offcanvasRightLabel">Driver Details</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                            </div>
-                        <div class="offcanvas-body">
-                            <!-- Client Details Section -->
-                                <h2>COMPLETE DETAILS</h2>
-                                <div id="driver-info">
-                                    <p><strong>NAME:</strong> <span id="driver-name"></span></p>
-                                    <p><strong>DATE OF EMPLOYMENT:</strong> <span id="driver-employment"></span></p>
-                                    <p><strong>POSITION:</strong> <span id="driver-position"></span></p>
-                                    <p><strong>LAST TRUCK ASSIGNED:</strong> <span id="driver-truck"></span></p>
-                                    <p><strong>LICENSE NUMBER:</strong> <span id="driver-license"></span></p>
-                                    <p><strong>LICENSE EXPIRY DATE:</strong> <span id="driver-expiry"></span></p>
-                                    <p><strong>BIRTHDAY:</strong> <span id="driver-birthday"></span></p>
-                                    <p><strong>MEDICAL RECORD:</strong> <span id="driver-medical"></span></p>
-                                    <p><strong>TRIPS COMPLETED:</strong> <span id="driver-trips"></span></p>
-                                    <p><strong>NOTES:</strong> <textarea id="driver-notes"></textarea></p>
-                                </div>
-                            </div>
-                        
-                        </div>
+                    <td>
+                        <button type="button" class="btn btn-warning btn-sm fw-bold px-4 view-client text-dark" 
+                        data-id="<?= $driver['id'] ?>"
+                        data-bs-toggle="modal"
+                        data-bs-target="#driverModal">View</button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
-
-    <!-- Driver Details Section -->
-    
 </div>
 
-<!-- JavaScript to Handle Click Event -->
+<!-- Driver Details Modal -->
+<div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="driverModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title text-center w-100" id="offcanvasRightLabel">Complete Driver Details</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="driver-info">
+                    <p><strong>Name:</strong> <span id="driver-name"></span></p>
+                    <p><strong>Date of Employment:</strong> <span id="driver-employment"></span></p>
+                    <p><strong>Position:</strong> <span id="driver-position"></span></p>
+                    <p><strong>Last Truck Assigned:</strong> <span id="driver-truck"></span></p>
+                    <p><strong>License Number:</strong> <span id="driver-license"></span></p>
+                    <p><strong>License Expiry Date:</strong> <span id="driver-expiry"></span></p>
+                    <p><strong>Birthday:</strong> <span id="driver-birthday"></span></p>
+                    <p><strong>Medical Record:</strong> <span id="driver-medical"></span></p>
+                    <p><strong>Trips Completed:</strong> <span id="driver-trips"></span></p>
+                    <p><strong>Notes:</strong> <textarea id="driver-notes" class="form-control"></textarea></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-warning" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to Handle Modal Pop-up -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".view-driver").forEach(button => {
-        button.addEventListener("click", function(event) {
-            event.preventDefault();
+        button.addEventListener("click", function() {
             let driverId = this.getAttribute("data-id");
 
             fetch("<?= base_url('drivers/details/') ?>" + driverId)
@@ -91,5 +97,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
 
 <?= $this->endSection() ?>

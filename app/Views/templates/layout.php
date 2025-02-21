@@ -71,6 +71,23 @@
         <?= $this->renderSection('content') ?>
     </main>
 
+<!-- Global Modal -->
+<!--  <div class="modal fade" id="globalModal" tabindex="-1" aria-labelledby="globalModalLabel" aria-hidden="true">
+     <div class="modal-dialog modal-lg">
+         <div class="modal-content">
+             <div class="modal-header">
+                 <h5 class="modal-title" id="globalModalLabel">Details</h5>                 
+                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+             </div>
+             <div class="modal-body">
+                 <div id="modalContent">
+                    
+                 Content will be loaded dynamically here -->
+<!--                 </div>
+             </div>
+         </div>
+     </div>
+  </div>  -->
 
 
     <script src="<?php echo base_url('/public/assets/js/jquery-3.7.1.js'); ?>"></script> 

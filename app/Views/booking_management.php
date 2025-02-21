@@ -8,8 +8,8 @@
 <div class="content">
     <div class="booking-list">
         <h2>View Booking</h2>
-        <table class="table table-striped" style="width:100%">
-            <thead>
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-light text-dark">
                 <tr>
                     <th>Client Name</th>
                     <th>Booking Date</th>
@@ -29,35 +29,11 @@
                     <td><?= $booking['cargo_type'] ?></td>
                     <td><?= $booking['drop_off_location'] ?></td>
                     <td><?= $booking['status'] ?></td>
-                    <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-booking" data-id="<?= $booking['id'] ?>">View</a></button>
-                        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-                            <div class="offcanvas-header">
-                                <h5 class="offcanvas-title" id="offcanvasRightLabel">Booking Details</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                            </div>
-                            <div class="offcanvas-body">
-                                <h2>Load Assignment</h2>
-                                <!-- Booking Details Section -->
-                                <div id="booking-info">
-                                    <p><strong>BOOKING ID:</strong> <span id="booking-id"></span></p>
-                                    <p><strong>CLIENT NAME:</strong> <span id="booking-client"></span></p>
-                                    <p><strong>BOOKING DATE:</strong> <span id="booking-date"></span></p>
-                                    <p><strong>DISPATCH DATE:</strong> <span id="booking-dispatch"></span></p>
-                                    <p><strong>CARGO TYPE:</strong> <span id="booking-cargo"></span></p>
-                                    <p><strong>CARGO WEIGHT:</strong> <span id="booking-weight"></span></p>
-                                    <p><strong>DROP OFF LOCATION:</strong> <span id="booking-dropoff"></span></p>
-                                    <p><strong>CONTACT NUMBER:</strong> <span id="booking-contact"></span></p>
-                                    <p><strong>PICK UP LOCATION:</strong> <span id="booking-pickup"></span></p>
-                                    <p><strong>TRUCK MODEL:</strong> <span id="booking-truck"></span></p>
-                                    <p><strong>CONDUCTOR NAME:</strong> <span id="booking-conductor"></span></p>
-                                    <p><strong>LICENSE PLATE:</strong> <span id="booking-license"></span></p>
-                                    <p><strong>DRIVER NAME:</strong> <span id="booking-driver"></span></p>
-                                    <p><strong>DISTANCE:</strong> <span id="booking-distance"></span></p>
-                                    <p><strong>TYPE OF TRUCK:</strong> <span id="booking-truck-type"></span></p>
-                                    <p><strong>PERSON OF CONTACT:</strong> <span id="booking-contact-person"></span></p>
-                                </div>
-                            </div>
-                        </div>
+                    <td>
+                        <button type="button" class="btn btn-warning btn-sm fw-bold px-4 view-client text-dark"
+                        data-id="<?= $booking['id'] ?>" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#bookingModal">View</button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -66,12 +42,45 @@
     </div>
 </div>
 
-<!-- JavaScript to Handle Click Event -->
+<!-- Booking Details Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center w-100" id="offcanvasRightLabel">Load Assignment</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+                <div class="modal-body">
+                    <div id="booking-info">
+                        <p><strong>Booking ID:</strong> <span id="booking-id"></span></p>
+                        <p><strong>Client Name:</strong> <span id="booking-client"></span></p>
+                        <p><strong>Booking Date:</strong> <span id="booking-date"></span></p>
+                        <p><strong>Dispatch Date:</strong> <span id="booking-dispatch"></span></p>
+                        <p><strong>Cargo Type:</strong> <span id="booking-cargo"></span></p>
+                        <p><strong>Cargo Weight:</strong> <span id="booking-weight"></span></p>
+                        <p><strong>Drop-off Location:</strong> <span id="booking-dropoff"></span></p>
+                        <p><strong>Pick-up Location:</strong> <span id="booking-pickup"></span></p>
+                        <p><strong>Truck Model:</strong> <span id="booking-truck"></span></p>
+                        <p><strong>License Plate:</strong> <span id="booking-license"></span></p>
+                        <p><strong>Conductor Name:</strong> <span id="booking-conductor"></span></p>
+                        <p><strong>Driver Name:</strong> <span id="booking-driver"></span></p>
+                        <p><strong>Type of Truck:</strong> <span id="booking-truck-type"></span></p>
+                        <p><strong>Distance:</strong> <span id="booking-distance"></span></p>
+                        <p><strong>Person of Contact:</strong> <span id="booking-contact-person"></span></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-warning" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- JavaScript to Handle Modal Pop-up -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".view-booking").forEach(button => {
-        button.addEventListener("click", function(event) {
-            event.preventDefault();
+        button.addEventListener("click", function() {
             let bookingId = this.getAttribute("data-id");
 
             fetch("<?= base_url('bookings/details/') ?>" + bookingId)
@@ -84,14 +93,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById("booking-cargo").innerText = data.cargo_type;
                     document.getElementById("booking-weight").innerText = data.cargo_weight;
                     document.getElementById("booking-dropoff").innerText = data.drop_off_location;
-                    document.getElementById("booking-contact").innerText = data.contact_number;
                     document.getElementById("booking-pickup").innerText = data.pick_up_location;
                     document.getElementById("booking-truck").innerText = data.truck_model;
-                    document.getElementById("booking-conductor").innerText = data.conductor_name;
                     document.getElementById("booking-license").innerText = data.license_plate;
+                    document.getElementById("booking-conductor").innerText = data.conductor_name;
                     document.getElementById("booking-driver").innerText = data.driver_name;
-                    document.getElementById("booking-distance").innerText = data.distance;
                     document.getElementById("booking-truck-type").innerText = data.type_of_truck;
+                    document.getElementById("booking-distance").innerText = data.distance;
                     document.getElementById("booking-contact-person").innerText = data.person_of_contact;
                 })
                 .catch(error => console.error("Error fetching booking details:", error));
@@ -99,5 +107,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
+
 
 <?= $this->endSection() ?>

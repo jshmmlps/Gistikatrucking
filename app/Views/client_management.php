@@ -8,61 +8,73 @@
 <div class="content">
     <div class="client-list">
         <h2>Client list</h2>
-        <table class="table table-striped" style="width:100%">
-            <thead>
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-light text-dark">
                 <tr>
                     <th>Client Name</th>
                     <th>Booking Date</th>
                     <th>Dispatch Date</th>
                     <th>Cargo Type</th>
                     <th>Drop-off Location</th>
-                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($clients as $client): ?>
                 <tr>
-                    <td><?= $client['name'] ?></td>
-                    <td><?= $client['booking_date'] ?></td>
-                    <td><?= $client['dispatch_date'] ?></td>
-                    <td><?= $client['cargo_type'] ?></td>
-                    <td><?= $client['drop_off'] ?></td>
-                    <td><?= $client['status'] ?></td>
-                    <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-client" data-id="<?= $client['id'] ?>">View</a></button>
-                        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-                        <div class="offcanvas-header">
-                            <h5 class="offcanvas-title" id="offcanvasRightLabel">Client Details</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                        </div>
-                        <div class="offcanvas-body">
-                            <!-- Client Details Section -->
-                            <div id="client-info">
-                                <p><strong>CLIENT NAME:</strong> <span id="client-name"></span></p>
-                                <p><strong>EMAIL:</strong> <span id="client-email"></span></p>
-                                <p><strong>ADDRESS:</strong> <span id="client-address"></span></p>
-                                <p><strong>BUSINESS TYPE:</strong> <span id="client-business"></span></p>
-                                <p><strong>CARGO TYPE:</strong> <span id="client-cargo"></span></p>
-                                <p><strong>PICK-UP LOCATION:</strong> <span id="client-pickup"></span></p>
-                                <p><strong>DROP-OFF LOCATION:</strong> <span id="client-dropoff"></span></p>
-                                <p><strong>CLIENT SINCE:</strong> <span id="client-since"></span></p>
-                                <p><strong>NOTES:</strong> <textarea id="client-notes"></textarea></p>
-                            </div>
-                        </div>
-                        </div>
+                    <td><?= esc($client['name']) ?></td>
+                    <td><?= esc($client['booking_date']) ?></td>
+                    <td><?= esc($client['dispatch_date']) ?></td>
+                    <td><?= esc($client['cargo_type']) ?></td>
+                    <td><?= esc($client['drop_off']) ?></td>
+                    <td>
+                        <button type="button" class="btn btn-warning btn-sm fw-bold px-4 view-client text-dark"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#clientDetailsModal"
+                                data-id="<?= esc($client['id']) ?>">
+                            View
+                        </button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
+</div>
 
-<!-- JavaScript to Handle Click Event -->
+<!-- Client Details Modal -->
+<div class="modal fade" id="clientDetailsModal" tabindex="-1" aria-labelledby="clientDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center w-100" id="offcanvasRightLabel">Client Details</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="client-info">
+                    <p><strong>Client Name:</strong> <span id="client-name"></span></p>
+                    <p><strong>Email:</strong> <span id="client-email"></span></p>
+                    <p><strong>Address:</strong> <span id="client-address"></span></p>
+                    <p><strong>Business Type:</strong> <span id="client-business"></span></p>
+                    <p><strong>Cargo Type:</strong> <span id="client-cargo"></span></p>
+                    <p><strong>Pick-up Location:</strong> <span id="client-pickup"></span></p>
+                    <p><strong>Drop-off Location:</strong> <span id="client-dropoff"></span></p>
+                    <p><strong>Client Since:</strong> <span id="client-since"></span></p>
+                    <p><strong>Notes:</strong> <textarea id="client-notes" class="form-control" rows="3"></textarea></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-warning" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to Fetch Client Details -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".view-client").forEach(button => {
-        button.addEventListener("click", function(event) {
-            event.preventDefault();
+        button.addEventListener("click", function() {
             let clientId = this.getAttribute("data-id");
 
             fetch("<?= base_url('clients/details/') ?>" + clientId)
@@ -83,5 +95,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
 
 <?= $this->endSection() ?>

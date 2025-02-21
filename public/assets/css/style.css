@@ -238,18 +238,23 @@ h2{
 }
 
 .user-card {
-    width: 300px;
-    background: #F0F0F0;
-    padding: 30px;
-    padding-top: 80px;
+    background-color: #F8F9FA;
     border-radius: 10px;
+    padding: 20px;
     text-align: center;
+    width: 300px;
+    height: 400px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin-left: 300px;
 }
 
 .user-card img {
-    width: 250px;
-    margin-bottom: 10px;
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
     border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .user-name {
@@ -277,11 +282,23 @@ button:hover {
     background: #2980b9;
 }
 
+.profile-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 30px;
+}
+
 .user-container {
-    padding: 10px 90px;
-    display: grid;
-    width: 100%;
-    gap: 20px;
+    background-color: #F8F9FA;
+    padding: 20px;
+    border-radius: 10px;
+    width: 350px;
+    height: 405px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    margin-left: 150px;
 }
 
 .user-profile{
@@ -289,13 +306,11 @@ button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .user-details {
-    width: 200%;
     padding: 20px;
-    background: #F0F0F0;
     border-radius: 10px;
 }
 
@@ -400,4 +415,16 @@ button:hover {
     .img-header{ 
         width: 60px;
     }
+}
+
+/*MODAL CSS*/
+
+.modal-body h4 {
+    text-align: center;
+    font-weight: bold;
+}
+
+.modal-title {
+    text-align: center;
+    font-weight: bold;
 }

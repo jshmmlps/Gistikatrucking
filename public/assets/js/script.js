@@ -76,3 +76,48 @@ function showTruckDetails(truck) {
     document.getElementById("detail-technician").innerText = truck.maintenance_technician || "N/A";
 }
 
+// FOR MODAL POPUP
+
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".view-btn").forEach(button => {
+        button.addEventListener("click", function() {
+            let itemId = this.getAttribute("data-id");
+            let module = this.getAttribute("data-module");
+            let modalTitle = document.getElementById("globalModalLabel");
+            let modalContent = document.getElementById("modalContent");
+
+            // Set modal title based on module
+            switch(module) {
+                case "client":
+                    modalTitle.innerText = "Client Details";
+                    break;
+                case "driver":
+                    modalTitle.innerText = "Driver & Conductor Details";
+                    break;
+                case "booking":
+                    modalTitle.innerText = "Booking Details";
+                    break;
+                default:
+                    modalTitle.innerText = "Details";
+            }
+
+            // Fetch details dynamically
+            fetch(`/fetch-details/${module}/${itemId}`)
+                .then(response => response.json())
+                .then(data => {
+                    modalContent.innerHTML = `
+                        <p><strong>Name:</strong> ${data.name || 'N/A'}</p>
+                        <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                        <p><strong>Address:</strong> ${data.address || 'N/A'}</p>
+                        ${module === 'driver' ? `<p><strong>Position:</strong> ${data.position || 'N/A'}</p>` : ''}
+                        ${module === 'booking' ? `<p><strong>Status:</strong> ${data.status || 'N/A'}</p>` : ''}
+                        <p><strong>Notes:</strong> ${data.notes || 'N/A'}</p>
+                    `;
+                })
+                .catch(error => {
+                    modalContent.innerHTML = `<p>Error fetching details.</p>`;
+                    console.error("Error:", error);
+                });
+        });
+    });
+});
