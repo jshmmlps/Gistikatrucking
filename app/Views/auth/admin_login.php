@@ -7,6 +7,10 @@
     <style>
         body .container {
         margin-top: 0 !important;
+        background: url('<?= base_url('/public/images/loginbg.png'); ?>') no-repeat center center;
+        background-size: contain;
+        padding: 20px;
+        border-radius: 10px;
     }
     </style>
 </head>
@@ -21,7 +25,7 @@
             <div class="col-md-6 right-box">
                 <div class="row align-items-center">
                     <div class="header-text mb-4">  
-                        <h2>Admin Login</h2>
+                        <h2>Login</h2>
                         <?php if(session()->getFlashdata('error')): ?>
                             <p style="color:red;"><?= session()->getFlashdata('error') ?></p>
                         <?php endif; ?>
