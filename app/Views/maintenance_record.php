@@ -34,17 +34,4 @@
     </div>
 </div>
 
-
-<!--
-<style>
-.container { text-align: center; }
-.title { font-size: 24px; margin: 20px 0; }
-.subtitle { font-size: 20px; margin-bottom: 15px; }
-.search-bar { margin-bottom: 20px; }
-.search-bar input { width: 200px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; }
-.report-table { width: 100%; border-collapse: collapse; }
-.report-table th, .report-table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-.view-button { color: blue; text-decoration: none; }
-</style>
-            -->
 <?= $this->endSection() ?>
