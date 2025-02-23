@@ -9,6 +9,7 @@ class AdminAuthController extends Controller
 {
     public function login()
     {
+        //This is a test
         // Show admin login form
         return view('auth/admin_login');
     }
