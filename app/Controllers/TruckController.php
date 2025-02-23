@@ -10,10 +10,10 @@ class TruckController extends Controller
     public function trucks()
     {
         $model = new TruckModel();
-        $data['trucks'] = $model->findAll(); // Fetch all truck records
-
+        $data['trucks'] = $model->getAllTrucks(); // custom method name
+    
         return view('trucks', $data);
-    }
+    }    
 
     public function view($id)
     {
