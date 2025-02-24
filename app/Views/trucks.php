@@ -27,7 +27,7 @@
                         <td><?= esc($row['fuel_type']) ?></td>
                         <td><?= esc($row['registration_expiry']) ?></td>
                         <td><?= esc($row['type']) ?></td>
-                        <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-truck" onclick="showTruckDetails(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">View</a></button>
+                        <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="<?= base_url('truck/view/' . $truck['license_plate']) ?>" class="view-truck" onclick="view(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">View</a></button>
                             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
                                 <div class="offcanvas-header">
                                     <h5 class="offcanvas-title" id="offcanvasRightLabel">Truck Details</h5>
