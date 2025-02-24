@@ -67,8 +67,9 @@ $routes->get('register', 'RegistrationController::createForm');
 $routes->post('register/create', 'RegistrationController::createAccount');
 
 // Example dashboards (for demonstration)
-$routes->get('admin/dashboard', 'AdminDashboardController::index');
-$routes->get('staff/operation-dashboard', 'StaffDashboardController::operationIndex');
-$routes->get('staff/resource-dashboard', 'StaffDashboardController::resourceIndex');
-$routes->get('customer/home', 'ClientHomeController::index');
+$routes->get('admin/dashboard', 'AdminController::index');
+$routes->get('staff_operation/dashboard', 'StaffOperationController::index');
+$routes->get('staff_resource/dashboard', 'StaffResourceController::index');
+$routes->get('dashboard', 'ClientController::test');
+
 

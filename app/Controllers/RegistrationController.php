@@ -25,8 +25,8 @@ class RegistrationController extends Controller
     {
         // 1) Define CodeIgniter validation rules
         $rules = [
-            'first_name'      => 'required',
-            'last_name'       => 'required',
+            'first_name' => 'required',
+            'last_name'  => 'required',
             'email' => [
                 'label' => 'Email',
                 'rules' => 'required|valid_email|is_unique_in_firebase[Users.email]',
@@ -41,13 +41,20 @@ class RegistrationController extends Controller
                     'is_unique_in_firebase' => 'Username exists already. Create a unique one.',
                 ],
             ],
-            'password'        => [
+            'password' => [
                 'label' => 'Password',
                 'rules' => 'required|check_password_strength',
                 'errors' => [
                     'check_password_strength' =>
                         'Password must be at least 8 characters, contain an uppercase, '
                         . 'a lowercase, a number, and a symbol.',
+                ],
+            ],
+            'confirm_password' => [
+                'label' => 'Confirm Password',
+                'rules' => 'required|matches[password]',
+                'errors' => [
+                    'matches' => 'Passwords do not match.',
                 ],
             ],
         ];
@@ -63,18 +70,18 @@ class RegistrationController extends Controller
 
         // 3) If validation passes, collect form data
         $data = [
-            'first_name'      => $this->request->getPost('first_name'),
-            'last_name'       => $this->request->getPost('last_name'),
-            'email'           => $this->request->getPost('email'),
-            'username'        => $this->request->getPost('username'),
-            'contact_number'  => $this->request->getPost('contact_number'),
-            'address'         => $this->request->getPost('address'),
-            'address_dropoff' => $this->request->getPost('address_dropoff'),
-            'birthday'        => $this->request->getPost('birthday'),
-            'gender'          => $this->request->getPost('gender'),
-            'user_level'      => $this->request->getPost('user_level'),
+            'first_name'     => $this->request->getPost('first_name'),
+            'last_name'      => $this->request->getPost('last_name'),
+            'email'          => $this->request->getPost('email'),
+            'username'       => $this->request->getPost('username'),
+            'contact_number' => $this->request->getPost('contact_number'),
+            'address'        => $this->request->getPost('address'),
+            'birthday'       => $this->request->getPost('birthday'),
+            'gender'         => $this->request->getPost('gender'),
+            // Set default values:
+            'user_level'     => 'customer',  // Always a customer
+            'address_dropoff'=> '',          // Default blank value
         ];
-
 
         // 4) Hash the password
         $plainPassword = $this->request->getPost('password');

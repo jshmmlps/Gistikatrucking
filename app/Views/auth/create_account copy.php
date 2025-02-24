@@ -6,8 +6,8 @@
     <link rel="stylesheet" href="<?= base_url('/public/assets/css/bootstrap.min.css'); ?>">
     <style>
         body .container {
-            margin-top: 0 !important;
-        }
+        margin-top: 0 !important;
+    }
     </style>
 </head>
 <body style="background:linear-gradient(135deg, #003366, #00c6ff);">
@@ -57,6 +57,10 @@
                                 <input type="text" name="username" class="form-control" value="<?= old('username') ?>" required>
                             </div>
 
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
 
                             <div class="mb-3">
                                 <label for="contact_number" class="form-label">Contact Number</label>
@@ -65,18 +69,13 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="confirm_password" class="form-label">Confirm Password</label>
-                                <input type="password" name="confirm_password" class="form-control" required>
-                            </div>
-                            
-                            <div class="mb-3">
                                 <label for="address" class="form-label">Address</label>
                                 <input type="text" name="address" class="form-control" value="<?= old('address') ?>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="address_dropoff" class="form-label">Address Dropoff (customer only)</label>
+                                <input type="text" name="address_dropoff" class="form-control" value="<?= old('address_dropoff') ?>">
                             </div>
 
                             <div class="mb-3">
@@ -92,7 +91,17 @@
                                     <option value="female" <?= old('gender') === 'female' ? 'selected' : '' ?>>Female</option>
                                 </select>
                             </div>
-                            <!-- Note: The user_level and address_dropoff fields are removed from the UI -->
+
+                            <div class="mb-3">
+                                <label for="user_level" class="form-label">User Level</label>
+                                <select name="user_level" class="form-select" required>
+                                    <option value="" disabled selected>--Select Role--</option>
+                                    <option value=" " <?= old('user_level') === 'admin' ? 'selected' : '' ?>>Admin</option>
+                                    <option value="staff_op" <?= old('user_level') === 'staff_op' ? 'selected' : '' ?>>Operation Coordinator</option>
+                                    <option value="staff_res" <?= old('user_level') === 'staff_res' ? 'selected' : '' ?>>Resource Manager</option>
+                                    <option value="customer" <?= old('user_level') === 'customer' ? 'selected' : '' ?>>Customer</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="d-grid mt-3">

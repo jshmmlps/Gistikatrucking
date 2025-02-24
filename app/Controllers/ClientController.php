@@ -4,6 +4,11 @@ namespace App\Controllers;
 
 class ClientController extends BaseController
 {
+    public function test()
+    {
+        echo "Hello Client";
+    }
+
     public function clients()
     {
         $clients = [
