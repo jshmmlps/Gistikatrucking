@@ -36,7 +36,7 @@
                                 <div class="offcanvas-body">
                                     <!-- Truck Details Panel -->
                                     <table id="truck-info">
-                                        <tr><th>Truck Model:</th>
+                                        <tr><th>Truck Model:</th><td><?= esc($row['tmodel']) ?></td>
                                         <tr><th>Plate Number:</th><td><?= esc($row['plate_number']) ?></td>
                                         <tr><th>Engine Number:</th> 
                                         <tr><th>Chassis Number:</th> 
