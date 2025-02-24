@@ -35,21 +35,63 @@
                                 </div>
                                 <div class="offcanvas-body">
                                     <!-- Truck Details Panel -->
-                                    <table id="truck-info">
-                                        <tr><th>Truck Model:</th> <td id="Truck_model">Select a truck</td></tr>
-                                        <tr><th>Plate Number:</th> <td id="License_plate"></td></tr>
-                                        <tr><th>Engine Number:</th> <td id="Engine_number"></td></tr>
-                                        <tr><th>Chassis Number:</th> <td id="Chassis"></td></tr>
-                                        <tr><th>Color:</th> <td id="Truck_color"></td></tr>
-                                        <tr><th>Certificate of Registration:</th> <td id="COR"></td></tr>
-                                        <tr><th>Insurance Details:</th> <td id="Insurance_details"></td></tr>
-                                        <tr><th>License Plate Expiry:</th> <td id="License_epiry_date"></td></tr>
-                                        <tr><th>Registration Expiry Date:</th> <td id="Registration_expiry"></td></tr>
-                                        <tr><th>Truck Type:</th> <td id="Truck_type"></td></tr>
-                                        <tr><th>Fuel Type:</th> <td id="Fuel_type"></td></tr>
-                                        <tr><th>Truck Length:</th> <td id="Truck_length"></td></tr>
-                                        <tr><th>Load Capacity:</th> <td id="Loac_capacity"></td></tr>
-                                        <tr><th>Maintenance Technician:</th> <td id="Maintenace_Technician"></td></tr>
+                                    <table border="1">
+                                        <tr>
+                                            <th>Truck Model</th>
+                                            <td><?= esc($truckData['tmodel']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Plate Number</th>
+                                            <td><?= esc($truckData['plate_number']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Engine Number</th>
+                                            <td><?= esc($truckData['enginenumber']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Chassis Number</th>
+                                            <td><?= esc($truckData['chassis_number']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Color</th>
+                                            <td><?= esc($truckData['Truck_color'] ?? 'N/A') ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Certificate of Registration</th>
+                                            <td><?= esc($truckData['cor']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Insurance Details</th>
+                                            <td><?= esc($truckData['insurance']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>License Plate Expiry</th>
+                                            <td><?= esc($truckData['license_expiry']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Registration Expiry</th>
+                                            <td><?= esc($truckData['registration_expiry']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Truck Type</th>
+                                            <td><?= esc($truckData['type']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Fuel Type</th>
+                                            <td><?= esc($truckData['fuel_type']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Truck Length</th>
+                                            <td><?= esc($truckData['length']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Load Capacity</th>
+                                            <td><?= esc($truckData['capacity']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Maintenance Technician</th>
+                                            <td><?= esc($truckData['technician']) ?></td>
+                                        </tr>
                                     </table>
                                 </div>
                             </div>
