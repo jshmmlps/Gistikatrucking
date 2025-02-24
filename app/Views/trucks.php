@@ -49,7 +49,7 @@
                                         <tr><th>Fuel Type:</th> 
                                         <tr><th>Truck Length:</th> 
                                         <tr><th>Load Capacity:</th> 
-                                        <tr><th>Maintenance Technician:</th>
+                                        <tr><th>Maintenance Technician:</th><td><?= esc($row['technician']) ?></td>
                                         <table border="1">
                                     </table>
                                 </div>
