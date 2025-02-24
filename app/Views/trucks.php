@@ -36,20 +36,21 @@
                                 <div class="offcanvas-body">
                                     <!-- Truck Details Panel -->
                                     <table id="truck-info">
-                                        <tr><th>Truck Model:</th> <td id="tmodel">Select a truck</td></tr>
-                                        <tr><th>Plate Number:</th> <td id="plate_number"></td></tr>
-                                        <tr><th>Engine Number:</th> <td id="enginenumber"></td></tr>
-                                        <tr><th>Chassis Number:</th> <td id="chassis_number"></td></tr>
-                                        <tr><th>Color:</th> <td id="color"></td></tr>
-                                        <tr><th>Certificate of Registration:</th> <td id="cor"></td></tr>
-                                        <tr><th>Insurance Details:</th> <td id="insurance"></td></tr>
-                                        <tr><th>License Plate Expiry:</th> <td id="license_expiry"></td></tr>
-                                        <tr><th>Registration Expiry Date:</th> <td id="registration_expiry"></td></tr>
-                                        <tr><th>Truck Type:</th> <td id="type"></td></tr>
-                                        <tr><th>Fuel Type:</th> <td id="fuel_type"></td></tr>
-                                        <tr><th>Truck Length:</th> <td id="length"></td></tr>
-                                        <tr><th>Load Capacity:</th> <td id="capacity"></td></tr>
-                                        <tr><th>Maintenance Technician:</th> <td id="technician"></td></tr>
+                                        <tr><th>Truck Model:</th><td><?= esc($truckData['tmodel']) ?></td>
+                                        <tr><th>Plate Number:</th> 
+                                        <tr><th>Engine Number:</th> 
+                                        <tr><th>Chassis Number:</th> 
+                                        <tr><th>Color:</th> 
+                                        <tr><th>Certificate of Registration:</th>
+                                        <tr><th>Insurance Details:</th> 
+                                        <tr><th>License Plate Expiry:</th> 
+                                        <tr><th>Registration Expiry Date:</th> 
+                                        <tr><th>Truck Type:</th> 
+                                        <tr><th>Fuel Type:</th> 
+                                        <tr><th>Truck Length:</th> 
+                                        <tr><th>Load Capacity:</th> 
+                                        <tr><th>Maintenance Technician:</th>
+                                        <table border="1">
                                     </table>
                                 </div>
                             </div>
