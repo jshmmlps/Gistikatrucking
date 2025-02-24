@@ -18,9 +18,9 @@ class TruckController extends Controller
     public function view($id)
     {
         $model = new TruckModel();
-        $data['truck'] = $model->find($id); // Fetch single truck details
+        $data['trucks'] = $model->find($id); // Fetch single truck details
 
-        if (!$data['truck']) {
+        if (!$data['trucks']) {
             return redirect()->to('/trucks')->with('error', 'Truck not found.');
         }
 

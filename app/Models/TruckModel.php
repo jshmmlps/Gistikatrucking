@@ -51,12 +51,21 @@ class TruckModel
     foreach ($allTrucks as $key => $truckData) {
         $formattedTrucks[] = [
             'firebaseKey'         => $key,
-            'plate_number'        => $truckData['License_plate']       ?? '',
-            'name'                => $truckData['Truck_name']          ?? '',
-            'fuel_type'           => $truckData['Fuel_type']           ?? '',
-            'registration_expiry' => $truckData['Registration_expiry'] ?? '',
-            'type'                => $truckData['Truck_type']          ?? '',
-        ];
+            'plate_number'        => $truckData['License_plate']            ?? '',
+            'name'                => $truckData['Truck_name']               ?? '',
+            'fuel_type'           => $truckData['Fuel_type']                ?? '',
+            'registration_expiry' => $truckData['Registration_expiry']      ?? '',
+            'type'                => $truckData['Truck_type']               ?? '',
+            'tmodel'              => $truckData['Truck_model']              ?? '',
+            'enginenumber'        => $truckData['Engine_number']            ?? '',
+            'chassis_number'      => $truckData['Chassis']                  ?? '',
+            'cor'                 => $truckData['COR']                      ?? '',
+            'insurance'           => $truckData['Insurance_details']        ?? '',
+            'license_expiry'      => $truckData['Lisence_expiry_date']      ?? '',
+            'capacity'            => $truckData['Load_capcity']             ?? '',
+            'technician'          => $truckData['Maintenance_technician']   ?? '',
+            'length'              => $truckData['Truck_length']             ?? '',
+        ];  
     }
 
     return $formattedTrucks;
