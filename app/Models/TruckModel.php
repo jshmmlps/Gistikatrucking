@@ -17,7 +17,7 @@ class TruckModel
     }
     public function getTruckdetails($field, $value)
     {
-        $reference = $this->db->getReference('trucks');
+        $reference = $this->db->getReference('Truckings');
         $snapshot = $reference->getSnapshot();
 
         if (!$snapshot->exists()) {
