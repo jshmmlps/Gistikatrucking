@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Login</title>
+    <title>Login</title>
     <link rel="stylesheet" href="<?= base_url('/public/assets/css/style.css') ?>">
     <link rel="stylesheet" href="<?= base_url('/public/assets/css/bootstrap.min.css'); ?>">
     <style>
@@ -30,9 +30,9 @@
                                 <p style="color:red;"><?= session()->getFlashdata('error') ?></p>
                             <?php endif; ?>
                         </div>
-                        <form action="<?= base_url('/admin/login/process') ?>" method="post"> <?= csrf_field() ?>
+                        <form action="<?= base_url('/login/process') ?>" method="post"> <?= csrf_field() ?>
                             <div class="input-group mb-3">
-                                <input type="text" name="username" required autofocus class="form-control form-control-lg bg-light fs-6"id="emailAddress" placeholder="Email address">
+                                <input type="text" name="username" required autofocus class="form-control form-control-lg bg-light fs-6"id="emailAddress" placeholder="Username">
                             </div>
                             <div class="input-group mb-1">
                                 <input type="password" name="password" required autofocus class="form-control form-control-lg bg-light fs-6"id="Password" placeholder="Password">
@@ -50,7 +50,7 @@
                                 <button class="btn btn-lg login-btn w-100 fs-6">Login</button>
                             </div>
                             <div class="row ">
-                                <small>Don't have an account? <a href="#">Sign Up</a></small>
+                                <small>Don't have an account? <a href="<?= base_url('/register') ?>">Sign Up</a></small>
                             </div>
                         </form>
                     </div>
@@ -65,34 +65,3 @@
 </body>
 </html>
 
-
-
-<!-- PREVIOUS LOGIN PHP
-    <section class="container d-flex justify-content-center align-items-center min-vh-100 bg-secondary" >
-        <div class="mt-4 mb-4 text-entry">
-            <img src="trucking_logo.png" class="img-fluid" alt="#">
-            <h1 class="h3 my-3">Admin Login</h1>
-                <?php if(session()->getFlashdata('error')): ?>
-                    <p style="color:red;"><?= session()->getFlashdata('error') ?></p>
-                <?php endif; ?>
-
-                <form action="<?= base_url('/admin/login/process') ?>" method="post">
-                    <?= csrf_field() ?>
-                    <div class="input-group">
-                        <input type="text" name="username" required autofocus class="form-control mb-2"id="emailAddress" placeholder="Email address">
-                    </div>
-                    <div class="input-group">
-                        <input type="password" name="password" required autofocus class="form-control mt-2"id="Password" placeholder="Password">
-                    </div>
-                    <div class="mt-3 checkbox">
-                        <label>
-                            <input type="checkbox" value="remember-me"> Remember me
-                        </label>
-                    </div>
-                    <div class="my-3">
-                        <button class="btn btn-lg btn-primary submit-btn" type="submit">Login</button>
-                    </div>
-                </form>
-        </div>
-    </section>
--->

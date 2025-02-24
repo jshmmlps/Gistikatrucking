@@ -38,22 +38,31 @@ $routes->get('maintenance/view/(:num)', 'MaintenanceController::view/$1');
 $routes->get('firebase-test', 'FirebaseTestController::index');
 $routes->get('firebase-test-read', 'FirebaseTestController::read');
 
-// Admin login
-$routes->get('admin/login', 'AdminAuthController::login');
-$routes->post('admin/login/process', 'AdminAuthController::processLogin');
-$routes->get('admin/logout', 'AdminAuthController::logout');
+// // Admin login
+// $routes->get('admin/login', 'AdminAuthController::login');
+// $routes->post('admin/login/process', 'AdminAuthController::processLogin');
+// $routes->get('admin/logout', 'AdminAuthController::logout');
 
-// Staff login
-$routes->get('staff/login', 'StaffAuthController::login');
-$routes->post('staff/login/process', 'StaffAuthController::processLogin');
-$routes->get('staff/logout', 'StaffAuthController::logout');
+// // Staff login
+// $routes->get('staff/login', 'StaffAuthController::login');
+// $routes->post('staff/login/process', 'StaffAuthController::processLogin');
+// $routes->get('staff/logout', 'StaffAuthController::logout');
 
-// Client login
-$routes->get('client/login', 'ClientAuthController::login');
-$routes->post('client/login/process', 'ClientAuthController::processLogin');
-$routes->get('client/logout', 'ClientAuthController::logout');
+// // Client login
+// $routes->get('client/login', 'ClientAuthController::login');
+// $routes->post('client/login/process', 'ClientAuthController::processLogin');
+// $routes->get('client/logout', 'ClientAuthController::logout');
 
 // Registration
+$routes->get('register', 'RegistrationController::createForm');
+$routes->post('register/create', 'RegistrationController::createAccount');
+
+// Unified login routes
+$routes->get('login', 'AuthController::login');
+$routes->post('login/process', 'AuthController::processLogin');
+$routes->get('logout', 'AuthController::logout');
+
+// Registration routes remain unchanged
 $routes->get('register', 'RegistrationController::createForm');
 $routes->post('register/create', 'RegistrationController::createAccount');
 
