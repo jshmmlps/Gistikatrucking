@@ -1,4 +1,5 @@
 <?= $this->extend('templates/layout.php') ?>
+
 <?= $this->section('content') ?>
 <!DOCTYPE html>
 <html lang="en">
