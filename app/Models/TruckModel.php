@@ -2,40 +2,21 @@
 
 namespace App\Models;
 
-// use CodeIgniter\Model;
-use Config\Services;
-
 class TruckModel
 {
     protected $db;
 
     public function __construct()
     {
-        // parent::construct();
-        // Initialize Firebase Realtime Database from your Services
-        $this->db = Services::firebase();
-    }
-    public function getTruckdetails($field, $value)
-    {
-        $reference = $this->db->getReference('');
-        $snapshot = $reference->getSnapshot();
-
-        if (!$snapshot->exists()) {
-            return null;
-        }
-
-        $trucks = $snapshot->getValue();  // all /trucks
-        foreach ($trucks as $key => $trucksData) {
-            if (isset($trucksData[$field]) && $trucksData[$field] === $value) {
-                // Include the Firebase key in the returned data
-                $trucksData['firebaseKey'] = $key;
-                return $trucksData;
-            }
-        }
-
-        return null;
+        // Load the Firebase service from your Services configuration
+        $this->db = service('firebase');
     }
 
+    /**
+     * Retrieve all trucks from Firebase.
+     *
+     * @return array|null
+     */
     public function getAllTrucks()
 {
     $reference = $this->db->getReference('Truckings');
@@ -72,7 +53,14 @@ class TruckModel
     return $formattedTrucks;
 }
 
-
+    /**
+     * Retrieve a single truck by its license plate.
+     *
+     * @param string $licensePlate
+     * @return array|null
+     */
+    public function getTruckByLicense(string $licensePlate)
+    {
+        return $this->db->getReference('trucks/' . $licensePlate)->getValue();
+    }
 }
-
-?>

@@ -20,8 +20,9 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($trucks as $row): ?>
+                <?php foreach ($trucks as $row):?>
                     <tr>
+                        <? echo esc($row['tmodel'])?>
                         <td><?= esc($row['plate_number']) ?></td>
                         <td><?= esc($row['name']) ?></td>
                         <td><?= esc($row['fuel_type']) ?></td>
@@ -36,8 +37,8 @@
                                 <div class="offcanvas-body">
                                     <!-- Truck Details Panel -->
                                     <table id="truck-info">
-                                        <tr><th>Truck Model:</th><td><?= esc($Trucking['tmodel']) ?></td>
-                                        <tr><th>Plate Number:</th><td><?= esc($Trucking['plate_number']) ?></td>
+                                        <tr><th>Truck Model:</th><td><?= esc($row['tmodel'])?></td>
+                                        <tr><th>Plate Number:</th><td><?= esc($row['plate_number']) ?></td>
                                         <tr><th>Engine Number:</th> 
                                         <tr><th>Chassis Number:</th> 
                                         <tr><th>Color:</th> 
@@ -49,8 +50,7 @@
                                         <tr><th>Fuel Type:</th> 
                                         <tr><th>Truck Length:</th> 
                                         <tr><th>Load Capacity:</th> 
-                                        <tr><th>Maintenance Technician:</th><td><?= esc($Trucking['technician']) ?></td>
-                                        <table border="1">
+                                        <tr><th>Maintenance Technician:</th><td><?= esc($row['technician']) ?></td>
                                     </table>
                                 </div>
                             </div>
@@ -61,20 +61,4 @@
         </table>
     </div>
 </div>
-
-<!-- Styling -->
-<!--
-<style>
-.title { font-size: 24px; margin-bottom: 15px; }
-.content-container { display: flex; justify-content: space-between; gap: 20px; }
-.table-container { width: 60%; }
-.details-panel { width: 35%; background: #f5f5f5; padding: 20px; border-radius: 10px; text-align: left; }
-.truck-table { width: 100%; border-collapse: collapse; }
-.truck-table th, .truck-table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-.details-table { width: 100%; }
-.details-table th, .details-table td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
-.view-button { color: blue; text-decoration: none; cursor: pointer; }
-.details-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
-</style>
-                -->
 <?= $this->endSection() ?>
