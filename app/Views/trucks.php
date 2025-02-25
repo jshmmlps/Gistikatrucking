@@ -27,11 +27,10 @@
                         <td><?= esc($row['fuel_type']) ?></td>
                         <td><?= esc($row['registration_expiry']) ?></td>
                         <td><?= esc($row['type']) ?></td>
-                        <?php if($trucks && is_array($trucks)): ?>
-                        <?php foreach($trucks as $key => $truck): ?>
-                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas<?= esc($key) ?>" aria-labelledby="offcanvasLabel<?= esc($key) ?>">
+                        <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-truck" onclick="getTruckdetails(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">View</a></button>
+                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
                                 <div class="offcanvas-header">
-                                    <h5 id="offcanvasLabel<?= esc($key) ?>">Truck Details: <?= esc($truck['Truck_name'] ?? 'Truck Details') ?></h5>
+                                    <h5 class="offcanvas-title" id="offcanvasRightLabel">Truck Details</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                                 </div>
                                 <div class="offcanvas-body">
@@ -62,4 +61,20 @@
         </table>
     </div>
 </div>
+
+<!-- Styling -->
+<!--
+<style>
+.title { font-size: 24px; margin-bottom: 15px; }
+.content-container { display: flex; justify-content: space-between; gap: 20px; }
+.table-container { width: 60%; }
+.details-panel { width: 35%; background: #f5f5f5; padding: 20px; border-radius: 10px; text-align: left; }
+.truck-table { width: 100%; border-collapse: collapse; }
+.truck-table th, .truck-table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+.details-table { width: 100%; }
+.details-table th, .details-table td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
+.view-button { color: blue; text-decoration: none; cursor: pointer; }
+.details-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+</style>
+                -->
 <?= $this->endSection() ?>
