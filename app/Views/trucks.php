@@ -11,6 +11,7 @@
         <table class="table table-striped" style="width:100%">
             <thead>
                  <tr>
+                    <th>Truck ID</th>
                     <th>License Plate</th>
                     <th>Truck Name</th>
                     <th>Fuel Type</th>
@@ -23,12 +24,13 @@
                 <?php foreach ($trucks as $row):?>
                     <tr>
                         <? echo esc($row['tmodel'])?>
+                        <td><?= esc($row['truckId'])?></td>
                         <td><?= esc($row['plate_number']) ?></td>
                         <td><?= esc($row['name']) ?></td>
                         <td><?= esc($row['fuel_type']) ?></td>
                         <td><?= esc($row['registration_expiry']) ?></td>
                         <td><?= esc($row['type']) ?></td>
-                        <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-truck" onclick="getTruckdetails(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">View</a></button>
+                        <td><button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><a href="#" class="view-truck" onclick="getTruckdetails(<?= $trucks('truckId') ?>)">View</a></button>
                             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
                                 <div class="offcanvas-header">
                                     <h5 class="offcanvas-title" id="offcanvasRightLabel">Truck Details</h5>
@@ -37,20 +39,21 @@
                                 <div class="offcanvas-body">
                                     <!-- Truck Details Panel -->
                                     <table id="truck-info">
-                                        <tr><th>Truck Model:</th><td><?= esc($row['tmodel'])?></td>
-                                        <tr><th>Plate Number:</th><td><?= esc($row['plate_number']) ?></td>
-                                        <tr><th>Engine Number:</th> 
-                                        <tr><th>Chassis Number:</th> 
-                                        <tr><th>Color:</th> 
-                                        <tr><th>Certificate of Registration:</th>
-                                        <tr><th>Insurance Details:</th> 
-                                        <tr><th>License Plate Expiry:</th> 
-                                        <tr><th>Registration Expiry Date:</th> 
-                                        <tr><th>Truck Type:</th> 
-                                        <tr><th>Fuel Type:</th> 
-                                        <tr><th>Truck Length:</th> 
-                                        <tr><th>Load Capacity:</th> 
-                                        <tr><th>Maintenance Technician:</th><td><?= esc($row['technician']) ?></td>
+                                        <tr><th>Truck ID:</th>                      <td><?= esc($row['truckId'])?></td>
+                                        <tr><th>Truck Model:</th>                   <td><?= esc($row['tmodel'])?></td>
+                                        <tr><th>Plate Number:</th>                  <td><?= esc($row['plate_number']) ?></td>
+                                        <tr><th>Engine Number:</th>                 <td><?= esc($row['enginenumber'])?></td> 
+                                        <tr><th>Chassis Number:</th>                <td><?= esc($row['chassis_number'])?></td> 
+                                        <tr><th>Color:</th>                         <td><?= esc($row['color'])?></td>
+                                        <tr><th>Certificate of Registration:</th>   <td><?= esc($row['cor'])?></td>
+                                        <tr><th>Insurance Details:</th>             <td><?= esc($row['insurance'])?></td>
+                                        <tr><th>License Plate Expiry:</th>          <td><?= esc($row['license_expiry'])?></td>
+                                        <tr><th>Registration Expiry Date:</th>      <td><?= esc($row['registration_expiry'])?></td>
+                                        <tr><th>Truck Type:</th>                    <td><?= esc($row['type'])?></td>
+                                        <tr><th>Fuel Type:</th>                     <td><?= esc($row['fuel_type'])?></td>
+                                        <tr><th>Truck Length:</th>                  <td><?= esc($row['length'])?></td>
+                                        <tr><th>Load Capacity:</th>                 <td><?= esc($row['capacity'])?></td>
+                                        <tr><th>Maintenance Technician:</th>        <td><?= esc($row['technician']) ?></td>
                                     </table>
                                 </div>
                             </div>

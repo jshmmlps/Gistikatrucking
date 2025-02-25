@@ -32,6 +32,7 @@ class TruckModel
     foreach ($allTrucks as $key => $truckData) {
         $formattedTrucks[] = [
             'firebaseKey'         => $key,
+            'truckId'        => $truckData['Truck_ID']            ?? '',
             'plate_number'        => $truckData['License_plate']            ?? '',
             'name'                => $truckData['Truck_name']               ?? '',
             'fuel_type'           => $truckData['Fuel_type']                ?? '',
