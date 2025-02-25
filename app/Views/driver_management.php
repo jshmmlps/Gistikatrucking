@@ -15,7 +15,6 @@
                     <th>Last Name</th>
                     <th>Contact Number</th>
                     <th>Position</th>
-                    <th>Home Address</th>
                     <th>Employee ID</th>
                     <th>Action</th>
                 </tr>
@@ -27,13 +26,12 @@
                     <td><?= $driver['last_name'] ?></td>
                     <td><?= $driver['contact_number'] ?></td>
                     <td><?= $driver['position'] ?></td>
-                    <td><?= $driver['home_address'] ?></td>
                     <td><?= $driver['employee_id'] ?></td>
                     <td>
                         <button type="button" class="btn btn-warning btn-sm fw-bold px-4 view-client text-dark" 
-                        data-id="<?= $driver['id'] ?>"
                         data-bs-toggle="modal"
-                        data-bs-target="#driverModal">View</button>
+                        data-bs-target="#driverModal"
+                        onclick='getAllDrivers(<?= json_encode($driver) ?>)'>View</button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -54,16 +52,55 @@
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <tbody>
-                            <tr><th class="fw-bold">Name:</th><td id="driver-name"></td></tr>
-                            <tr><th class="fw-bold">Date of Employment:</th><td id="driver-employment"></td></tr>
-                            <tr><th class="fw-bold">Position:</th><td id="driver-position"></td></tr>
-                            <tr><th class="fw-bold">Last Truck Assigned:</th><td id="driver-truck"></td></tr>
-                            <tr><th class="fw-bold">License Number:</th><td id="driver-license"></td></tr>
-                            <tr><th class="fw-bold">License Expiry Date:</th><td id="driver-expiry"></td></tr>
-                            <tr><th class="fw-bold">Birthday:</th><td id="driver-birthday"></td></tr>
-                            <tr><th class="fw-bold">Medical Record:</th><td id="driver-medical"></td></tr>
-                            <tr><th class="fw-bold">Trips Completed:</th><td id="driver-trips"></td></tr>
-                            <tr>
+                        <tr>
+                    <th>Name:</th>
+                    <td id="driverNamePlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>Contact Number:</th>
+                    <td id="contactNumberPlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>Date of Employment:</th>
+                    <td id="dateOfEmploymentPlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>Address:</th>
+                    <td id="addressPlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>Position:</th>
+                    <td id="positionPlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>Employee ID:</th>
+                    <td id="employeeIdPlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>Last Truck Assigned:</th>
+                    <td id="lastTruckPlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>License Number:</th>
+                    <td id="licenseNumberPlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>License Expiry Date:</th>
+                    <td id="licenseExpiryPlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>Birthday:</th>
+                    <td id="birthdayPlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>Medical Record:</th>
+                    <td id="medicalRecordPlaceholder"></td>
+                </tr>
+                <tr>
+                    <th>Trips Completed:</th>
+                    <td id="tripsCompletedPlaceholder"></td>
+                </tr>
+                <tr>
                                 <th class="fw-bold">Notes:</th>
                                 <td>
                                     <textarea id="driver-notes" class="form-control" rows="3"></textarea>
@@ -80,32 +117,34 @@
     </div>
 </div>
 
-<!-- JavaScript to Handle Modal Pop-up -->
+    <!-- Key Indicators Container (if needed) -->
+    <div id="keyIndicatorsContainer" style="display:none;">
+        <div id="keyIndicatorsIcons"></div>
+    </div>
+</div>
+
+<!-- JavaScript Section -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll(".view-driver").forEach(button => {
-        button.addEventListener("click", function() {
-            let driverId = this.getAttribute("data-id");
-
-            fetch("<?= base_url('drivers/details/') ?>" + driverId)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("driver-name").innerText = data.first_name + " " + data.last_name;
-                    document.getElementById("driver-employment").innerText = data.date_of_employment;
-                    document.getElementById("driver-position").innerText = data.position;
-                    document.getElementById("driver-truck").innerText = data.last_truck_assigned;
-                    document.getElementById("driver-license").innerText = data.license_number;
-                    document.getElementById("driver-expiry").innerText = data.license_expiry_date;
-                    document.getElementById("driver-birthday").innerText = data.birthday;
-                    document.getElementById("driver-medical").innerText = data.medical_record;
-                    document.getElementById("driver-trips").innerText = data.trips_completed;
-                    document.getElementById("driver-notes").value = data.notes || "";
-                })
-                .catch(error => console.error("Error fetching driver details:", error));
-        });
-    });
-});
+    // Function to load driver details into the offcanvas
+    let driverData = <?= json_encode($driver) ?>;
+    // Function to hide the key indicators container
+    function hideKeyIndicators() {
+        document.getElementById("keyIndicatorsContainer").style.display = "none";
+    }
+    function getDriverDetails(driverData) {
+        document.getElementById("driverNamePlaceholder").innerText = (driverData.first_name                         || 'N/A') + ' ' + (driverData.last_name || '');
+        document.getElementById("contactNumberPlaceholder").innerText = driverData.contact_number                   || 'N/A';
+        document.getElementById("dateOfEmploymentPlaceholder").innerText = driverData.date_of_employment            || 'N/A';
+        document.getElementById("positionPlaceholder").innerText = driverData.position                              || 'N/A';
+        document.getElementById("employeeIdPlaceholder").innerText = driverData.employee_ID                         || 'N/A';
+        document.getElementById("lastTruckPlaceholder").innerText = driverData.last_truck                           || 'N/A';
+        document.getElementById("licenseNumberPlaceholder").innerText = driverData.license_number                   || 'N/A';
+        document.getElementById("licenseExpiryPlaceholder").innerText = driverData.license_expiry                   || 'N/A';
+        document.getElementById("birthdayPlaceholder").innerText = driverData.birthday                              || 'N/A';
+        document.getElementById("medicalRecordPlaceholder").innerText = driverData.medical_record                   || 'N/A';
+        document.getElementById("tripsCompletedPlaceholder").innerText = driverData.trip_completed                  || 'N/A';
+        document.getElementById("notesPlaceholder").innerText = driverData.notes                                    || 'N/A';
+    }
 </script>
-
-
 <?= $this->endSection() ?>
+

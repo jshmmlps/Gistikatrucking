@@ -16,7 +16,7 @@ class DriverController extends BaseController
 
     public function drivers()
     {
-        $data['drivers'] = $this->driverModel->findAll();
+        $data['drivers'] = $this->driverModel->getAllDrivers();
         return view('driver_management', $data);
     }
 

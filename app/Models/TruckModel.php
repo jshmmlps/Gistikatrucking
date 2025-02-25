@@ -32,7 +32,7 @@ class TruckModel
     foreach ($allTrucks as $key => $truckData) {
         $formattedTrucks[] = [
             'firebaseKey'         => $key,
-            'truckId'        => $truckData['Truck_ID']            ?? '',
+            'truckId'             => $truckData['Truck_ID']            ?? '',
             'plate_number'        => $truckData['License_plate']            ?? '',
             'name'                => $truckData['Truck_name']               ?? '',
             'fuel_type'           => $truckData['Fuel_type']                ?? '',
@@ -53,15 +53,4 @@ class TruckModel
 
     return $formattedTrucks;
 }
-
-    /**
-     * Retrieve a single truck by its license plate.
-     *
-     * @param string $licensePlate
-     * @return array|null
-     */
-    public function getTruckByLicense(string $licensePlate)
-    {
-        return $this->db->getReference('trucks/' . $licensePlate)->getValue();
-    }
 }
