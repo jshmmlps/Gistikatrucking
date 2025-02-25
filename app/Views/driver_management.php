@@ -50,18 +50,27 @@
             <h4 class="modal-title text-center w-100" id="offcanvasRightLabel">Complete Driver Details</h4>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div id="driver-info">
-                    <p><strong>Name:</strong> <span id="driver-name"></span></p>
-                    <p><strong>Date of Employment:</strong> <span id="driver-employment"></span></p>
-                    <p><strong>Position:</strong> <span id="driver-position"></span></p>
-                    <p><strong>Last Truck Assigned:</strong> <span id="driver-truck"></span></p>
-                    <p><strong>License Number:</strong> <span id="driver-license"></span></p>
-                    <p><strong>License Expiry Date:</strong> <span id="driver-expiry"></span></p>
-                    <p><strong>Birthday:</strong> <span id="driver-birthday"></span></p>
-                    <p><strong>Medical Record:</strong> <span id="driver-medical"></span></p>
-                    <p><strong>Trips Completed:</strong> <span id="driver-trips"></span></p>
-                    <p><strong>Notes:</strong> <textarea id="driver-notes" class="form-control"></textarea></p>
+                <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr><th class="fw-bold">Name:</th><td id="driver-name"></td></tr>
+                            <tr><th class="fw-bold">Date of Employment:</th><td id="driver-employment"></td></tr>
+                            <tr><th class="fw-bold">Position:</th><td id="driver-position"></td></tr>
+                            <tr><th class="fw-bold">Last Truck Assigned:</th><td id="driver-truck"></td></tr>
+                            <tr><th class="fw-bold">License Number:</th><td id="driver-license"></td></tr>
+                            <tr><th class="fw-bold">License Expiry Date:</th><td id="driver-expiry"></td></tr>
+                            <tr><th class="fw-bold">Birthday:</th><td id="driver-birthday"></td></tr>
+                            <tr><th class="fw-bold">Medical Record:</th><td id="driver-medical"></td></tr>
+                            <tr><th class="fw-bold">Trips Completed:</th><td id="driver-trips"></td></tr>
+                            <tr>
+                                <th class="fw-bold">Notes:</th>
+                                <td>
+                                    <textarea id="driver-notes" class="form-control" rows="3"></textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div class="modal-footer">

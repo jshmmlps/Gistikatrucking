@@ -335,11 +335,11 @@ button:hover {
     border-radius: 10px;
 }
 
-
 .view-client, .view-driver, .view-booking, .view-truck {
     text-decoration: none;
-    color: #e2e2e2;
+    color: #333;
 }
+
 
 /* RESPONSIVE */
 @media screen and (max-width: 992px) {
@@ -456,3 +456,5 @@ button:hover {
     text-align: center;
     font-weight: bold;
 }
+
+/*MAINTENANCE CSS*/

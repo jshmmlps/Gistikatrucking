@@ -51,18 +51,25 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div id="client-info">
-                    <p><strong>Client Name:</strong> <span id="client-name"></span></p>
-                    <p><strong>Email:</strong> <span id="client-email"></span></p>
-                    <p><strong>Address:</strong> <span id="client-address"></span></p>
-                    <p><strong>Business Type:</strong> <span id="client-business"></span></p>
-                    <p><strong>Cargo Type:</strong> <span id="client-cargo"></span></p>
-                    <p><strong>Pick-up Location:</strong> <span id="client-pickup"></span></p>
-                    <p><strong>Drop-off Location:</strong> <span id="client-dropoff"></span></p>
-                    <p><strong>Client Since:</strong> <span id="client-since"></span></p>
-                    <p><strong>Notes:</strong> <textarea id="client-notes" class="form-control" rows="3"></textarea></p>
-                </div>
-            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <tbody>
+                        <tr><th class="fw-bold">Client Name:</th><td id="client-name"></td></tr>
+                        <tr><th class="fw-bold">Email:</th><td id="client-email"></td></tr>
+                        <tr><th class="fw-bold">Address:</th><td id="client-address"></td></tr>
+                        <tr><th class="fw-bold">Business Type:</th><td id="client-business"></td></tr>
+                        <tr><th class="fw-bold">Cargo Type:</th><td id="client-cargo"></td></tr>
+                        <tr><th class="fw-bold">Pick-up Location:</th><td id="client-pickup"></td></tr>
+                        <tr><th class="fw-bold">Drop-off Location:</th><td id="client-dropoff"></td></tr>
+                        <tr><th class="fw-bold">Client Since:</th><td id="client-since"></td></tr>
+                        <tr>
+                            <th class="fw-bold">Notes:</th>
+                            <td>
+                                <textarea id="client-notes" class="form-control" rows="3"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-warning" data-bs-dismiss="modal">Close</button>
             </div>

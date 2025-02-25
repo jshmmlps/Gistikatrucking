@@ -50,25 +50,29 @@
                 <h4 class="modal-title text-center w-100" id="offcanvasRightLabel">Load Assignment</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-                <div class="modal-body">
-                    <div id="booking-info">
-                        <p><strong>Booking ID:</strong> <span id="booking-id"></span></p>
-                        <p><strong>Client Name:</strong> <span id="booking-client"></span></p>
-                        <p><strong>Booking Date:</strong> <span id="booking-date"></span></p>
-                        <p><strong>Dispatch Date:</strong> <span id="booking-dispatch"></span></p>
-                        <p><strong>Cargo Type:</strong> <span id="booking-cargo"></span></p>
-                        <p><strong>Cargo Weight:</strong> <span id="booking-weight"></span></p>
-                        <p><strong>Drop-off Location:</strong> <span id="booking-dropoff"></span></p>
-                        <p><strong>Pick-up Location:</strong> <span id="booking-pickup"></span></p>
-                        <p><strong>Truck Model:</strong> <span id="booking-truck"></span></p>
-                        <p><strong>License Plate:</strong> <span id="booking-license"></span></p>
-                        <p><strong>Conductor Name:</strong> <span id="booking-conductor"></span></p>
-                        <p><strong>Driver Name:</strong> <span id="booking-driver"></span></p>
-                        <p><strong>Type of Truck:</strong> <span id="booking-truck-type"></span></p>
-                        <p><strong>Distance:</strong> <span id="booking-distance"></span></p>
-                        <p><strong>Person of Contact:</strong> <span id="booking-contact-person"></span></p>
-                    </div>
+             <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr><th class="fw-bold">Booking ID:</th><td id="booking-id"></td></tr>
+                            <tr><th class="fw-bold">Client Name:</th><td id="booking-client"></td></tr>
+                            <tr><th class="fw-bold">Booking Date:</th><td id="booking-date"></td></tr>
+                            <tr><th class="fw-bold">Dispatch Date:</th><td id="booking-dispatch"></td></tr>
+                            <tr><th class="fw-bold">Cargo Type:</th><td id="booking-cargo"></td></tr>
+                            <tr><th class="fw-bold">Cargo Weight:</th><td id="booking-weight"></td></tr>
+                            <tr><th class="fw-bold">Drop-off Location:</th><td id="booking-dropoff"></td></tr>
+                            <tr><th class="fw-bold">Pick-up Location:</th><td id="booking-pickup"></td></tr>
+                            <tr><th class="fw-bold">Truck Model:</th><td id="booking-truck"></td></tr>
+                            <tr><th class="fw-bold">License Plate:</th><td id="booking-license"></td></tr>
+                            <tr><th class="fw-bold">Conductor Name:</th><td id="booking-conductor"></td></tr>
+                            <tr><th class="fw-bold">Driver Name:</th><td id="booking-driver"></td></tr>
+                            <tr><th class="fw-bold">Type of Truck:</th><td id="booking-truck-type"></td></tr>
+                            <tr><th class="fw-bold">Distance:</th><td id="booking-distance"></td></tr>
+                            <tr><th class="fw-bold">Person of Contact:</th><td id="booking-contact-person"></td></tr>
+                        </tbody>
+                    </table>
                 </div>
+            </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-warning" data-bs-dismiss="modal">Close</button>
                 </div>

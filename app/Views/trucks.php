@@ -6,10 +6,27 @@
 <h1>Truck Record and Maintenance Management</h1>
 
 <div class="content">
-    <div class="table-container">
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="truck-records-tab" data-bs-toggle="tab" href="#truck-records">Truck Records</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="geolocation-tab" data-bs-toggle="tab" href="#geolocation">Geolocation</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="maintenance-tab" data-bs-toggle="tab" href="#maintenance">Maintenance</a>
+        </li>
+    </ul>
+
+    <!-- Tabs Content -->
+    <div class="tab-content mt-3">
+        <!-- Truck Records Tab -->
+        <div class="tab-pane fade show active" id="truck-records">
+            <div class="table-container">
         <h2>Truck List</h2>
-        <table id="trucksTable" class="table">
-            <thead>
+        <table id="trucksTable" class="table table-bordered align-middle text-center">
+            <thead class="table-light text-dark">
                 <tr>
                     <th>Truck ID</th>
                     <th>Plate Number</th>
@@ -30,11 +47,12 @@
                         <td><?= esc($row['registration_expiry']) ?></td>
                         <td><?= esc($row['type']) ?></td>
                         <td>                   
-                            <!-- Button to show full truck details in offcanvas -->
-                            <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                                <a href="#" class="view-truck" onclick="getTruckdetails(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">
-                                    View
-                                </a>
+                            <!-- Button to show full truck details in modal -->
+                            <button type="button" class="btn btn-secondary btn-warning btn-sm fw-bold px-4 view-truck text-dark" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#truckDetailsModal" 
+                            onclick='getTruckdetails(<?= json_encode($row) ?>)'>
+                                View
                             </button>
                         </td>
                     </tr>
@@ -43,77 +61,39 @@
         </table>
     </div>
 
-    <!-- Offcanvas for Truck Details -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasRightLabel">Truck Details</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <table id="truck-info" class="table">
-                <tr>
-                    <th>Truck ID:</th>
-                    <td id="truckIdPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Truck Model:</th>
-                    <td id="truckModelPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Plate Number:</th>
-                    <td id="plateNumberPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Engine Number:</th>
-                    <td id="engineNumberPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Chassis Number:</th>
-                    <td id="chassisNumberPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Color:</th>
-                    <td id="colorPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Certificate of Registration:</th>
-                    <td id="corPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Insurance Details:</th>
-                    <td id="insurancePlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>License Plate Expiry:</th>
-                    <td id="licenseExpiryPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Registration Expiry Date:</th>
-                    <td id="registrationExpiryPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Truck Type:</th>
-                    <td id="truckTypePlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Fuel Type:</th>
-                    <td id="fuelTypePlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Truck Length:</th>
-                    <td id="truckLengthPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Load Capacity:</th>
-                    <td id="loadCapacityPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Maintenance Technician:</th>
-                    <td id="maintenanceTechnicianPlaceholder"></td>
-                </tr>
-            </table>
-        </div>
-    </div>
+  <!-- Modal for Truck Details -->
+  <div class="modal fade" id="truckDetailsModal" tabindex="-1" aria-labelledby="truckDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="truckDetailsModalLabel">Truck Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr><th class="fw-bold">Truck ID:</th><td id="truckIdPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Truck Model:</th><td id="truckModelPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Plate Number:</th><td id="plateNumberPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Engine Number:</th><td id="engineNumberPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Chassis Number:</th><td id="chassisNumberPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Color:</th><td id="colorPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Certificate of Registration:</th><td id="corPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Insurance Details:</th><td id="insurancePlaceholder"></td></tr>
+                            <tr><th class="fw-bold">License Plate Expiry:</th><td id="licenseExpiryPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Registration Expiry Date:</th><td id="registrationExpiryPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Truck Type:</th><td id="truckTypePlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Fuel Type:</th><td id="fuelTypePlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Truck Length:</th><td id="truckLengthPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Load Capacity:</th><td id="loadCapacityPlaceholder"></td></tr>
+                            <tr><th class="fw-bold">Maintenance Technician:</th><td id="maintenanceTechnicianPlaceholder"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
 
     <!-- Key Indicators Container -->
     <div id="keyIndicatorsContainer" style="display:none;">
@@ -130,24 +110,24 @@
         document.getElementById("keyIndicatorsContainer").style.display = "none";
     }
 
-    // Function to load truck details into the offcanvas
+    // Function to load truck details into the modal
+    
     function getTruckdetails(truckData) {
-        // Populate offcanvas details using truckData
-        document.getElementById("truckIdPlaceholder").innerText = truckData.truckId                         || 'N/A';
-        document.getElementById("truckModelPlaceholder").innerText = truckData.tmodel                       || 'N/A';
-        document.getElementById("plateNumberPlaceholder").innerText = truckData.plate_number                || 'N/A';
-        document.getElementById("engineNumberPlaceholder").innerText = truckData.enginenumber               || 'N/A';
-        document.getElementById("chassisNumberPlaceholder").innerText = truckData.chassis_number            || 'N/A';
-        document.getElementById("colorPlaceholder").innerText = truckData.color                             || 'N/A';
-        document.getElementById("corPlaceholder").innerText = truckData.cor                                 || 'N/A';
-        document.getElementById("insurancePlaceholder").innerText = truckData.insurance                     || 'N/A';
-        document.getElementById("licenseExpiryPlaceholder").innerText = truckData.license_expiry            || 'N/A';
-        document.getElementById("registrationExpiryPlaceholder").innerText = truckData.registration_expiry  || 'N/A';
-        document.getElementById("truckTypePlaceholder").innerText = truckData.type                          || 'N/A';
-        document.getElementById("fuelTypePlaceholder").innerText = truckData.fuel_type                      || 'N/A';
-        document.getElementById("truckLengthPlaceholder").innerText = truckData.length                      || 'N/A';
-        document.getElementById("loadCapacityPlaceholder").innerText = truckData.capacity                   || 'N/A';
-        document.getElementById("maintenanceTechnicianPlaceholder").innerText = truckData.technician        || 'N/A';
+        document.getElementById("truckIdPlaceholder").innerText = truckData.truckId || 'N/A';
+        document.getElementById("truckModelPlaceholder").innerText = truckData.tmodel || 'N/A';
+        document.getElementById("plateNumberPlaceholder").innerText = truckData.plate_number || 'N/A';
+        document.getElementById("engineNumberPlaceholder").innerText = truckData.enginenumber || 'N/A';
+        document.getElementById("chassisNumberPlaceholder").innerText = truckData.chassis_number || 'N/A';
+        document.getElementById("colorPlaceholder").innerText = truckData.color || 'N/A';
+        document.getElementById("corPlaceholder").innerText = truckData.cor || 'N/A';
+        document.getElementById("insurancePlaceholder").innerText = truckData.insurance || 'N/A';
+        document.getElementById("licenseExpiryPlaceholder").innerText = truckData.license_expiry || 'N/A';
+        document.getElementById("registrationExpiryPlaceholder").innerText = truckData.registration_expiry || 'N/A';
+        document.getElementById("truckTypePlaceholder").innerText = truckData.type || 'N/A';
+        document.getElementById("fuelTypePlaceholder").innerText = truckData.fuel_type || 'N/A';
+        document.getElementById("truckLengthPlaceholder").innerText = truckData.length || 'N/A';
+        document.getElementById("loadCapacityPlaceholder").innerText = truckData.capacity || 'N/A';
+        document.getElementById("maintenanceTechnicianPlaceholder").innerText = truckData.technician || 'N/A';
         console.log(truckData);
     }
 </script>
