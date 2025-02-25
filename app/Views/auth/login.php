@@ -11,10 +11,6 @@
     </style>
 </head>
 <body style="background:linear-gradient(135deg, #003366, #00c6ff);">
-    <div class="bg-image container bg-modification" 
-        style="background: url('<?= base_url('/public/images/loginbg-modified.png'); ?>') no-repeat center;background-size: 
-        contain;
-        width:1100px;">
         <div class="container d-flex justify-content-center align-items-center min-vh-100">
             <div class="row border rounded-5 p-3 bg-white shadow box-area">
                 <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box" >
@@ -57,7 +53,6 @@
                 </div>
             </div>
         </div>
-    </div>
      
     <script src="<?php echo base_url('/public/assets/js/jquery-3.7.1.js'); ?>"></script> 
     <script src="<?php echo base_url('/public/assets/js/popper.min.js'); ?>"></script> 
