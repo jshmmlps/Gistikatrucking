@@ -25,6 +25,10 @@
                             <?php if(session()->getFlashdata('error')): ?>
                                 <p style="color:red;"><?= session()->getFlashdata('error') ?></p>
                             <?php endif; ?>
+
+                            <?php if(session()->getFlashdata('success')): ?>
+                                <p style="color:green;"><?= session()->getFlashdata('success') ?></p>
+                            <?php endif; ?>
                         </div>
                         <form action="<?= base_url('/login/process') ?>" method="post"> <?= csrf_field() ?>
                             <div class="input-group mb-3">
@@ -35,11 +39,11 @@
                             </div>
                             <div class="input-group mb-5 d-flex justify-content-between">
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="formCheck">
-                                    <label for="formCheck" class="form-check-label text-secondary"><small>Remember me</small></label>
+                                    <!-- <input type="checkbox" class="form-check-input" id="formCheck"> -->
+                                    <!-- <label for="formCheck" class="form-check-label text-secondary"><small>Remember me</small></label> -->
                                 </div>
                                 <div class="forgot">
-                                    <small><a href="#">Forgot password?</a></small>
+                                    <small><a href="<?= base_url('/password/forgot') ?>">Forgot password?</a></small>
                                 </div>
                             </div>
                             <div class="input-group mb-3">

@@ -56,15 +56,20 @@ $routes->get('firebase-test-read', 'FirebaseTestController::read');
 // Registration
 $routes->get('register', 'RegistrationController::createForm');
 $routes->post('register/create', 'RegistrationController::createAccount');
+$routes->get('register/verifyOTP', 'RegistrationController::showOTPForm');
+$routes->post('register/verifyOTP', 'RegistrationController::verifyOTP');
+$routes->get('register/resendOTP', 'RegistrationController::resendOTP');
+
+// Forgot password
+$routes->get('password/forgot', 'PasswordController::forgotPassword');
+$routes->post('password/forgot', 'PasswordController::sendResetLink');
+$routes->get('password/reset/(:any)', 'PasswordController::resetPassword/$1');
+$routes->post('password/reset', 'PasswordController::updatePassword');
 
 // Unified login routes
 $routes->get('login', 'AuthController::login');
 $routes->post('login/process', 'AuthController::processLogin');
 $routes->get('logout', 'AuthController::logout');
-
-// Registration routes remain unchanged
-$routes->get('register', 'RegistrationController::createForm');
-$routes->post('register/create', 'RegistrationController::createAccount');
 
 // Example dashboards (for demonstration)
 $routes->get('admin/dashboard', 'AdminController::index');

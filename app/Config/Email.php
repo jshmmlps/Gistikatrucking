@@ -6,6 +6,16 @@ use CodeIgniter\Config\BaseConfig;
 
 class Email extends BaseConfig
 {
+
+    public $protocol    = 'smtp';
+    public $SMTPHost    = 'smtp.gmail.com';
+    public $SMTPPort    = 465;
+    public $SMTPUser    = 'gistika0@gmail.com';
+    public $SMTPPass    = 'bpoq tpug kulk otsz';
+    public $SMTPCrypto  = 'ssl';
+    public $mailType    = 'html';
+    public $charset     = 'utf-8';
+    public $wordWrap    = true;
     public string $fromEmail  = '';
     public string $fromName   = '';
     public string $recipients = '';
@@ -18,7 +28,7 @@ class Email extends BaseConfig
     /**
      * The mail sending protocol: mail, sendmail, smtp
      */
-    public string $protocol = 'mail';
+    // public string $protocol = 'mail';
 
     /**
      * The server path to Sendmail.
@@ -28,27 +38,27 @@ class Email extends BaseConfig
     /**
      * SMTP Server Hostname
      */
-    public string $SMTPHost = '';
+    // public string $SMTPHost = '';
 
     /**
      * SMTP Username
      */
-    public string $SMTPUser = '';
+    // public string $SMTPUser = '';
 
     /**
      * SMTP Password
      */
-    public string $SMTPPass = '';
+    // public string $SMTPPass = '';
 
     /**
      * SMTP Port
      */
-    public int $SMTPPort = 25;
+    // public int $SMTPPort = 25;
 
     /**
      * SMTP Timeout (in seconds)
      */
-    public int $SMTPTimeout = 5;
+    public int $SMTPTimeout = 10;
 
     /**
      * Enable persistent SMTP connections
@@ -62,12 +72,12 @@ class Email extends BaseConfig
      *             to the server. 'ssl' means implicit SSL. Connection on port
      *             465 should set this to ''.
      */
-    public string $SMTPCrypto = 'tls';
+    // public string $SMTPCrypto = 'tls';
 
     /**
      * Enable word-wrap
      */
-    public bool $wordWrap = true;
+    // public bool $wordWrap = true;
 
     /**
      * Character count to wrap at
@@ -77,12 +87,12 @@ class Email extends BaseConfig
     /**
      * Type of mail, either 'text' or 'html'
      */
-    public string $mailType = 'text';
+    // public string $mailType = 'text';
 
     /**
      * Character set (utf-8, iso-8859-1, etc.)
      */
-    public string $charset = 'UTF-8';
+    // public string $charset = 'UTF-8';
 
     /**
      * Whether to validate the email address

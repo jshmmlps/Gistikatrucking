@@ -8,7 +8,7 @@ use App\Models\UserModel;
 class RegistrationController extends Controller
 {
     /**
-     * Displays the create account form.
+     * Display the registration form.
      */
     public function createForm()
     {
@@ -18,16 +18,16 @@ class RegistrationController extends Controller
     }
 
     /**
-     * Processes the account creation.
-     * Includes form validation for uniqueness and password strength.
+     * Process the registration form.
+     * Validate inputs, generate OTP, send email and store data temporarily.
      */
     public function createAccount()
     {
-        // 1) Define CodeIgniter validation rules
+        // 1) Define validation rules
         $rules = [
             'first_name' => 'required',
             'last_name'  => 'required',
-            'email' => [
+            'email'      => [
                 'label' => 'Email',
                 'rules' => 'required|valid_email|is_unique_in_firebase[Users.email]',
                 'errors' => [
@@ -61,14 +61,13 @@ class RegistrationController extends Controller
 
         // 2) Run validation
         if (! $this->validate($rules)) {
-            // Validation failed - redirect back with errors and old input
             return redirect()
                 ->back()
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
         }
 
-        // 3) If validation passes, collect form data
+        // 3) Collect and prepare user data
         $data = [
             'first_name'     => $this->request->getPost('first_name'),
             'last_name'      => $this->request->getPost('last_name'),
@@ -78,22 +77,125 @@ class RegistrationController extends Controller
             'address'        => $this->request->getPost('address'),
             'birthday'       => $this->request->getPost('birthday'),
             'gender'         => $this->request->getPost('gender'),
-            // Set default values:
-            'user_level'     => 'customer',  // Always a customer
-            'address_dropoff'=> '',          // Default blank value
+            // Default values:
+            'user_level'     => 'customer',
+            'address_dropoff'=> '',
         ];
 
         // 4) Hash the password
-        $plainPassword = $this->request->getPost('password');
-        $data['password'] = password_hash($plainPassword, PASSWORD_BCRYPT);
+        $plainPassword       = $this->request->getPost('password');
+        $data['password']    = password_hash($plainPassword, PASSWORD_BCRYPT);
 
-        // 5) Create user in Firebase via the model (with auto-increment ID)
-        $userModel = new UserModel();
-        $newKey = $userModel->createUser($data);
+        // 5) Generate OTP and set expiration (5 minutes from now)
+        $otp = random_int(100000, 999999);
+        $otpExpiration = time() + 300; // 5 minutes in seconds
 
-        // 6) Redirect with success message
-        return redirect()
-            ->back()
-            ->with('success', 'User account created with key: ' . $newKey);
+        // Store the time the OTP was sent (for resend cooldown)
+        $otpLastSent = time();
+
+        // 6) Save pending registration data in session
+        session()->set('pending_registration', [
+            'data'           => $data,
+            'otp'            => $otp,
+            'otp_expiration' => $otpExpiration,
+            'otp_last_sent'  => $otpLastSent
+        ]);
+
+        // 7) Send OTP email via Gmail SMTP
+        $emailService = \Config\Services::email();
+        $emailService->setFrom('yourgmail@gmail.com', 'Gistika');
+        $emailService->setTo($data['email']);
+        $emailService->setSubject('OTP Verification');
+        $emailService->setMessage("Your OTP is: <strong>$otp</strong>. It will expire in 5 minutes.");
+
+        if (! $emailService->send()) {
+            return redirect()->to('register')->with('error', 'Failed to send OTP email.');
+        }
+
+        // 8) Redirect to the OTP verification page (GET route)
+        return redirect()->to('register/verifyOTP');
+
     }
+
+    /**
+     * Process OTP verification.
+     * If OTP is valid and not expired, register the user in Firebase.
+     */
+    public function verifyOTP()
+    {
+        $inputOTP = $this->request->getPost('otp');
+        $pending  = session()->get('pending_registration');
+
+        if (!$pending) {
+            return redirect()->to('register/createForm')->with('error', 'No pending registration found.');
+        }
+
+        // Check if the OTP has expired
+        if (time() > $pending['otp_expiration']) {
+            session()->remove('pending_registration');
+            return redirect()->to('register/createForm')->with('error', 'OTP expired. Please register again.');
+        }
+
+        // Validate OTP
+        if ($inputOTP != $pending['otp']) {
+            return redirect()->back()->with('error', 'Invalid OTP. Please try again.');
+        }
+
+        // OTP is valid; create user in Firebase
+        $userModel = new UserModel();
+        $newKey = $userModel->createUser($pending['data']);
+
+        // Clear pending registration session data
+        session()->remove('pending_registration');
+
+        return redirect()->to('login')->with('success', "User account created successfully");
+    }
+
+    /**
+     * Resend OTP email.
+     * This function checks if at least 1 minute has passed since the last send.
+     */
+    public function resendOTP()
+    {
+        $pending = session()->get('pending_registration');
+
+        if (!$pending) {
+            return redirect()->to('register')->with('error', 'No pending registration found.');
+        }
+
+        // Check if 1 minute has passed since the last OTP was sent
+        if (time() - $pending['otp_last_sent'] < 60) {
+            return redirect()->to('register/verifyOTP')->with('error', 'Please wait 1 minute before resending OTP.');
+        }
+
+        // Generate a new OTP and update expiration and last sent time
+        $otp = random_int(100000, 999999);
+        $pending['otp'] = $otp;
+        $pending['otp_expiration'] = time() + 300; // 5 minutes from now
+        $pending['otp_last_sent']  = time();
+        session()->set('pending_registration', $pending);
+
+        // Resend OTP email
+        $emailService = \Config\Services::email();
+        $emailService->setFrom('yourgmail@gmail.com', 'Gistika Trucking');
+        $emailService->setTo($pending['data']['email']);
+        $emailService->setSubject('OTP Verification - Resend');
+        $emailService->setMessage("Your new OTP is: <strong>$otp</strong>. It will expire in 5 minutes.");
+
+        if (! $emailService->send()) {
+            return redirect()->to('register/verifyOTP')->with('error', 'Failed to resend OTP email.');
+        }
+
+        return redirect()->to('register/verifyOTP')->with('success', 'OTP resent successfully.');
+    }
+
+    public function showOTPForm()
+    {
+        $pending = session()->get('pending_registration');
+        if (!$pending) {
+            return redirect()->to('register')->with('error', 'No pending registration found.');
+        }
+        return view('auth/verify_otp', ['email' => $pending['data']['email']]);
+    }
+
 }
