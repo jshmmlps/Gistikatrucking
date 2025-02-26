@@ -31,7 +31,11 @@
                         <button type="button" class="btn btn-warning btn-sm fw-bold px-4 view-client text-dark" 
                         data-bs-toggle="modal"
                         data-bs-target="#driverModal"
-                        onclick='getAllDrivers(<?= json_encode($driver) ?>)'>View</button>
+                        onclick='getDriverDetails(<?= json_encode($driver) ?>)'>View</button>
+
+                        <!-- onclick='getAllDrivers(<?= json_encode($driver) ?>) -->
+                        <!-- This was the syntax before  -->
+                    
                     </td>
                 </tr>
                 <?php endforeach; ?>
