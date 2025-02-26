@@ -107,4 +107,65 @@ class UserModel extends Model
 
         return $user;
     }
+
+    /**
+     * Set the reset token and its expiration for the given email.
+     *
+     * @param string $email
+     * @param string $token
+     * @param int    $expiration Timestamp when token expires
+     * @return bool
+     */
+    public function setResetToken(string $email, string $token, int $expiration): bool
+    {
+        $user = $this->getUserByField('email', $email);
+        if (!$user) {
+            return false;
+        }
+        $firebaseKey = $user['firebaseKey'];
+        $data = [
+            'reset_token' => $token,
+            'reset_token_expiration' => $expiration
+        ];
+        $this->db->getReference('Users/' . $firebaseKey)->update($data);
+        return true;
+    }
+
+    /**
+     * Verify a reset token and check if it is not expired.
+     *
+     * @param string $token
+     * @return array|null The user data if valid, or null if invalid.
+     */
+    public function verifyResetToken(string $token)
+    {
+        $user = $this->getUserByField('reset_token', $token);
+        if (!$user) {
+            return null;
+        }
+        if (time() > $user['reset_token_expiration']) {
+            return null;
+        }
+        return $user;
+    }
+
+    /**
+     * Update the user's password and remove the reset token.
+     *
+     * @param string $firebaseKey
+     * @param string $newPassword Plain text password
+     * @return bool
+     */
+    
+    public function updatePassword(string $firebaseKey, string $newPassword): bool
+    {
+        $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+        $this->db->getReference('Users/' . $firebaseKey)->update([
+            'password' => $hashedPassword,
+            'reset_token' => null,
+            'reset_token_expiration' => null,
+        ]);
+        return true;
+    }
+
 }
