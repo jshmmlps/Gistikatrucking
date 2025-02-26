@@ -1,14 +1,10 @@
 <?= $this->extend('templates/layout.php') ?>
 
 <?= $this->section('content') ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Maintenance Analytics</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="<?= base_url('public/assets/css/style.css'); ?>" rel="stylesheet">
+<title>Truck Record and Maintenance Management</title>
+ <!-- Bootstrap CSS -->
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- External CSS -->
   <link href="<?= base_url('public/assets/css/style.css'); ?>" rel="stylesheet">
   <!-- Chart.js -->
@@ -18,35 +14,40 @@
   <!-- Leaflet CSS and JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-</head>
-<body class="bg-light">
-  <header class="dashboard-header">
+
+<header class="dashboard-header">
     <h1>Maintenance Analytics</h1>
     <h2>DASHBOARD</h2>
-  </header>
+</header>
 
-  <div class="container mt-4">
-    <!-- Dashboard Cards -->
-    <div class="row">
-      <div class="col-md-3">
-        <div class="dashboard-card">
-          <h3>Available Truck</h3>
-          <p>4</p>
+ <!-- Dashboard Cards -->
+ <div class="row">
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Available Truck</h5>
+                <h3 class="text-primary fw-bold">4</h3>
+            </div>
         </div>
-      </div>
-      <div class="col-md-3">
-        <div class="dashboard-card">
-          <h3>Geolocation</h3>
-          <div id="map"></div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="dashboard-card">
-          <h3>Truck Information</h3>
-          <img src="<?= base_url('public/assets/images/delivery-truck.gif'); ?>" alt="Truck Logo" style="width: 100px; height: auto;">
-        </div>
-      </div>
     </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Geolocation</h5>
+                <div id="map" style="height: 150px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Truck Information</h5>
+                <img src="<?= base_url('public/assets/images/delivery-truck.gif'); ?>" alt="Truck Logo" style="width: 100px; height: auto;">
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <!-- Maintenance Table -->
     <div class="row mt-4">
@@ -350,4 +351,5 @@
     updateTable();
   </script>
 </body>
-</html>
+
+<?= $this->endSection() ?>
