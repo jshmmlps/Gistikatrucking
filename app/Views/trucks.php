@@ -24,42 +24,79 @@
         <!-- Truck Records Tab -->
         <div class="tab-pane fade show active" id="truck-records">
             <div class="table-container">
-        <h2>Truck List</h2>
-        <table id="trucksTable" class="table table-bordered align-middle text-center">
-            <thead class="table-light text-dark">
-                <tr>
-                    <th>Truck ID</th>
-                    <th>Plate Number</th>
-                    <th>Name</th>
-                    <th>Fuel Type</th>
-                    <th>Registration Expiry</th>
-                    <th>Type</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-             <tbody>
-                <?php foreach ($trucks as $row): ?>
-                    <tr>
-                        <td><?= esc($row['truckId']) ?></td>
-                        <td><?= esc($row['plate_number']) ?></td>
-                        <td><?= esc($row['name']) ?></td>
-                        <td><?= esc($row['fuel_type']) ?></td>
-                        <td><?= esc($row['registration_expiry']) ?></td>
-                        <td><?= esc($row['type']) ?></td>
-                        <td>                   
-                            <!-- Button to show full truck details in modal -->
-                            <button type="button" class="btn btn-secondary btn-warning btn-sm fw-bold px-4 view-truck text-dark" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#truckDetailsModal" 
-                            onclick='getTruckdetails(<?= json_encode($row) ?>)'>
-                                View
-                            </button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                <h2>Truck List</h2>
+                <table id="trucksTable" class="table table-bordered align-middle text-center">
+                    <thead class="table-light text-dark">
+                        <tr>
+                            <th>Truck ID</th>
+                            <th>Plate Number</th>
+                            <th>Name</th>
+                            <th>Fuel Type</th>
+                            <th>Registration Expiry</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($trucks as $row): ?>
+                            <tr>
+                                <td><?= esc($row['truckId']) ?></td>
+                                <td><?= esc($row['plate_number']) ?></td>
+                                <td><?= esc($row['name']) ?></td>
+                                <td><?= esc($row['fuel_type']) ?></td>
+                                <td><?= esc($row['registration_expiry']) ?></td>
+                                <td><?= esc($row['type']) ?></td>
+                                <td>                   
+                                    <!-- Button to show full truck details in modal -->
+                                    <button type="button" class="btn btn-secondary btn-warning btn-sm fw-bold px-4 view-truck text-dark" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#truckDetailsModal" 
+                                    onclick='getTruckdetails(<?= json_encode($row) ?>)'>
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Geolocation Tab -->
+        <div class="tab-pane fade" id="geolocation">
+            <h2>Geolocation Tracking</h2>
+            <p>Feature under development.</p>
+        </div>
+
+        <!-- Maintenance Tab (Initially Empty) -->
+        <div class="tab-pane fade" id="maintenance">
+            <div id="maintenance-content"></div> <!-- Keep this empty initially -->
+        </div>
     </div>
+</div>
+
+<!-- jQuery Script to Load maintenance.php -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#maintenance-tab").on("shown.bs.tab", function () {
+            // Check if content is already loaded
+            if ($("#maintenance-content").is(":empty")) {
+                $("#maintenance-content").html("<p>Loading maintenance data...</p>"); // Show a loading message
+                $.ajax({
+                    url: "maintenance.php",
+                    type: "GET",
+                    success: function(response) {
+                        $("#maintenance-content").html(response);
+                    },
+                    error: function() {
+                        $("#maintenance-content").html("<p class='text-danger'>Failed to load maintenance data.</p>");
+                    }
+                });
+            }
+        });
+    });
+</script>
 
   <!-- Modal for Truck Details -->
   <div class="modal fade" id="truckDetailsModal" tabindex="-1" aria-labelledby="truckDetailsModalLabel" aria-hidden="true">
