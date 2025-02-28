@@ -15,16 +15,17 @@ class AuthController extends Controller
 
     public function processLogin()
     {
-        $username = $this->request->getPost('username');
-        $password = $this->request->getPost('password');
-
+        // Retrieve the login identifier (email or username) from the form input.
+        $identifier = $this->request->getPost('username'); // Can be email or username
+        $password   = $this->request->getPost('password');
+    
         $userModel = new UserModel();
-        $user = $userModel->verifyCredentials($username, $password);
-
+        $user = $userModel->verifyCredentials($identifier, $password);
+    
         if (!$user) {
             return redirect()->back()->with('error', 'Invalid credentials.');
         }
-
+    
         // Set session data for the logged-in user
         session()->set([
             'loggedIn'    => true,
@@ -34,11 +35,11 @@ class AuthController extends Controller
             'first_name'  => $user['first_name'],
             'last_name'   => $user['last_name'],
         ]);
-
+    
         // Redirect based on user level
         switch ($user['user_level']) {
             case 'admin':
-                return redirect()->to('/admin/dashboard');
+                return redirect()->to('/dashboard');
             case 'staff_op':
                 return redirect()->to('/staff_operation/dashboard');
             case 'staff_res':
@@ -49,7 +50,7 @@ class AuthController extends Controller
                 return redirect()->back()->with('error', 'User role not recognized.');
         }
     }
-
+    
     public function logout()
     {
         session()->destroy();

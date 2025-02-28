@@ -58,6 +58,44 @@ class UserModel extends Model
     }
 
     /**
+     * Fetch all users (returns an associative array).
+     */
+    public function getAllUsers()
+    {
+        $snapshot = $this->db->getReference('Users')->getSnapshot();
+        $users = $snapshot->getValue() ?? []; // array or null
+        return $users;
+    }
+
+    /**
+     * Fetch a single user by the 'UserX' key.
+     */
+    public function getUser($userKey)
+    {
+        $snapshot = $this->db->getReference('Users/' . $userKey)->getSnapshot();
+        return $snapshot->getValue(); // or null if not exists
+    }
+
+    /**
+     * Update an existing user.
+     */
+    public function updateUser($userKey, array $data)
+    {
+        // Update with a 'merge' approach
+        $this->db->getReference('Users/' . $userKey)->update($data);
+        return true;
+    }
+
+    /**
+     * Delete a user.
+     */
+    public function deleteUser($userKey)
+    {
+        $this->db->getReference('Users/' . $userKey)->remove();
+        return true;
+    }
+
+    /**
      * Retrieve a user by a given field & value (e.g. "username" => "john").
      * Scans all records in /Users to find a match.
      *
@@ -69,22 +107,30 @@ class UserModel extends Model
     {
         $reference = $this->db->getReference('Users');
         $snapshot = $reference->getSnapshot();
-
+    
         if (!$snapshot->exists()) {
             return null;
         }
-
+    
         $users = $snapshot->getValue();  // all /Users
         foreach ($users as $key => $userData) {
-            if (isset($userData[$field]) && $userData[$field] === $value) {
-                // Include the Firebase key in the returned data
-                $userData['firebaseKey'] = $key;
-                return $userData;
+            if ($field === 'username') {
+                // Compare usernames in a case-insensitive way
+                if (isset($userData[$field]) && strtolower($userData[$field]) === strtolower($value)) {
+                    $userData['firebaseKey'] = $key;
+                    return $userData;
+                }
+            } else {
+                // For email and other fields, use strict comparison
+                if (isset($userData[$field]) && $userData[$field] === $value) {
+                    $userData['firebaseKey'] = $key;
+                    return $userData;
+                }
             }
         }
-
         return null;
     }
+    
 
     /**
      * Verify user credentials (username & plain password).
@@ -93,20 +139,28 @@ class UserModel extends Model
      * @param string $plainPassword
      * @return array|null user data if successful, null if fail
      */
-    public function verifyCredentials($username, $plainPassword)
+    public function verifyCredentials($identifier, $plainPassword)
     {
-        $user = $this->getUserByField('username', $username);
-        if ($user === null) {
-            return null; // no such username
+        // Check if the identifier is an email address
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $user = $this->getUserByField('email', $identifier);
+        } else {
+            // Otherwise, treat it as a username (case-insensitive)
+            $user = $this->getUserByField('username', $identifier);
         }
 
-        // Check hashed password
+        if ($user === null) {
+            return null; // No such user found
+        }
+
+        // Verify the password using the hashed value stored in Firebase
         if (!password_verify($plainPassword, $user['password'])) {
-            return null; // incorrect password
+            return null; // Incorrect password
         }
 
         return $user;
     }
+
 
     /**
      * Set the reset token and its expiration for the given email.
@@ -167,5 +221,8 @@ class UserModel extends Model
         ]);
         return true;
     }
+
+    
+    
 
 }

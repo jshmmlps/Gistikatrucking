@@ -32,7 +32,7 @@
                         </div>
                         <form action="<?= base_url('/login/process') ?>" method="post"> <?= csrf_field() ?>
                             <div class="input-group mb-3">
-                                <input type="text" name="username" required autofocus class="form-control form-control-lg bg-light fs-6"id="emailAddress" placeholder="Username">
+                                <input type="text" name="username" required autofocus class="form-control form-control-lg bg-light fs-6"id="emailAddress" placeholder="Username or Email">
                             </div>
                             <div class="input-group mb-1">
                                 <input type="password" name="password" required autofocus class="form-control form-control-lg bg-light fs-6"id="Password" placeholder="Password">

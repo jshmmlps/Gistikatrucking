@@ -72,9 +72,27 @@ $routes->post('login/process', 'AuthController::processLogin');
 $routes->get('logout', 'AuthController::logout');
 
 // Example dashboards (for demonstration)
-$routes->get('admin/dashboard', 'AdminController::index');
 $routes->get('staff_operation/dashboard', 'StaffOperationController::index');
 $routes->get('staff_resource/dashboard', 'StaffResourceController::index');
 $routes->get('dashboard', 'ClientController::test');
+
+$routes->get('admin/dashboard', 'AdminController::index');
+
+$routes->get('admin/profile', 'AdminController::profile');
+$routes->post('admin/updateProfile', 'AdminController::updateProfile');
+
+$routes->get('admin/users', 'AdminController::users');
+$routes->post('admin/users/create', 'AdminController::create');
+$routes->post('admin/users/(:segment)/edit', 'AdminController::edit/$1');
+$routes->post('admin/users/(:segment)/delete', 'AdminController::delete/$1');
+$routes->get('admin/users/create', 'AdminController::create');
+$routes->get('admin/users/(:segment)/edit', 'AdminController::edit/$1');
+$routes->get('admin/users/(:segment)/delete', 'AdminController::delete/$1');
+
+$routes->get('admin/logout', 'AdminController::logout');
+
+
+
+
 
 

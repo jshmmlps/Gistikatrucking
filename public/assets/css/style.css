@@ -479,3 +479,19 @@ ul li {
     padding: 0px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+.circular-image {
+    border-radius: 50%; /* Make it a circle */
+    width: 150px; /* Initial width */
+    height: 150px; /* Initial height */
+    object-fit: cover; /* Maintain aspect ratio and cover the container */
+    max-width: 100%; /* Responsive sizing */
+    max-height: 100%; /* Responsive sizing */
+}
+
+.card-img-top-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
