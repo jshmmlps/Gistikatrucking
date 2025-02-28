@@ -33,25 +33,9 @@ $routes->get('maintenance', 'MaintenanceController::maintenance');
 $routes->post('maintenance', 'MaintenanceController::maintenance');
 $routes->get('maintenance/view/(:num)', 'MaintenanceController::view/$1');
 
-
 //Test
 $routes->get('firebase-test', 'FirebaseTestController::index');
 $routes->get('firebase-test-read', 'FirebaseTestController::read');
-
-// // Admin login
-// $routes->get('admin/login', 'AdminAuthController::login');
-// $routes->post('admin/login/process', 'AdminAuthController::processLogin');
-// $routes->get('admin/logout', 'AdminAuthController::logout');
-
-// // Staff login
-// $routes->get('staff/login', 'StaffAuthController::login');
-// $routes->post('staff/login/process', 'StaffAuthController::processLogin');
-// $routes->get('staff/logout', 'StaffAuthController::logout');
-
-// // Client login
-// $routes->get('client/login', 'ClientAuthController::login');
-// $routes->post('client/login/process', 'ClientAuthController::processLogin');
-// $routes->get('client/logout', 'ClientAuthController::logout');
 
 // Registration
 $routes->get('register', 'RegistrationController::createForm');
@@ -67,6 +51,7 @@ $routes->get('password/reset/(:any)', 'PasswordController::resetPassword/$1');
 $routes->post('password/reset', 'PasswordController::updatePassword');
 
 // Unified login routes
+$routes->get('/', 'AuthController::login');
 $routes->get('login', 'AuthController::login');
 $routes->post('login/process', 'AuthController::processLogin');
 $routes->get('logout', 'AuthController::logout');
@@ -76,11 +61,11 @@ $routes->get('staff_operation/dashboard', 'StaffOperationController::index');
 $routes->get('staff_resource/dashboard', 'StaffResourceController::index');
 $routes->get('dashboard', 'ClientController::test');
 
-$routes->get('admin/dashboard', 'AdminController::index');
+// Admin
 
+$routes->get('admin/dashboard', 'AdminController::index');
 $routes->get('admin/profile', 'AdminController::profile');
 $routes->post('admin/updateProfile', 'AdminController::updateProfile');
-
 $routes->get('admin/users', 'AdminController::users');
 $routes->post('admin/users/create', 'AdminController::create');
 $routes->post('admin/users/(:segment)/edit', 'AdminController::edit/$1');
@@ -88,8 +73,28 @@ $routes->post('admin/users/(:segment)/delete', 'AdminController::delete/$1');
 $routes->get('admin/users/create', 'AdminController::create');
 $routes->get('admin/users/(:segment)/edit', 'AdminController::edit/$1');
 $routes->get('admin/users/(:segment)/delete', 'AdminController::delete/$1');
-
 $routes->get('admin/logout', 'AdminController::logout');
+
+// Operations Coordinator
+
+$routes->get('operations/dashboard', 'StaffOcController::dashboard');
+$routes->get('operations/user_account', 'StaffOcController::userAccount');
+$routes->post('operations/upload_profile', 'StaffOcController::uploadProfile');
+$routes->get('operations/booking_management', 'StaffOcController::bookingManagement');
+$routes->get('operations/view_booking/(:num)', 'StaffOcController::viewBooking/$1');
+$routes->get('operations/truck_monitoring', 'StaffOcController::truckMonitoring');
+$routes->get('operations/report_management', 'StaffOcController::reportManagement');
+
+
+// Resource Manager
+
+$routes->get('resource/dashboard', 'StaffRmController::dashboard');
+$routes->get('resource/user_account', 'StaffRmController::userAccount');
+$routes->post('resource/upload_profile', 'StaffRmController::uploadProfile');
+$routes->get('resource/truck_monitoring', 'StaffRmController::truckMonitoring');
+$routes->get('resource/report_management', 'StaffRmController::reportManagement');
+
+
 
 
 
