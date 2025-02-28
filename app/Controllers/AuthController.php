@@ -39,7 +39,7 @@ class AuthController extends Controller
         // Redirect based on user level
         switch ($user['user_level']) {
             case 'admin':
-                return redirect()->to('/dashboard');
+                return redirect()->to('admin/dashboard');
             case 'staff_op':
                 return redirect()->to('/staff_operation/dashboard');
             case 'staff_res':

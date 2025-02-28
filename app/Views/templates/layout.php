@@ -14,19 +14,19 @@
                 <img class="rounded mx-auto d-block img-header" src="<?= base_url('public/images/icons/logo.png') ?>" alt="Juby-An Trucking Services Logo">
             </span>
             <hr class="text-black">
-            <a href="<?= base_url('dashboard') ?>" class="nav-link <?= (current_url() == base_url('dashboard')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/dashboard') ?>" class="nav-link <?= (current_url() == base_url('dashboard')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/dashboard.png') ?>" alt="">
                 </span>
                 <span class="description">Dashboard</span>
             </a>
-            <a href="<?= base_url('login') ?>" class="nav-link <?= (current_url() == base_url('profile')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/profile') ?>" class="nav-link <?= (current_url() == base_url('profile')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/profile.png') ?>" alt="">
                 </span>
                 <span class="description">User Account</span>
             </a>
-            <a href="<?= base_url('user') ?>" class="nav-link <?= (current_url() == base_url('user')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/user') ?>" class="nav-link <?= (current_url() == base_url('user')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/user.png') ?>" alt="">
                 </span>
