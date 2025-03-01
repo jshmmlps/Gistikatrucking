@@ -163,9 +163,10 @@
                 <label for="create_user_level" class="form-label">User Level</label>
                 <select name="user_level" id="create_user_level" class="form-select">
                     <option value="admin">admin</option>
-                    <option value="resource manager">resource manager</option>
+                    <option value="operations coordinator">resource manager</option>
                     <option value="operation manager">operation manager</option>
                     <option value="client">client</option>
+                    <option value="driver">driver</option>
                 </select>
             </div>
             <div class="mb-3">

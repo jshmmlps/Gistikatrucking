@@ -40,11 +40,11 @@ class AuthController extends Controller
         switch ($user['user_level']) {
             case 'admin':
                 return redirect()->to('admin/dashboard');
-            case 'staff_op':
-                return redirect()->to('/staff_operation/dashboard');
-            case 'staff_res':
-                return redirect()->to('/staff_resource/dashboard');
-            case 'customer':
+            case 'operations coordinator':
+                return redirect()->to('/operations/dashboard');
+            case 'resource manager':
+                return redirect()->to('/resource/dashboard');
+            case 'client':
                 return redirect()->to('/dashboard');
             default:
                 return redirect()->back()->with('error', 'User role not recognized.');

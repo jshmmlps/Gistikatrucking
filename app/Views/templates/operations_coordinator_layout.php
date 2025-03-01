@@ -27,11 +27,11 @@
                 </span>
                 <span class="description">Dashboard</span>
             </a>
-            <a href="#" class="nav-link <?= (current_url() == base_url('operations/user_account')) ? 'active' : '' ?>">
+            <a href="<?= base_url('operations/profile') ?>" class="nav-link <?= (current_url() == base_url('operations/profile')) ? 'active' : '' ?>">
                 <span class="icon">
-                    <img src="<?= base_url('public/images/icons/sidebar/user.png') ?>" alt="">
+                    <img src="<?= base_url('public/images/icons/sidebar/profile.png') ?>" alt="">
                 </span>
-                <span class="description">User Account</span>
+                <span class="description">Profile</span>
             </a>
             <a href="#" class="nav-link <?= (current_url() == base_url('operations/booking_management')) ? 'active' : '' ?>">
                 <span class="icon">
@@ -39,7 +39,7 @@
                 </span>
                 <span class="description">Booking Management</span>
             </a>
-            <a href="#" class="nav-link <?= (current_url() == base_url('operations/trucks')) ? 'active' : '' ?>">
+            <a href="<?= base_url('operations/trucks') ?>" class="nav-link <?= (current_url() == base_url('operations/trucks')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/truck.png') ?>" alt="">
                 </span>

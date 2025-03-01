@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= base_url('/assets/css/style.css') ?>">
     <link href="<?= base_url('/public/assets/css/bootstrap.min.css');?>" rel="stylesheet">
+
+    <style>
+        .sidebar .nav-link.active {
+            background-color: #003366;
+            color: #fff;
+        }
+    </style>
+
 </head>
 <body>
     <div class="sidebar">
@@ -19,13 +27,13 @@
                 </span>
                 <span class="description">Dashboard</span>
             </a>
-            <a href="#" class="nav-link <?= (current_url() == base_url('resource/user_account')) ? 'active' : '' ?>">
+            <a href="<?= base_url('resource/profile') ?>" class="nav-link <?= (current_url() == base_url('resource/profile')) ? 'active' : '' ?>">
                 <span class="icon">
-                    <img src="<?= base_url('public/images/icons/sidebar/user.png') ?>" alt="">
+                    <img src="<?= base_url('public/images/icons/sidebar/profile.png') ?>" alt="">
                 </span>
-                <span class="description">User Account</span>
+                <span class="description">Profile</span>
             </a>
-            <a href="#" class="nav-link <?= (current_url() == base_url('resource/trucks')) ? 'active' : '' ?>">
+            <a href="<?= base_url('resource/trucks') ?>" class="nav-link <?= (current_url() == base_url('resource/trucks')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/truck.png') ?>" alt="">
                 </span>

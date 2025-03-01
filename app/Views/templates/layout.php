@@ -20,13 +20,13 @@
                 </span>
                 <span class="description">Dashboard</span>
             </a>
-            <a href="<?= base_url('admin/profile') ?>" class="nav-link <?= (current_url() == base_url('profile')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/profile') ?>" class="nav-link <?= (current_url() == base_url('admin/profile')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/profile.png') ?>" alt="">
                 </span>
                 <span class="description">User Account</span>
             </a>
-            <a href="<?= base_url('admin/user') ?>" class="nav-link <?= (current_url() == base_url('user')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/user') ?>" class="nav-link <?= (current_url() == base_url('admin/user')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/user.png') ?>" alt="">
                 </span>
@@ -50,7 +50,7 @@
                 </span>
                 <span class="description">Booking Management</span>
             </a>
-            <a href="<?= base_url('trucks') ?>" class="nav-link <?= (current_url() == base_url('trucks')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/trucks') ?>" class="nav-link <?= (current_url() == base_url('admin/trucks')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/truck.png') ?>" alt="">
                 </span>
