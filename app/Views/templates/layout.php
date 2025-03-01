@@ -24,9 +24,9 @@
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/profile.png') ?>" alt="">
                 </span>
-                <span class="description">User Account</span>
+                <span class="description">Profile</span>
             </a>
-            <a href="<?= base_url('admin/user') ?>" class="nav-link <?= (current_url() == base_url('admin/user')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/users') ?>" class="nav-link <?= (current_url() == base_url('admin/users')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/user.png') ?>" alt="">
                 </span>
