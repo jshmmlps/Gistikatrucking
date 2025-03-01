@@ -78,7 +78,7 @@ class RegistrationController extends Controller
             'birthday'       => $this->request->getPost('birthday'),
             'gender'         => $this->request->getPost('gender'),
             // Default values:
-            'user_level'     => 'customer',
+            'user_level'     => 'client',
             'address_dropoff'=> '',
         ];
 

@@ -8,13 +8,14 @@ use CodeIgniter\Router\RouteCollection;
 // Dashboard routes
 $routes->get('/dashboard', 'DashboardController::dashboard');
 
-// Profile routes
-$routes->get('/user', 'UserController::user');
-$routes->get('/user/getUserDetails/(:num)', 'UserController::getUserDetails/$1');
+// Profile routes (FOR REMOVAL)
+// $routes->get('/user', 'UserController::user');
+// $routes->get('/user/getUserDetails/(:num)', 'UserController::getUserDetails/$1');
 
 // Client Routes
 $routes->get('/clients', 'ClientController::clients');
 $routes->post('/clients', 'ClientController::clients');
+
 //Driver Routes
 $routes->get('/drivers', 'DriverController::drivers');
 $routes->post('/drivers', 'DriverController::drivers');
@@ -23,10 +24,10 @@ $routes->post('/drivers', 'DriverController::drivers');
 $routes->get('/bookings', 'BookingController::bookings');
 $routes->post('/bookings', 'BookingController::bookings');
 
-// Truck Monitoring Routes
-$routes->get('/trucks', 'TruckController::trucks');
-$routes->post('/trucks', 'TruckController::trucks');
-$routes->get('trucks/view/(:num)', 'TruckController::view/$1');
+// Truck Monitoring Routes (FOR REMOVAL)
+// $routes->get('/trucks', 'TruckController::trucks');
+// $routes->post('/trucks', 'TruckController::trucks');
+// $routes->get('trucks/view/(:num)', 'TruckController::view/$1');
 
 //Maintenance Routes
 $routes->get('maintenance', 'MaintenanceController::maintenance');
@@ -75,24 +76,50 @@ $routes->get('admin/users/(:segment)/edit', 'AdminController::edit/$1');
 $routes->get('admin/users/(:segment)/delete', 'AdminController::delete/$1');
 $routes->get('admin/logout', 'AdminController::logout');
 
+$routes->group('admin', function($routes) {
+    $routes->get('trucks', 'AdminController::truck');
+    $routes->post('trucks/create', 'AdminController::storeTruck');
+    $routes->post('trucks/update/(:segment)', 'AdminController::updateTruck/$1');
+    $routes->get('trucks/delete/(:segment)', 'AdminController::deleteTruck/$1');
+    $routes->get('trucks/view/(:segment)', 'AdminController::viewTruck/$1');
+});
+
+
 // Operations Coordinator
 
-$routes->get('operations/dashboard', 'StaffOcController::dashboard');
-$routes->get('operations/user_account', 'StaffOcController::userAccount');
-$routes->post('operations/upload_profile', 'StaffOcController::uploadProfile');
-$routes->get('operations/booking_management', 'StaffOcController::bookingManagement');
-$routes->get('operations/view_booking/(:num)', 'StaffOcController::viewBooking/$1');
-$routes->get('operations/truck_monitoring', 'StaffOcController::truckMonitoring');
-$routes->get('operations/report_management', 'StaffOcController::reportManagement');
-
+$routes->group('operations', function($routes) {
+    // Dashboard and profile routes
+    $routes->get('dashboard', 'StaffOcController::dashboard');
+    $routes->get('profile', 'StaffOcController::profile');
+    $routes->post('updateProfile', 'StaffOcController::updateProfile');
+    
+    // Truck management routes
+    $routes->get('trucks', 'StaffOcController::trucks');
+    $routes->post('trucks/create', 'StaffOcController::createTruck');
+    $routes->post('trucks/update/(:segment)', 'StaffOcController::updateTruck/$1');
+    $routes->get('trucks/delete/(:segment)', 'StaffOcController::deleteTruck/$1');
+    $routes->get('trucks/view/(:segment)', 'StaffOcController::viewTruck/$1');
+    
+    // Booking management routes
+    $routes->get('bookings', 'StaffOcController::bookings');
+    $routes->get('bookings/view/(:segment)', 'StaffOcController::viewBooking/$1');
+});
 
 // Resource Manager
 
-$routes->get('resource/dashboard', 'StaffRmController::dashboard');
-$routes->get('resource/user_account', 'StaffRmController::userAccount');
-$routes->post('resource/upload_profile', 'StaffRmController::uploadProfile');
-$routes->get('resource/truck_monitoring', 'StaffRmController::truckMonitoring');
-$routes->get('resource/report_management', 'StaffRmController::reportManagement');
+$routes->group('resource', function($routes) {
+    // Dashboard and user account routes
+    $routes->get('dashboard', 'StaffRmController::dashboard');
+    $routes->get('profile', 'StaffRmController::profile');
+    $routes->post('updateProfile', 'StaffRmController::updateProfile');
+    
+    // Truck management routes
+    $routes->get('trucks', 'StaffRmController::trucks');
+    $routes->post('trucks/create', 'StaffRmController::createTruck');
+    $routes->post('trucks/update/(:segment)', 'StaffRmController::updateTruck/$1');
+    $routes->get('trucks/delete/(:segment)', 'StaffRmController::deleteTruck/$1');
+    $routes->get('trucks/view/(:segment)', 'StaffRmController::viewTruck/$1');
+});
 
 
 

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\TruckModel;
 use CodeIgniter\Controller;
 
 class AdminController extends Controller
@@ -180,5 +181,82 @@ class AdminController extends Controller
     //     echo "Hello Admin";
     // }
 
+    // ============== TRUCK MANAGEMENT MODULE ===================  //
+
+    // List all trucks
+    public function truck()
+    {
+        $truckModel = new TruckModel();
+        $data['trucks'] = $truckModel->getTrucks();
+        return view('admin/truck_management', $data);
+    }
     
+    // Create a new truck (process create form submission)
+    public function storeTruck()
+    {
+        $data = [
+            'truck_model'            => $this->request->getPost('truck_model'),
+            'plate_number'           => $this->request->getPost('plate_number'),
+            'engine_number'          => $this->request->getPost('engine_number'),
+            'chassis_number'         => $this->request->getPost('chassis_number'),
+            'color'                  => $this->request->getPost('color'),
+            'cor_number'             => $this->request->getPost('cor_number'),
+            'insurance_details'      => $this->request->getPost('insurance_details'),
+            'license_plate_expiry'   => $this->request->getPost('license_plate_expiry'),
+            'registration_expiry'    => $this->request->getPost('registration_expiry'),
+            'truck_type'             => $this->request->getPost('truck_type'),
+            'fuel_type'              => $this->request->getPost('fuel_type'),
+            'truck_length'           => $this->request->getPost('truck_length'),
+            'load_capacity'          => $this->request->getPost('load_capacity'),
+            'maintenance_technician' => $this->request->getPost('maintenance_technician'),
+        ];
+        
+        $truckModel = new TruckModel();
+        $newTruckId = $truckModel->insertTruck($data);
+        session()->setFlashdata('success', 'Truck created successfully with ID: ' . $newTruckId);
+        return redirect()->to(base_url('admin/trucks'));
+    }
+    
+    // Update an existing truck
+    public function updateTruck($truckId)
+    {
+        $data = [
+            'truck_model'            => $this->request->getPost('truck_model'),
+            'plate_number'           => $this->request->getPost('plate_number'),
+            'engine_number'          => $this->request->getPost('engine_number'),
+            'chassis_number'         => $this->request->getPost('chassis_number'),
+            'color'                  => $this->request->getPost('color'),
+            'cor_number'             => $this->request->getPost('cor_number'),
+            'insurance_details'      => $this->request->getPost('insurance_details'),
+            'license_plate_expiry'   => $this->request->getPost('license_plate_expiry'),
+            'registration_expiry'    => $this->request->getPost('registration_expiry'),
+            'truck_type'             => $this->request->getPost('truck_type'),
+            'fuel_type'              => $this->request->getPost('fuel_type'),
+            'truck_length'           => $this->request->getPost('truck_length'),
+            'load_capacity'          => $this->request->getPost('load_capacity'),
+            'maintenance_technician' => $this->request->getPost('maintenance_technician'),
+        ];
+        
+        $truckModel = new TruckModel();
+        $truckModel->updateTruck($truckId, $data);
+        session()->setFlashdata('success', 'Truck updated successfully.');
+        return redirect()->to(base_url('admin/trucks'));
+    }
+    
+    // Delete a truck
+    public function deleteTruck($truckId)
+    {
+        $truckModel = new TruckModel();
+        $truckModel->deleteTruck($truckId);
+        session()->setFlashdata('success', 'Truck deleted successfully.');
+        return redirect()->to(base_url('admin/trucks'));
+    }
+    
+    // View a truck's details (could be loaded into a modal via AJAX or as a partial view)
+    public function viewTruck($truckId)
+    {
+        $truckModel = new TruckModel();
+        $data['truck'] = $truckModel->getTruck($truckId);
+        return view('admin/truck_detail', $data);
+    }
 }
