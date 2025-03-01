@@ -57,31 +57,34 @@ $routes->get('login', 'AuthController::login');
 $routes->post('login/process', 'AuthController::processLogin');
 $routes->get('logout', 'AuthController::logout');
 
-// Example dashboards (for demonstration)
-$routes->get('staff_operation/dashboard', 'StaffOperationController::index');
-$routes->get('staff_resource/dashboard', 'StaffResourceController::index');
-$routes->get('dashboard', 'ClientController::test');
+// Admin Routes
 
-// Admin
+$routes->group('admin', function ($routes) {
+    // Dashboard
+    $routes->get('dashboard', 'AdminController::index');
 
-$routes->get('admin/dashboard', 'AdminController::index');
-$routes->get('admin/profile', 'AdminController::profile');
-$routes->post('admin/updateProfile', 'AdminController::updateProfile');
-$routes->get('admin/users', 'AdminController::users');
-$routes->post('admin/users/create', 'AdminController::create');
-$routes->post('admin/users/(:segment)/edit', 'AdminController::edit/$1');
-$routes->post('admin/users/(:segment)/delete', 'AdminController::delete/$1');
-$routes->get('admin/users/create', 'AdminController::create');
-$routes->get('admin/users/(:segment)/edit', 'AdminController::edit/$1');
-$routes->get('admin/users/(:segment)/delete', 'AdminController::delete/$1');
-$routes->get('admin/logout', 'AdminController::logout');
+    // Profile Management
+    $routes->get('profile', 'AdminController::profile');
+    $routes->post('updateProfile', 'AdminController::updateProfile');
 
-$routes->group('admin', function($routes) {
+    // User Management
+    $routes->get('users', 'AdminController::users');
+    $routes->get('users/create', 'AdminController::create');
+    $routes->post('users/create', 'AdminController::create');
+    $routes->get('users/(:segment)/edit', 'AdminController::edit/$1');
+    $routes->post('users/(:segment)/edit', 'AdminController::edit/$1');
+    $routes->get('users/(:segment)/delete', 'AdminController::delete/$1');
+    $routes->post('users/(:segment)/delete', 'AdminController::delete/$1');
+
+    // Truck Management
     $routes->get('trucks', 'AdminController::truck');
+    $routes->get('trucks/view/(:segment)', 'AdminController::viewTruck/$1');
     $routes->post('trucks/create', 'AdminController::storeTruck');
     $routes->post('trucks/update/(:segment)', 'AdminController::updateTruck/$1');
     $routes->get('trucks/delete/(:segment)', 'AdminController::deleteTruck/$1');
-    $routes->get('trucks/view/(:segment)', 'AdminController::viewTruck/$1');
+
+    // Logout
+    $routes->get('logout', 'AdminController::logout');
 });
 
 
