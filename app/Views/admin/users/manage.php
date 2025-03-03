@@ -167,6 +167,7 @@
                     <option value="operation manager">operation manager</option>
                     <option value="client">client</option>
                     <option value="driver">driver</option>
+                    <option value="conductor">conductor</option>
                 </select>
             </div>
             <div class="mb-3">
@@ -251,6 +252,8 @@
                     <option value="resource manager">resource manager</option>
                     <option value="operation manager">operation manager</option>
                     <option value="client">client</option>
+                    <option value="driver">driver</option>
+                    <option value="conductor">conductor</option>
                 </select>
             </div>
             <div class="mb-3">

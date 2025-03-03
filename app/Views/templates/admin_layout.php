@@ -41,25 +41,25 @@
                 </span>
                 <span class="description">User Account</span>
             </a>
-            <a href="<?= base_url('clients') ?>" class="nav-link <?= (current_url() == base_url('admin/clients')) ? 'active' : '' ?>">
+            <a href="#" class="nav-link <?= (current_url() == base_url('admin/clients')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/client.png') ?>" alt="">
                 </span>
                 <span class="description">Client Management</span>
             </a>
-            <a href="<?= base_url('drivers') ?>" class="nav-link <?= (current_url() == base_url('admin/drivers')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/driver') ?>" class="nav-link <?= (current_url() == base_url('admin/driver')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/driver.png') ?>" alt="">
                 </span>
                 <span class="description">Driver and Conductor Management</span>
             </a>
-            <a href="<?= base_url('bookings') ?>" class="nav-link <?= (current_url() == base_url('admin/bookings')) ? 'active' : '' ?>">
+            <a href="#" class="nav-link <?= (current_url() == base_url('admin/bookings')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/booking.png') ?>" alt="">
                 </span>
                 <span class="description">Booking Management</span>
             </a>
-            <a href="<?= base_url('trucks') ?>" class="nav-link <?= (current_url() == base_url('admin/trucks')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/trucks') ?>" class="nav-link <?= (current_url() == base_url('admin/trucks')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/truck.png') ?>" alt="">
                 </span>

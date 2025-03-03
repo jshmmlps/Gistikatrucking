@@ -25,17 +25,17 @@ class UserModel extends Model
      *   3) Store the user data under "/Users/userX".
      *
      * @param array $data Associative array of user data (already validated).
-     * @return string The assigned key, e.g. "user7".
+     * @return string The assigned key, e.g. "User7".
      */
     public function createUser(array $data)
     {
-        // 1) Find the first free "userX"
+        // 1) Find the first free "UserX"
         $i = 1;
         $newKey = '';
 
         while (true) {
             $attemptKey = 'User' . $i;
-            // Check if /Users/userX exists
+            // Check if /Users/UserX exists
             $snapshot = $this->db->getReference('Users/' . $attemptKey)->getSnapshot();
 
             if (!$snapshot->exists()) {
@@ -50,10 +50,10 @@ class UserModel extends Model
         $data['user_id']   = $i; // numeric user ID
         $data['createdAt'] = date('Y-m-d H:i:s');
 
-        // 3) Write the data to "/Users/userX"
+        // 3) Write the data to "/Users/UserX"
         $this->db->getReference('Users/' . $newKey)->set($data);
 
-        // Return the new key, e.g. "user7"
+        // Return the new key, e.g. "User7"
         return $newKey;
     }
 
@@ -131,11 +131,10 @@ class UserModel extends Model
         return null;
     }
     
-
     /**
      * Verify user credentials (username & plain password).
      *
-     * @param string $username
+     * @param string $identifier
      * @param string $plainPassword
      * @return array|null user data if successful, null if fail
      */
@@ -160,7 +159,6 @@ class UserModel extends Model
 
         return $user;
     }
-
 
     /**
      * Set the reset token and its expiration for the given email.
@@ -210,7 +208,6 @@ class UserModel extends Model
      * @param string $newPassword Plain text password
      * @return bool
      */
-    
     public function updatePassword(string $firebaseKey, string $newPassword): bool
     {
         $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
@@ -221,8 +218,28 @@ class UserModel extends Model
         ]);
         return true;
     }
-
     
-    
-
+    /**
+     * Retrieve eligible users who have a user_level of "driver" or "conductor".
+     *
+     * This method scans all user records and returns only those users.
+     * It also attaches the Firebase key to each returned record.
+     *
+     * @return array Eligible users.
+     */
+    public function getEligibleUsers()
+    {
+        $users = $this->getAllUsers();
+        $eligible = [];
+        if ($users) {
+            foreach ($users as $key => $user) {
+                if (isset($user['user_level']) && in_array(strtolower($user['user_level']), ['driver', 'conductor'])) {
+                    // Attach the Firebase key so you can reference it later
+                    $user['firebaseKey'] = $key;
+                    $eligible[$key] = $user;
+                }
+            }
+        }
+        return $eligible;
+    }
 }
