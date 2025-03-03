@@ -32,19 +32,19 @@
                 </span>
                 <span class="description">User Account</span>
             </a>
-            <a href="<?= base_url('clients') ?>" class="nav-link <?= (current_url() == base_url('clients')) ? 'active' : '' ?>">
+            <a href="#" class="nav-link <?= (current_url() == base_url('clients')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/client.png') ?>" alt="">
                 </span>
                 <span class="description">Client Management</span>
             </a>
-            <a href="<?= base_url('drivers') ?>" class="nav-link <?= (current_url() == base_url('drivers')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/driver') ?>" class="nav-link <?= (current_url() == base_url('driver')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/driver.png') ?>" alt="">
                 </span>
                 <span class="description">Driver and Conductor Management</span>
             </a>
-            <a href="<?= base_url('bookings') ?>" class="nav-link <?= (current_url() == base_url('bookings')) ? 'active' : '' ?>">
+            <a href="#" class="nav-link <?= (current_url() == base_url('bookings')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/booking.png') ?>" alt="">
                 </span>

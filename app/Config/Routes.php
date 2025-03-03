@@ -83,9 +83,17 @@ $routes->group('admin', function ($routes) {
     $routes->post('trucks/update/(:segment)', 'AdminController::updateTruck/$1');
     $routes->get('trucks/delete/(:segment)', 'AdminController::deleteTruck/$1');
 
+    // Driver/Conductor management routes
+    $routes->get('driver', 'AdminController::driverManagement');
+    $routes->post('driver/create', 'AdminController::createDriver');
+    $routes->post('driver/update/(:segment)', 'AdminController::updateDriver/$1');
+    $routes->get('driver/delete/(:segment)', 'AdminController::deleteDriver/$1');
+    $routes->get('driver/view/(:segment)', 'AdminController::viewDriver/$1');
+
     // Logout
     $routes->get('logout', 'AdminController::logout');
 });
+
 
 
 // Operations Coordinator
