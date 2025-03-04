@@ -2,61 +2,58 @@
 
 namespace App\Controllers;
 
+use App\Models\UserModel;
+use App\Models\TruckModel;
+use App\Models\DriverModel;
+use CodeIgniter\Controller;
+
 class ClientController extends BaseController
 {
-    public function test()
+    protected $userModel;
+
+    public function __construct()
     {
-        echo "Hello Client";
+        // Load your session and check admin auth
+        $session = session();
+        if (!$session->get('loggedIn') || $session->get('user_level') !== 'client') {
+            $session->setFlashdata('error', 'No authorization.');
+            redirect()->to(base_url('login'))->send();
+            exit; // Stop further execution
+        }        
+        
+        $this->userModel = new UserModel();
     }
 
-    public function clients()
+    public function dashboard()
     {
-        $clients = [
-            [
-                'id' => 1,
-                'name' => 'Fresh Farms Corporation',
-                'booking_date' => '2024-11-08',
-                'dispatch_date' => '2024-11-13',
-                'cargo_type' => 'Fresh Produce',
-                'drop_off' => 'Pasay City',
-                'status' => 'Pending'
-            ],
-            [
-                'id' => 2,
-                'name' => 'Karen Villanueva',
-                'booking_date' => '2024-11-09',
-                'dispatch_date' => '2024-11-18',
-                'cargo_type' => 'Frozen Goods',
-                'drop_off' => 'Pasig City',
-                'status' => 'Pending'
-            ],
-            // Add more sample data...
-        ];
-
-        return view('client_management', ['clients' => $clients]);
+        return view('client/dashboard');
     }
 
-    public function view($id)
+    public function bookings()
     {
-        // Example data for a single client
-        $client = [
-            'id' => $id,
-            'name' => 'Fresh Farms Corporation',
-            'contact_person' => 'John Doe',
-            'email' => 'contact@freshfarms.com',
-            'contact_number' => '09171234567',
-            'address' => '123 Market Street, Pasay City',
-            'username' => 'freshfarms',
-            'business_type' => 'Agriculture',
-            'preferred_truck' => 'Refrigerated Truck',
-            'cargo_type' => 'Fresh Produce',
-            'payment_mode' => 'Cash',
-            'pickup_location' => 'Farm, Laguna',
-            'dropoff_location' => 'Pasay City',
-            'client_since' => '2020-01-15',
-            'notes' => 'Deliver only in the morning.'
-        ];
-
-        return view('client_details', ['client' => $client]);
+        return view('client/bookings');
     }
+
+    public function profile()
+    {
+        return view('client/profile');
+    }
+
+    public function geolocation()
+    {
+        return view('client/geolocation');
+    }
+
+    public function report()
+    {
+        return view('client/report');
+    }
+
+    public function logout()
+    {
+        $session = session();
+        $session->destroy();
+        return redirect()->to(base_url('login'))->send();
+    }
+    
 }

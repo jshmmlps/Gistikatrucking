@@ -57,6 +57,30 @@ $routes->get('login', 'AuthController::login');
 $routes->post('login/process', 'AuthController::processLogin');
 $routes->get('logout', 'AuthController::logout');
 
+// Client Routes
+$routes->group('client', function ($routes) {
+    // Dashboard
+    $routes->get('dashboard', 'ClientController::dashboard');
+
+    // Profile
+    $routes->get('profile', 'ClientController::profile');
+    $routes->post('updateProfile', 'ClientController::updateProfile');
+
+    // Geolocation
+    $routes->get('geolocation', 'ClientController::geolocation');
+
+    // Report
+    $routes->get('reports', 'ClientController::report');
+
+    // Bookings
+    $routes->get('bookings', 'ClientController::bookings');
+    $routes->get('bookings/view/(:segment)', 'ClientController::viewBooking/$1');
+
+    // Logout
+    $routes->get('logout', 'ClientController::logout');
+});
+
+
 // Admin Routes
 
 $routes->group('admin', function ($routes) {

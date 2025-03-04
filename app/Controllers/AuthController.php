@@ -45,7 +45,7 @@ class AuthController extends Controller
             case 'resource manager':
                 return redirect()->to('/resource/dashboard');
             case 'client':
-                return redirect()->to('/dashboard');
+                return redirect()->to('client/dashboard');
             default:
                 return redirect()->back()->with('error', 'User role not recognized.');
         }
