@@ -5,23 +5,26 @@ namespace App\Controllers;
 use App\Models\UserModel;
 use App\Models\TruckModel;
 use App\Models\DriverModel;
+use App\Models\BookingModel;
 use CodeIgniter\Controller;
 
 class ClientController extends BaseController
 {
     protected $userModel;
+    protected $bookingModel;
 
     public function __construct()
     {
-        // Load your session and check admin auth
+        // Load session and verify client authorization
         $session = session();
         if (!$session->get('loggedIn') || $session->get('user_level') !== 'client') {
             $session->setFlashdata('error', 'No authorization.');
             redirect()->to(base_url('login'))->send();
             exit; // Stop further execution
-        }        
+        }
         
-        $this->userModel = new UserModel();
+        $this->userModel    = new UserModel();
+        $this->bookingModel = new BookingModel();
     }
 
     public function dashboard()
@@ -31,7 +34,36 @@ class ClientController extends BaseController
 
     public function bookings()
     {
-        return view('client/bookings');
+        $session  = session();
+        $clientId = $session->get('user_id');    // Must match what was stored when user logged in
+
+        $bookingModel = new BookingModel();
+        $data['bookings'] = $bookingModel->getBookingsByClient($clientId);
+
+        return view('client/bookings', $data);
+    }
+
+    // Show the create booking form
+    public function createBooking()
+    {
+        return view('client/create_booking');
+    }
+
+    // Process the create booking form submission
+    public function storeBooking()
+    {
+        $session  = session();
+        $clientId = $session->get('user_id'); // get user_id here in the controller
+    
+        $data = $this->request->getPost();
+        // Tag your booking with the client ID
+        $data['client_id'] = $clientId;
+    
+        // Now pass $data to the model
+        $bookingId = $this->bookingModel->createBooking($data);
+
+        $session->setFlashdata('success', 'Booking created with ID: ' . $bookingId);
+        return redirect()->to(base_url('client/bookings'));
     }
 
     public function profile()
@@ -55,5 +87,4 @@ class ClientController extends BaseController
         $session->destroy();
         return redirect()->to(base_url('login'))->send();
     }
-    
 }

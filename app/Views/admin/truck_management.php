@@ -178,7 +178,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="load_capacity_<?= $key ?>" class="form-label">Load Capacity</label>
-                                        <input type="text" class="form-control" name="load_capacity" id="load_capacity_<?= $key ?>" value="<?= esc($truck['load_capacity']) ?>">
+                                        <input type="number" class="form-control" name="load_capacity" id="load_capacity_<?= $key ?>" value="<?= esc($truck['load_capacity']) ?>">
                                     </div>
                                     <div class="mb-3">
                                         <label for="maintenance_technician_<?= $key ?>" class="form-label">Maintenance Technician</label>
@@ -296,7 +296,7 @@
         </div>
         <div class="mb-3">
             <label for="load_capacity" class="form-label">Load Capacity</label>
-            <input type="text" class="form-control" name="load_capacity" id="load_capacity">
+            <input type="number" class="form-control" name="load_capacity" id="load_capacity">
         </div>
         <div class="mb-3">
             <label for="maintenance_technician" class="form-label">Maintenance Technician</label>

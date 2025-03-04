@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\UserModel;
 use App\Models\TruckModel;
 use App\Models\DriverModel;
+use App\Models\BookingModel;
 use CodeIgniter\Controller;
 
 class AdminController extends Controller
@@ -480,6 +481,27 @@ class AdminController extends Controller
         $driverModel = new DriverModel();
         $data['driver'] = $driverModel->getDriver($driverId);
         return view('admin/driver_detail', $data);
+    }
+
+
+
+    // ============== TRUCK MANAGEMENT MODULE ===================  //
+    // List all bookings for admin review
+    public function bookings()
+    {
+        $bookingModel = new BookingModel();
+        $data['bookings'] = $bookingModel->getAllBookings();
+        return view('admin/bookings', $data);
+    }
+
+    // Update booking status (approval/rejection)
+    public function updateBookingStatus()
+    {
+        $bookingId = $this->request->getPost('booking_id');
+        $status    = $this->request->getPost('status'); // e.g., "approved" or "rejected"
+        $bookingModel = new BookingModel();
+        $bookingModel->updateBookingStatus($bookingId, $status);
+        return redirect()->to(base_url('admin/bookings'));
     }
 
 }
