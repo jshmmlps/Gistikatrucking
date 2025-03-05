@@ -5,6 +5,7 @@ namespace App\Controllers;
 // use App\Models\BookingModel; 
 use App\Models\UserModel;
 use App\Models\TruckModel;
+use App\Models\BookingModel;
 use CodeIgniter\Controller;
 
 class StaffOcController extends Controller
@@ -150,23 +151,68 @@ class StaffOcController extends Controller
         return view('operations_coordinator/truck_detail', $data);
     }
 
-    // ----- Booking Management Methods -----
-
-    // List all bookings
+    // ============== BOOKING MODULE ===================  //
+    // List all bookings for admin review
     public function bookings()
     {
         $bookingModel = new BookingModel();
-        $data['bookings'] = $bookingModel->getBookings(); // Make sure your BookingModel has a getBookings() method
+        $data['bookings'] = $bookingModel->getAllBookings();
         return view('operations_coordinator/bookings', $data);
     }
 
-    // View details of a specific booking
-    public function viewBooking($bookingId)
-    {
-        $bookingModel = new BookingModel();
-        $data['booking'] = $bookingModel->getBooking($bookingId); // And a getBooking() method
-        return view('operations_coordinator/booking_detail', $data);
-    }
+    // Update booking status (approval/rejection)
+    public function updateBookingStatus()
+        {
+            $bookingId  = $this->request->getPost('booking_id');
+            $status     = $this->request->getPost('status');     // e.g., "approved", "rejected", etc.
+            $distance   = $this->request->getPost('distance');   // New distance value
+            $driverId   = $this->request->getPost('driver');       // Selected driver id (if any)
+            $conductorId= $this->request->getPost('conductor');    // Selected conductor id (if any)
+            $truckId    = $this->request->getPost('truck_id');     // Hidden field updated via JS
+
+            // Prepare the update data array
+            $updateData = [
+                'status'   => $status,
+                'distance' => $distance
+            ];
+            
+            // If a new driver is selected, lookup its full name from Firebase and update booking
+            if (!empty($driverId)) {
+                $firebase    = service('firebase');
+                $driverData  = $firebase->getReference('Drivers/' . $driverId)->getValue();
+                if ($driverData) {
+                    $fullName = trim(($driverData['first_name'] ?? '') . ' ' . ($driverData['last_name'] ?? ''));
+                    $updateData['driver_name'] = $fullName;
+                }
+            }
+            
+            // Similarly for conductor
+            if (!empty($conductorId)) {
+                $firebase      = service('firebase');
+                $conductorData = $firebase->getReference('Drivers/' . $conductorId)->getValue();
+                if ($conductorData) {
+                    $fullName = trim(($conductorData['first_name'] ?? '') . ' ' . ($conductorData['last_name'] ?? ''));
+                    $updateData['conductor_name'] = $fullName;
+                }
+            }
+            
+            // If a new truck id is provided (via driver selection), update truck details
+            if (!empty($truckId)) {
+                $firebase  = service('firebase');
+                $truckData = $firebase->getReference('Trucks/' . $truckId)->getValue();
+                if ($truckData) {
+                    $updateData['truck_id']       = $truckData['truck_id'] ?? $truckId;
+                    $updateData['truck_model']    = $truckData['truck_model'] ?? '';
+                    $updateData['license_plate']  = $truckData['plate_number'] ?? '';
+                    $updateData['type_of_truck']  = $truckData['truck_type'] ?? '';
+                }
+            }
+
+            $bookingModel = new BookingModel();
+            $bookingModel->updateBooking($bookingId, $updateData);
+            
+            return redirect()->to(base_url('operations_coordinator/bookings'));
+        }
 
     // ----- Logout -----
     public function logout()

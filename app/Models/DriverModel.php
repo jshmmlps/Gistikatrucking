@@ -1,67 +1,85 @@
 <?php
+
 namespace App\Models;
 
 use CodeIgniter\Model;
+use Config\Services;
 
+/**
+ * Manages driver/conductor data stored under the "Drivers" node in Firebase.
+ * Each record can be either a driver or a conductor, determined by the 'position' field.
+ */
 class DriverModel extends Model
 {
     protected $firebase;
-    protected $dbRef;
-    
+    protected $driversRef;
+
     public function __construct()
     {
         parent::__construct();
-        // Get the Firebase database instance from our service
-        $this->firebase = service('firebase');
-        // All driver records will be stored under the "Drivers" node
-        $this->dbRef = $this->firebase->getReference('Drivers');
+        // Get the Firebase Realtime Database instance
+        $this->firebase = Services::firebase();
+        // Drivers are stored under the "Drivers" node
+        $this->driversRef = $this->firebase->getReference('Drivers');
     }
-    
-    // Retrieve all driver records
+
+    /**
+     * Retrieve all drivers (and conductors) from Firebase.
+     */
     public function getDrivers()
     {
-        $snapshot = $this->dbRef->getSnapshot();
-        return $snapshot->getValue();
+        $snapshot = $this->driversRef->getSnapshot();
+        return $snapshot->getValue(); // returns an assoc array or null
     }
-    
-    // Retrieve a single driver by its ID
+
+    /**
+     * Retrieve a single driver/conductor record by driver_id.
+     */
     public function getDriver($driverId)
     {
         $snapshot = $this->firebase->getReference('Drivers/' . $driverId)->getSnapshot();
         return $snapshot->getValue();
     }
-    
-    // Insert a new driver record with an auto-incremented Driver ID
-    public function insertDriver($data)
+
+    /**
+     * Insert a new driver/conductor record with an auto-incremented driver_id ("Driver1", "Driver2", etc.).
+     */
+    public function insertDriver(array $data)
     {
-        // Get existing drivers to determine the highest driver id currently
-        $drivers = $this->getDrivers();
-        $maxId = 0;
-        if ($drivers) {
-            foreach ($drivers as $key => $value) {
+        // Determine the highest existing driver id
+        $allDrivers = $this->getDrivers();
+        $maxNum = 0;
+        if ($allDrivers && is_array($allDrivers)) {
+            foreach ($allDrivers as $key => $value) {
+                // We expect keys like "Driver1", "Driver2", etc.
                 if (preg_match('/Driver(\d+)/', $key, $matches)) {
-                    $id = (int)$matches[1];
-                    if ($id > $maxId) {
-                        $maxId = $id;
+                    $num = (int)$matches[1];
+                    if ($num > $maxNum) {
+                        $maxNum = $num;
                     }
                 }
             }
         }
-        // New driver id will be Driver1, Driver2, etc.
-        $newDriverId = 'Driver' . ($maxId + 1);
+
+        $newDriverId = 'Driver' . ($maxNum + 1);
         $data['driver_id'] = $newDriverId;
+
         $this->firebase->getReference('Drivers/' . $newDriverId)->set($data);
         return $newDriverId;
     }
-    
-    // Update an existing driver record
-    public function updateDriver($driverId, $data)
+
+    /**
+     * Update an existing driver/conductor record.
+     */
+    public function updateDriver($driverId, array $data)
     {
         $this->firebase->getReference('Drivers/' . $driverId)->update($data);
         return true;
     }
-    
-    // Delete a driver record (only from the Drivers collection)
+
+    /**
+     * Delete a driver/conductor record.
+     */
     public function deleteDriver($driverId)
     {
         $this->firebase->getReference('Drivers/' . $driverId)->remove();

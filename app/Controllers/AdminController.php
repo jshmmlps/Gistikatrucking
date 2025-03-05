@@ -48,9 +48,12 @@ class AdminController extends Controller
         $session = session();
         $firebaseKey = $session->get('firebaseKey');
         $userData = $this->userModel->getUser($firebaseKey);
+        // var_dump($firebaseKey);
+        // var_dump($userData);
+        // exit;
         return view('admin/users/profile', ['user' => $userData]);
     }
-
+    
     /**
      * Process the update of profile details.
      */

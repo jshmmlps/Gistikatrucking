@@ -45,7 +45,7 @@
                 </span>
                 <span class="description">Truck Monitoring</span>
             </a>
-            <a href="#" class="nav-link <?= (current_url() == base_url('operations/reports')) ? 'active' : '' ?>">
+            <a href="<?= base_url('operations/bookings') ?>" class="nav-link <?= (current_url() == base_url('operations/reports')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/report.png') ?>" alt="">
                 </span>
