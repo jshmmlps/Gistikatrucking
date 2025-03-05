@@ -53,7 +53,7 @@
                 </span>
                 <span class="description">Driver and Conductor Management</span>
             </a>
-            <a href="#" class="nav-link <?= (current_url() == base_url('admin/bookings')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/bookings') ?>" class="nav-link <?= (current_url() == base_url('admin/bookings')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/booking.png') ?>" alt="">
                 </span>

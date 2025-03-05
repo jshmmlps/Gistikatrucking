@@ -1,7 +1,6 @@
 <?php 
 namespace App\Models;
 
-use Models\UserModel;
 use CodeIgniter\Model;
 use Config\Services;
 
@@ -65,21 +64,17 @@ class BookingModel extends Model
         if (isset($data['cargo_weight'])) {
             $assignment = $this->assignTruckAndDriver($data['cargo_weight']);
             if (!empty($assignment)) {
-                // Merge
+                // Merge assignment data while preserving existing keys (e.g., client_id)
                 $data = $data + $assignment;
             }
         }
     
-        // Now $data should already have ['client_id'] from the controller
+        // Save booking into the "Bookings" node under booking_id
         $this->db->getReference('Bookings/' . $bookingId)->set($data);
     
-        // $clientId = session()->get('user_id'); 
-        // dd($clientId); // or log_message('debug', 'Client ID: '. $clientId);
-
         return $bookingId;
     }
     
-
     /**
      * Auto-assign a truck and its driver/conductor based on cargo weight.
      * Excludes any trucks that are currently assigned to active (non-completed) bookings.
@@ -118,7 +113,7 @@ class BookingModel extends Model
                     $truck['load_capacity'] >= $cargoWeight 
                     && !in_array($truck['truck_id'], $assignedTruckIds)
                 ) {
-                    // Found a suitable truck; now find driver & conductor
+                    // Found a suitable truck; now get driver & conductor details
                     $driverInfo = $this->getDriverAndConductor($truck['truck_id']);
 
                     // Return all relevant assignment data
@@ -146,7 +141,8 @@ class BookingModel extends Model
      */
     protected function getDriverAndConductor($truckId)
     {
-        $driversRef = $this->db->getReference('Driver');
+        // Use "Drivers" as the node name to match DriverModel
+        $driversRef = $this->db->getReference('Drivers');
         $drivers    = $driversRef->getValue();
 
         $result = [
@@ -224,4 +220,12 @@ class BookingModel extends Model
         $ref->update(['status' => $status]);
         return true;
     }
+
+    public function updateBooking($bookingId, $data)
+    {
+        $ref = $this->db->getReference('Bookings/' . $bookingId);
+        $ref->update($data);
+        return true;
+    }
+
 }

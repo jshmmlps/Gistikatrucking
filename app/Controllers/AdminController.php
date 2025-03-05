@@ -265,7 +265,7 @@ class AdminController extends Controller
 
     // ============== DRIVER MANAGEMENT MODULE ===================  //
 
-   /**
+    /**
      * Display the Driver/Conductor management page.
      * - Fetch all driver records.
      * - Fetch eligible users (with user_level "driver" or "conductor") not already assigned.
@@ -322,13 +322,7 @@ class AdminController extends Controller
     
     /**
      * Create a new Driver/Conductor record.
-     * Validations:
-     * - All fields are required except Medical Record.
-     * - Date of Employment cannot exceed today's date.
-     * - License Expiry must be today or later.
-     * - Trips Completed cannot be less than 0.
-     * - Employee ID and License Number must be unique.
-     * - The selected truck must not be already assigned for the same role.
+     * Validations are applied to required fields, dates, trips count, and uniqueness constraints.
      */
     public function createDriver()
     {
@@ -343,7 +337,7 @@ class AdminController extends Controller
             $medical_record     = $this->request->getPost('medical_record'); // Optional
             $trips_completed    = $this->request->getPost('trips_completed');
 
-            // Validate that all required fields are provided (all except medical_record)
+            // Validate that all required fields are provided (except medical_record)
             if (empty($user_id) || empty($employee_id) || empty($date_of_employment) || empty($truck_assigned) || empty($license_number) || empty($license_expiry) || $trips_completed === '' || $trips_completed === null) {
                 return redirect()->to(base_url('admin/driver'))->with('error', 'All fields except Medical Record are required.');
             }
@@ -422,7 +416,6 @@ class AdminController extends Controller
     
     /**
      * Update an existing Driver/Conductor record.
-     * Basic validations are applied for required fields and date/trip constraints.
      */
     public function updateDriver($driverId)
     {
@@ -484,8 +477,7 @@ class AdminController extends Controller
     }
 
 
-
-    // ============== TRUCK MANAGEMENT MODULE ===================  //
+    // ============== BOOKING MODULE ===================  //
     // List all bookings for admin review
     public function bookings()
     {
@@ -496,12 +488,57 @@ class AdminController extends Controller
 
     // Update booking status (approval/rejection)
     public function updateBookingStatus()
-    {
-        $bookingId = $this->request->getPost('booking_id');
-        $status    = $this->request->getPost('status'); // e.g., "approved" or "rejected"
-        $bookingModel = new BookingModel();
-        $bookingModel->updateBookingStatus($bookingId, $status);
-        return redirect()->to(base_url('admin/bookings'));
-    }
+        {
+            $bookingId  = $this->request->getPost('booking_id');
+            $status     = $this->request->getPost('status');     // e.g., "approved", "rejected", etc.
+            $distance   = $this->request->getPost('distance');   // New distance value
+            $driverId   = $this->request->getPost('driver');       // Selected driver id (if any)
+            $conductorId= $this->request->getPost('conductor');    // Selected conductor id (if any)
+            $truckId    = $this->request->getPost('truck_id');     // Hidden field updated via JS
+
+            // Prepare the update data array
+            $updateData = [
+                'status'   => $status,
+                'distance' => $distance
+            ];
+            
+            // If a new driver is selected, lookup its full name from Firebase and update booking
+            if (!empty($driverId)) {
+                $firebase    = service('firebase');
+                $driverData  = $firebase->getReference('Drivers/' . $driverId)->getValue();
+                if ($driverData) {
+                    $fullName = trim(($driverData['first_name'] ?? '') . ' ' . ($driverData['last_name'] ?? ''));
+                    $updateData['driver_name'] = $fullName;
+                }
+            }
+            
+            // Similarly for conductor
+            if (!empty($conductorId)) {
+                $firebase      = service('firebase');
+                $conductorData = $firebase->getReference('Drivers/' . $conductorId)->getValue();
+                if ($conductorData) {
+                    $fullName = trim(($conductorData['first_name'] ?? '') . ' ' . ($conductorData['last_name'] ?? ''));
+                    $updateData['conductor_name'] = $fullName;
+                }
+            }
+            
+            // If a new truck id is provided (via driver selection), update truck details
+            if (!empty($truckId)) {
+                $firebase  = service('firebase');
+                $truckData = $firebase->getReference('Trucks/' . $truckId)->getValue();
+                if ($truckData) {
+                    $updateData['truck_id']       = $truckData['truck_id'] ?? $truckId;
+                    $updateData['truck_model']    = $truckData['truck_model'] ?? '';
+                    $updateData['license_plate']  = $truckData['plate_number'] ?? '';
+                    $updateData['type_of_truck']  = $truckData['truck_type'] ?? '';
+                }
+            }
+
+            $bookingModel = new BookingModel();
+            $bookingModel->updateBooking($bookingId, $updateData);
+            
+            return redirect()->to(base_url('admin/bookings'));
+        }
+
 
 }
