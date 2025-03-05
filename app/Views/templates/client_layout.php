@@ -23,55 +23,37 @@
                 <img class="rounded mx-auto d-block img-header" src="<?= base_url('public/images/icons/logo.png') ?>" alt="Juby-An Trucking Services Logo">
             </span>
             <hr class="text-black">
-            <a href="<?= base_url('admin/dashboard') ?>" class="nav-link <?= (current_url() == base_url('admin/dashboard')) ? 'active' : '' ?>">
+            <a href="<?= base_url('client/dashboard') ?>" class="nav-link <?= (current_url() == base_url('client/dashboard')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/dashboard.png') ?>" alt="">
                 </span>
                 <span class="description">Dashboard</span>
             </a>
-            <a href="<?= base_url('admin/profile') ?>" class="nav-link <?= (current_url() == base_url('admin/profile')) ? 'active' : '' ?>">
+            <a href="<?= base_url('client/profile') ?>" class="nav-link <?= (current_url() == base_url('client/profile')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/profile.png') ?>" alt="">
                 </span>
                 <span class="description">Profile</span>
             </a>
-            <a href="<?= base_url('admin/users') ?>" class="nav-link <?= (current_url() == base_url('admin/users')) ? 'active' : '' ?>">
-                <span class="icon">
-                    <img src="<?= base_url('public/images/icons/sidebar/user.png') ?>" alt="">
-                </span>
-                <span class="description">User Account</span>
-            </a>
-            <a href="#" class="nav-link <?= (current_url() == base_url('admin/clients')) ? 'active' : '' ?>">
-                <span class="icon">
-                    <img src="<?= base_url('public/images/icons/sidebar/client.png') ?>" alt="">
-                </span>
-                <span class="description">Client Management</span>
-            </a>
-            <a href="<?= base_url('admin/driver') ?>" class="nav-link <?= (current_url() == base_url('admin/driver')) ? 'active' : '' ?>">
-                <span class="icon">
-                    <img src="<?= base_url('public/images/icons/sidebar/driver.png') ?>" alt="">
-                </span>
-                <span class="description">Driver and Conductor Management</span>
-            </a>
-            <a href="<?= base_url('admin/bookings') ?>" class="nav-link <?= (current_url() == base_url('admin/bookings')) ? 'active' : '' ?>">
+            <a href="<?= base_url('client/bookings') ?>" class="nav-link <?= (current_url() == base_url('client/bookings')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/booking.png') ?>" alt="">
                 </span>
                 <span class="description">Booking Management</span>
             </a>
-            <a href="<?= base_url('admin/trucks') ?>" class="nav-link <?= (current_url() == base_url('admin/trucks')) ? 'active' : '' ?>">
+            <a href="<?= base_url('client/geolocation') ?>" class="nav-link <?= (current_url() == base_url('client/geolocation')) ? 'active' : '' ?>">
                 <span class="icon">
-                    <img src="<?= base_url('public/images/icons/sidebar/truck.png') ?>" alt="">
+                    <img src="<?= base_url('public/images/icons/sidebar/geo.png') ?>" alt="">
                 </span>
-                <span class="description">Truck Record and Monitoring Maintenance</span>
+                <span class="description">Geolocation</span>
             </a>
-            <a href="<?= base_url('maintenance') ?>" class="nav-link <?= (current_url() == base_url('admin/maintenance')) ? 'active' : '' ?>">
+            <a href="<?= base_url('client/reports') ?>" class="nav-link <?= (current_url() == base_url('client/reports')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/report.png') ?>" alt="">
                 </span>
-                <span class="description">Report Management</span>
+                <span class="description">Reports</span>
             </a>
-            <a href="<?= base_url('admin/logout') ?>" class="logout">
+            <a href="<?= base_url('logout') ?>" class="logout">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/logout.png') ?>" alt="">
                 </span>

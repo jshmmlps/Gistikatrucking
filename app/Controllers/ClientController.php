@@ -2,61 +2,89 @@
 
 namespace App\Controllers;
 
+use App\Models\UserModel;
+use App\Models\TruckModel;
+use App\Models\DriverModel;
+use App\Models\BookingModel;
+use CodeIgniter\Controller;
+
 class ClientController extends BaseController
 {
-    public function test()
+    protected $userModel;
+    protected $bookingModel;
+
+    public function __construct()
     {
-        echo "Hello Client";
+        // Load session and verify client authorization
+        $session = session();
+        if (!$session->get('loggedIn') || $session->get('user_level') !== 'client') {
+            $session->setFlashdata('error', 'No authorization.');
+            redirect()->to(base_url('login'))->send();
+            exit; // Stop further execution
+        }
+        
+        $this->userModel    = new UserModel();
+        $this->bookingModel = new BookingModel();
     }
 
-    public function clients()
+    public function dashboard()
     {
-        $clients = [
-            [
-                'id' => 1,
-                'name' => 'Fresh Farms Corporation',
-                'booking_date' => '2024-11-08',
-                'dispatch_date' => '2024-11-13',
-                'cargo_type' => 'Fresh Produce',
-                'drop_off' => 'Pasay City',
-                'status' => 'Pending'
-            ],
-            [
-                'id' => 2,
-                'name' => 'Karen Villanueva',
-                'booking_date' => '2024-11-09',
-                'dispatch_date' => '2024-11-18',
-                'cargo_type' => 'Frozen Goods',
-                'drop_off' => 'Pasig City',
-                'status' => 'Pending'
-            ],
-            // Add more sample data...
-        ];
-
-        return view('client_management', ['clients' => $clients]);
+        return view('client/dashboard');
     }
 
-    public function view($id)
+    public function bookings()
     {
-        // Example data for a single client
-        $client = [
-            'id' => $id,
-            'name' => 'Fresh Farms Corporation',
-            'contact_person' => 'John Doe',
-            'email' => 'contact@freshfarms.com',
-            'contact_number' => '09171234567',
-            'address' => '123 Market Street, Pasay City',
-            'username' => 'freshfarms',
-            'business_type' => 'Agriculture',
-            'preferred_truck' => 'Refrigerated Truck',
-            'cargo_type' => 'Fresh Produce',
-            'payment_mode' => 'Cash',
-            'pickup_location' => 'Farm, Laguna',
-            'dropoff_location' => 'Pasay City',
-            'client_since' => '2020-01-15',
-            'notes' => 'Deliver only in the morning.'
-        ];
+        $session  = session();
+        $clientId = $session->get('user_id');    // Must match what was stored when user logged in
 
-        return view('client_details', ['client' => $client]);
+        $bookingModel = new BookingModel();
+        $data['bookings'] = $bookingModel->getBookingsByClient($clientId);
+
+        return view('client/bookings', $data);
+    }
+
+    // Show the create booking form
+    public function createBooking()
+    {
+        return view('client/create_booking');
+    }
+
+    // Process the create booking form submission
+    public function storeBooking()
+    {
+        $session  = session();
+        $clientId = $session->get('user_id'); // get user_id here in the controller
+    
+        $data = $this->request->getPost();
+        // Tag your booking with the client ID
+        $data['client_id'] = $clientId;
+    
+        // Now pass $data to the model
+        $bookingId = $this->bookingModel->createBooking($data);
+
+        $session->setFlashdata('success', 'Booking created with ID: ' . $bookingId);
+        return redirect()->to(base_url('client/bookings'));
+    }
+
+    public function profile()
+    {
+        return view('client/profile');
+    }
+
+    public function geolocation()
+    {
+        return view('client/geolocation');
+    }
+
+    public function report()
+    {
+        return view('client/report');
+    }
+
+    public function logout()
+    {
+        $session = session();
+        $session->destroy();
+        return redirect()->to(base_url('login'))->send();
     }
 }

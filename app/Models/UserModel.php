@@ -242,4 +242,61 @@ class UserModel extends Model
         }
         return $eligible;
     }
+
+    /**
+     * Get a user (and its Firebase key) by email.
+     * Returns an array: ['firebase_key' => '...', 'userData' => [...]] or null if not found.
+     */
+    public function getUserByEmail($email)
+    {
+        // Reference the entire /Users node
+        $usersRef = $this->db->getReference('Users');
+        $users = $usersRef->getValue();
+
+        if (!$users || !is_array($users)) {
+            return null; // No users found
+        }
+
+        // Loop through each child (e.g. User1, User2, etc.)
+        foreach ($users as $firebaseKey => $userData) {
+            // Safety check: skip non-arrays
+            if (!is_array($userData)) {
+                continue;
+            }
+            // Compare emails (case-sensitive or insensitive as you prefer)
+            if (isset($userData['email']) && strtolower($userData['email']) === strtolower($email)) {
+                // Return both the user data and the Firebase key
+                return [
+                    'firebase_key' => $firebaseKey,
+                    'userData'     => $userData
+                ];
+            }
+        }
+
+        return null; // No match
+    }
+
+    /**
+     * Optionally, if you want to look up a user by the numeric user_id instead of the email:
+     */
+    public function getUserByNumericId($numericId)
+    {
+        $usersRef = $this->db->getReference('Users');
+        $users    = $usersRef->getValue();
+
+        if (!$users || !is_array($users)) {
+            return null;
+        }
+
+        foreach ($users as $firebaseKey => $userData) {
+            if (isset($userData['user_id']) && (int)$userData['user_id'] === (int)$numericId) {
+                // We found the user
+                return [
+                    'firebase_key' => $firebaseKey,
+                    'userData'     => $userData
+                ];
+            }
+        }
+        return null;
+    }
 }

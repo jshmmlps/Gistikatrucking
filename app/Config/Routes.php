@@ -57,6 +57,38 @@ $routes->get('login', 'AuthController::login');
 $routes->post('login/process', 'AuthController::processLogin');
 $routes->get('logout', 'AuthController::logout');
 
+// Client Routes
+$routes->group('client', function ($routes) {
+    // Dashboard
+    $routes->get('dashboard', 'ClientController::dashboard');
+
+    // Profile
+    $routes->get('profile', 'ClientController::profile');
+    $routes->post('updateProfile', 'ClientController::updateProfile');
+
+    // Geolocation
+    $routes->get('geolocation', 'ClientController::geolocation');
+
+    // Report
+    $routes->get('reports', 'ClientController::report');
+
+    // Logout
+    $routes->get('logout', 'ClientController::logout');
+});
+
+// Client routes
+$routes->group('client', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('bookings', 'ClientController::bookings');
+    $routes->post('store-booking', 'ClientController::storeBooking');
+});
+
+// Admin routes
+$routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('bookings', 'AdminController::bookings');
+    $routes->post('update-booking-status', 'AdminController::updateBookingStatus');
+});
+
+
 // Admin Routes
 
 $routes->group('admin', function ($routes) {
