@@ -31,6 +31,46 @@ class ClientController extends BaseController
     {
         return view('client/dashboard');
     }
+    
+    // =================== PROFILE =================== 
+    
+     /**
+     * Display the admin profile page.
+     */
+    public function profile()
+    {
+        $session = session();
+        $firebaseKey = $session->get('firebaseKey');
+        $userData = $this->userModel->getUser($firebaseKey);
+        // var_dump($firebaseKey);
+        // var_dump($userData);
+        // exit;
+        return view('client/profile', ['user' => $userData]);
+    }
+    
+    /**
+     * Process the update of profile details.
+     */
+    public function updateProfile()
+    {
+        $session = session();
+        $firebaseKey = $session->get('firebaseKey');
+
+        $data = [
+            'first_name'     => $this->request->getPost('first_name'),
+            'last_name'      => $this->request->getPost('last_name'),
+            'email'          => $this->request->getPost('email'),
+            'username'       => $this->request->getPost('username'),
+            'contact_number' => $this->request->getPost('contact_number'),
+            'address'        => $this->request->getPost('address'),
+            'birthday'       => $this->request->getPost('birthday'),
+            'gender'         => $this->request->getPost('gender'),
+        ];
+
+        $this->userModel->updateUser($firebaseKey, $data);
+        $session->setFlashdata('success', 'Profile updated successfully.');
+        return redirect()->to('client/profile');
+    }
 
     public function bookings()
     {
@@ -66,10 +106,10 @@ class ClientController extends BaseController
         return redirect()->to(base_url('client/bookings'));
     }
 
-    public function profile()
-    {
-        return view('client/profile');
-    }
+    // public function profile()
+    // {
+    //     return view('client/profile');
+    // }
 
     public function geolocation()
     {
