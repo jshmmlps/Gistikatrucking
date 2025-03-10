@@ -39,26 +39,26 @@
                     <div class="row">
                         <!-- Left Column -->
                         <div class="col-md-6">
-                            <p><strong>First Name:</strong> <?= esc($user['first_name']) ?></p>
-                            <p><strong>Email:</strong> <?= esc($user['email']) ?></p>
-                            <p><strong>Username:</strong> <?= esc($user['username']) ?></p>
-                            <p><strong>Address:</strong> <?= esc($user['address']) ?></p>
+                            <p><strong>First Name:</strong> <?= esc($user['first_name'] ?? '') ?></p>
+                            <p><strong>Email:</strong> <?= esc($user['email'] ?? '') ?></p>
+                            <p><strong>Username:</strong> <?= esc($user['username'] ?? '') ?></p>
+                            <p><strong>Address:</strong> <?= esc($user['address'] ?? '') ?></p>
                         </div>
                         <!-- Right Column -->
                         <div class="col-md-6">
-                            <p><strong>Last Name:</strong> <?= esc($user['last_name']) ?></p>
-                            <p><strong>Contact Number:</strong> <?= esc($user['contact_number']) ?></p>
-                            <p><strong>Birthday:</strong> <?= esc($user['birthday']) ?></p>
-                            <p><strong>Gender:</strong> <?= esc($user['gender']) ?></p>
+                            <p><strong>Last Name:</strong> <?= esc($user['last_name'] ?? '') ?></p>
+                            <p><strong>Contact Number:</strong> <?= esc($user['contact_number'] ?? '') ?></p>
+                            <p><strong>Birthday:</strong> <?= esc($user['birthday'] ?? '') ?></p>
+                            <p><strong>Gender:</strong> <?= esc($user['gender'] ?? '') ?></p>
                         </div>
                     </div>
                     <div class="text-center mt-3">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit</button>
                     </div>
                 </div>
-
             </div>
         </div>
+
     </div>
 </div>
 
@@ -73,46 +73,46 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <!-- First Name and Last Name -->
-            <div class="mb-3">
-                <label for="first_name" class="form-label">First Name</label>
-                <input type="text" name="first_name" id="first_name" class="form-control" value="<?= esc($user['first_name']) ?>" required>
-            </div>
-            <div class="mb-3">
-                <label for="last_name" class="form-label">Last Name</label>
-                <input type="text" name="last_name" id="last_name" class="form-control" value="<?= esc($user['last_name']) ?>" required>
-            </div>
-            <!-- Email and Username -->
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" name="email" id="email" class="form-control" value="<?= esc($user['email']) ?>" required>
-            </div>
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" name="username" id="username" class="form-control" value="<?= esc($user['username']) ?>" required>
-            </div>
-            <!-- Contact and Address -->
-            <div class="mb-3">
-                <label for="contact_number" class="form-label">Contact Number</label>
-                <input type="text" name="contact_number" id="contact_number" class="form-control" value="<?= esc($user['contact_number']) ?>">
-            </div>
-            <div class="mb-3">
-                <label for="address" class="form-label">Address</label>
-                <input type="text" name="address" id="address" class="form-control" value="<?= esc($user['address']) ?>">
-            </div>
-            <!-- Birthday and Gender -->
-            <div class="mb-3">
-                <label for="birthday" class="form-label">Birthday</label>
-                <input type="date" name="birthday" id="birthday" class="form-control" value="<?= esc($user['birthday']) ?>">
-            </div>
-            <div class="mb-3">
-                <label for="gender" class="form-label">Gender</label>
-                <select name="gender" id="gender" class="form-select">
-                    <option value="male" <?= (isset($user['gender']) && strtolower($user['gender']) == 'male') ? 'selected' : '' ?>>Male</option>
-                    <option value="female" <?= (isset($user['gender']) && strtolower($user['gender']) == 'female') ? 'selected' : '' ?>>Female</option>
-                    <option value="other" <?= (isset($user['gender']) && strtolower($user['gender']) == 'other') ? 'selected' : '' ?>>Other</option>
-                </select>
-            </div>
+          <!-- First Name and Last Name -->
+          <div class="mb-3">
+            <label for="first_name" class="form-label">First Name</label>
+            <input type="text" name="first_name" id="first_name" class="form-control" value="<?= esc($user['first_name'] ?? '') ?>" required>
+          </div>
+          <div class="mb-3">
+            <label for="last_name" class="form-label">Last Name</label>
+            <input type="text" name="last_name" id="last_name" class="form-control" value="<?= esc($user['last_name'] ?? '') ?>" required>
+          </div>
+          <!-- Email and Username -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" id="email" class="form-control" value="<?= esc($user['email'] ?? '') ?>" required>
+          </div>
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" id="username" class="form-control" value="<?= esc($user['username'] ?? '') ?>" required>
+          </div>
+          <!-- Contact and Address -->
+          <div class="mb-3">
+            <label for="contact_number" class="form-label">Contact Number</label>
+            <input type="text" name="contact_number" id="contact_number" class="form-control" value="<?= esc($user['contact_number'] ?? '') ?>">
+          </div>
+          <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <input type="text" name="address" id="address" class="form-control" value="<?= esc($user['address'] ?? '') ?>">
+          </div>
+          <!-- Birthday and Gender -->
+          <div class="mb-3">
+            <label for="birthday" class="form-label">Birthday</label>
+            <input type="date" name="birthday" id="birthday" class="form-control" value="<?= esc($user['birthday'] ?? '') ?>">
+          </div>
+          <div class="mb-3">
+            <label for="gender" class="form-label">Gender</label>
+            <select name="gender" id="gender" class="form-select">
+              <option value="male" <?= (isset($user['gender']) && strtolower($user['gender']) == 'male') ? 'selected' : '' ?>>Male</option>
+              <option value="female" <?= (isset($user['gender']) && strtolower($user['gender']) == 'female') ? 'selected' : '' ?>>Female</option>
+              <option value="other" <?= (isset($user['gender']) && strtolower($user['gender']) == 'other') ? 'selected' : '' ?>>Other</option>
+            </select>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -122,6 +122,7 @@
     </div>
   </div>
 </div>
+
 
 
 

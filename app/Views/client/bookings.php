@@ -36,12 +36,12 @@
         <?php if(!empty($bookings) && is_array($bookings)): ?>
             <?php foreach($bookings as $booking): ?>
             <tr>
-                <td><?= $booking['booking_id'] ?></td>
-                <td><?= $booking['booking_date'] ?></td>
-                <td><?= $booking['dispatch_date'] ?></td>
-                <td><?= $booking['cargo_type'] ?></td>
-                <td><?= $booking['drop_off_address'] ?></td>
-                <td><?= $booking['status'] ?></td>
+                <td><?= $booking['booking_id'] ?? '' ?></td>
+                <td><?= $booking['booking_date'] ?? '' ?></td>
+                <td><?= $booking['dispatch_date'] ?? '' ?></td>
+                <td><?= $booking['cargo_type'] ?? '' ?></td>
+                <td><?= $booking['drop_off_address'] ?? '' ?></td>
+                <td><?= $booking['status'] ?? '' ?></td>
                 <td>
                 <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#bookingModal<?= $booking['booking_id'] ?>">View</button>
                 </td>
@@ -56,21 +56,21 @@
                     </div>
                     <div class="modal-body">
                     <p><strong>Name:</strong> <?= $booking['name'] ?></p>
-                    <p><strong>Contact Number:</strong> <?= $booking['contact_number'] ?></p>
-                    <p><strong>Pick-up Address:</strong> <?= $booking['pick_up_address'] ?></p>
-                    <p><strong>Drop-off Address:</strong> <?= $booking['drop_off_address'] ?></p>
-                    <p><strong>Person of Contact:</strong> <?= $booking['person_of_contact'] ?></p>
-                    <p><strong>Dispatch Date:</strong> <?= $booking['dispatch_date'] ?></p>
-                    <p><strong>Cargo Type:</strong> <?= $booking['cargo_type'] ?></p>
-                    <p><strong>Cargo Weight:</strong> <?= $booking['cargo_weight'] ?></p>
-                    <p><strong>Delivery Note:</strong> <?= $booking['delivery_note'] ?></p>
-                    <p><strong>Truck Model:</strong> <?= $booking['truck_model'] ?></p>
-                    <p><strong>Conductor Name:</strong> <?= $booking['conductor_name'] ?></p>
-                    <p><strong>Driver Name:</strong> <?= $booking['driver_name'] ?></p>
-                    <p><strong>License Plate:</strong> <?= $booking['license_plate'] ?></p>
-                    <p><strong>Distance:</strong> <?= $booking['distance'] ?></p>
-                    <p><strong>Type of Truck:</strong> <?= $booking['type_of_truck'] ?></p>
-                    <p><strong>Status:</strong> <?= $booking['status'] ?></p>
+                    <p><strong>Contact Number:</strong> <?= $booking['contact_number'] ?? '' ?></p>
+                    <p><strong>Pick-up Address:</strong> <?= $booking['pick_up_address'] ?? '' ?></p>
+                    <p><strong>Drop-off Address:</strong> <?= $booking['drop_off_address'] ?? '' ?></p>
+                    <p><strong>Person of Contact:</strong> <?= $booking['person_of_contact'] ?? '' ?></p>
+                    <p><strong>Dispatch Date:</strong> <?= $booking['dispatch_date'] ?? '' ?></p>
+                    <p><strong>Cargo Type:</strong> <?= $booking['cargo_type'] ?? '' ?></p>
+                    <p><strong>Cargo Weight:</strong> <?= $booking['cargo_weight'] ?? '' ?></p>
+                    <p><strong>Delivery Note:</strong> <?= $booking['delivery_note'] ?? '' ?></p>
+                    <p><strong>Truck Model:</strong> <?= $booking['truck_model'] ?? '' ?></p>
+                    <p><strong>Conductor Name:</strong> <?= $booking['conductor_name'] ?? '' ?></p>
+                    <p><strong>Driver Name:</strong> <?= $booking['driver_name'] ?? '' ?></p>
+                    <p><strong>License Plate:</strong> <?= $booking['license_plate'] ?? '' ?></p>
+                    <p><strong>Distance:</strong> <?= $booking['distance'] ?? '' ?></p>
+                    <p><strong>Type of Truck:</strong> <?= $booking['type_of_truck'] ?? '' ?></p>
+                    <p><strong>Status:</strong> <?= $booking['status'] ?? '' ?></p>
                     </div>
                     <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -41,6 +41,7 @@ class AuthController extends Controller
         session()->set([
             'loggedIn'   => true,
             // If "firebaseKey" is something like "User1", store that as 'user_id':
+            'firebaseKey' => $user['firebaseKey'], // Store Firebase key explicitly.
             'user_id'    => $user['firebaseKey'],
             // Or if your database uses a numeric ID, do:
             // 'user_id' => $user['user_id'],
