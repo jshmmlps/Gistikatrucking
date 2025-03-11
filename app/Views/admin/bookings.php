@@ -96,7 +96,10 @@
                         <label for="status<?= esc($booking['booking_id']) ?>" class="form-label">Update Status:</label>
                         <select name="status" id="status<?= esc($booking['booking_id']) ?>" class="form-select">
                           <option value="approved" <?= (isset($booking['status']) && $booking['status'] == 'approved') ? 'selected' : '' ?>>Approve</option>
-                          <option value="rejected" <?= (isset($booking['status']) && $booking['status'] == 'rejected') ? 'selected' : '' ?>>Reject</option>
+                          <option value="rejected" <?= (isset($booking['status']) && $booking['status'] == 'rejected') ? 'selected' : '' ?>>Rejected</option>
+                          <option value="pending" <?= (isset($booking['status']) && $booking['status'] == 'pending') ? 'selected' : '' ?>>Pending</option>
+                          <option value="in-transit" <?= (isset($booking['status']) && $booking['status'] == 'in-transit') ? 'selected' : '' ?>>In-transit</option>
+                          <option value="complete" <?= (isset($booking['status']) && $booking['status'] == 'complete') ? 'selected' : '' ?>>Complete</option>
                         </select>
                       </div>
                       <input type="hidden" name="booking_id" value="<?= esc($booking['booking_id'] ?? '') ?>">

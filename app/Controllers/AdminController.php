@@ -6,11 +6,13 @@ use App\Models\UserModel;
 use App\Models\TruckModel;
 use App\Models\DriverModel;
 use App\Models\BookingModel;
+use App\Models\ClientManagementModel;
 use CodeIgniter\Controller;
 
 class AdminController extends Controller
 {
     protected $userModel;
+    protected $clientManagementModel;
 
     public function __construct()
     {
@@ -23,6 +25,8 @@ class AdminController extends Controller
         }        
         
         $this->userModel = new UserModel();
+        // Initialize the model
+        $this->clientManagementModel = new ClientManagementModel();
     }
 
     /**
@@ -543,5 +547,60 @@ class AdminController extends Controller
             return redirect()->to(base_url('admin/bookings'));
         }
 
+
+    // ============== CLIENT MANAGEMENT MODULE ===================  //
+    /**
+     * List all clients with key booking details.
+     * Also gather detailed client data for use in the modals.
+     */
+    public function clientManagement()
+    {
+        $clients = $this->clientManagementModel->getAllClients();
+        $dataClients = [];
+        $clientDetails = []; // detailed info for modals
+
+        if ($clients) {
+            foreach ($clients as $clientId => $client) {
+                $lastBooking = $this->clientManagementModel->getLastBooking($clientId);
+                $dataClients[] = [
+                    'clientId'         => $clientId,
+                    'clientName'       => $client['first_name'] . ' ' . $client['last_name'],
+                    'booking_date'     => $lastBooking ? $lastBooking['booking_date'] : 'N/A',
+                    'dispatch_date'    => $lastBooking ? $lastBooking['dispatch_date'] : 'N/A',
+                    'cargo_type'       => $lastBooking ? $lastBooking['cargo_type'] : 'N/A',
+                    'drop_off_address' => $lastBooking ? $lastBooking['drop_off_address'] : 'N/A',
+                    'status'           => $lastBooking ? $lastBooking['status'] : 'N/A',
+                ];
+                $clientDetails[$clientId] = [
+                    'client'      => $client,
+                    'lastBooking' => $lastBooking
+                ];
+            }
+        }
+
+        $data = [
+            'clients'       => $dataClients,
+            'clientDetails' => $clientDetails
+        ];
+        return view('admin/client_management', $data);
+    }
+
+    /**
+     * Update client details (e.g. Business Type and Payment Mode) via AJAX.
+     *
+     * @param string $clientId The unique key of the client.
+     */
+    public function clientEdit($clientId)
+    {
+        if ($this->request->getMethod() === 'post') {
+            $dataUpdate = [
+                'business_type' => $this->request->getPost('business_type'),
+                'payment_mode'  => $this->request->getPost('payment_mode'),
+            ];
+            $this->clientManagementModel->updateClient($clientId, $dataUpdate);
+            session()->setFlashdata('success', 'Client details updated successfully.');
+            return json_encode(['success' => true]);
+        }
+    }
 
 }

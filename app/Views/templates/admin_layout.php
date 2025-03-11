@@ -41,7 +41,7 @@
                 </span>
                 <span class="description">User Account</span>
             </a>
-            <a href="#" class="nav-link <?= (current_url() == base_url('admin/clients')) ? 'active' : '' ?>">
+            <a href="<?= base_url('admin/clients') ?>" class="nav-link <?= (current_url() == base_url('admin/clients')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/client.png') ?>" alt="">
                 </span>
