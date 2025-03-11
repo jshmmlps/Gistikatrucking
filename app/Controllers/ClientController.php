@@ -83,28 +83,55 @@ class ClientController extends BaseController
         return view('client/bookings', $data);
     }
 
+    // =================== BOOKINGS  =================== 
+
     // Show the create booking form
     public function createBooking()
     {
         return view('client/create_booking');
     }
 
-    // Process the create booking form submission
     public function storeBooking()
     {
         $session  = session();
-        $clientId = $session->get('user_id'); // get user_id here in the controller
-    
+        $clientId = $session->get('user_id');
+
+        // Grab all POST data, including pick_up_lat, pick_up_lng, drop_off_lat, drop_off_lng
         $data = $this->request->getPost();
+
         // Tag your booking with the client ID
         $data['client_id'] = $clientId;
-    
-        // Now pass $data to the model
-        $bookingId = $this->bookingModel->createBooking($data);
 
-        $session->setFlashdata('success', 'Booking created with ID: ' . $bookingId);
-        return redirect()->to(base_url('client/bookings'));
+        try {
+            // Pass data to the model and attempt to create a booking.
+            $bookingId = $this->bookingModel->createBooking($data);
+            $session->setFlashdata('success', 'Booking created with ID: ' . $bookingId);
+            return redirect()->to(base_url('client/bookings'));
+        } catch (\RuntimeException $e) {
+            // If no available driver or conductor, show an error message.
+            $session->setFlashdata('error', $e->getMessage());
+            return redirect()->back();
+        }
     }
+
+
+
+    // Process the create booking form submission
+    // public function storeBooking()
+    // {
+    //     $session  = session();
+    //     $clientId = $session->get('user_id'); // get user_id here in the controller
+    
+    //     $data = $this->request->getPost();
+    //     // Tag your booking with the client ID
+    //     $data['client_id'] = $clientId;
+    
+    //     // Now pass $data to the model
+    //     $bookingId = $this->bookingModel->createBooking($data);
+
+    //     $session->setFlashdata('success', 'Booking created with ID: ' . $bookingId);
+    //     return redirect()->to(base_url('client/bookings'));
+    // }
 
     // public function profile()
     // {

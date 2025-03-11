@@ -4,9 +4,6 @@ namespace App\Models;
 use CodeIgniter\Model;
 use Config\Services;
 
-/**
- * Handles all booking-related operations on the Firebase Realtime Database.
- */
 class BookingModel extends Model
 {
     /**
@@ -47,6 +44,7 @@ class BookingModel extends Model
      *
      * @param array $data  Data from form submission (includes 'cargo_weight', 'client_id', etc.)
      * @return int         The newly created booking_id.
+     * @throws \RuntimeException if no truck with an available driver or conductor is found.
      */
     public function createBooking($data)
     {
@@ -58,15 +56,17 @@ class BookingModel extends Model
         $data['booking_id']   = $bookingId;
         $data['booking_date'] = date('Y-m-d H:i:s');
         $data['status']       = 'pending';
-        $data['distance']     = 0;
+
     
         // Auto-assign truck & driver if cargo_weight is set
         if (isset($data['cargo_weight'])) {
             $assignment = $this->assignTruckAndDriver($data['cargo_weight']);
-            if (!empty($assignment)) {
-                // Merge assignment data while preserving existing keys (e.g., client_id)
-                $data = $data + $assignment;
+            if (empty($assignment)) {
+                // Throw an exception if no truck with an assigned driver or conductor is available
+                throw new \RuntimeException('No available driver or conductors');
             }
+            // Merge assignment data while preserving existing keys (e.g., client_id)
+            $data = $data + $assignment;
         }
     
         // Save booking into the "Bookings" node under booking_id
@@ -78,9 +78,10 @@ class BookingModel extends Model
     /**
      * Auto-assign a truck and its driver/conductor based on cargo weight.
      * Excludes any trucks that are currently assigned to active (non-completed) bookings.
+     * Only returns a truck if it has at least a driver or a conductor assigned.
      *
      * @param float|int $cargoWeight  The weight of the cargo to be transported.
-     * @return array                  An associative array of assignment data (truck_id, driver_name, etc.), or empty if none found.
+     * @return array                  An associative array of assignment data, or empty if none found.
      */
     public function assignTruckAndDriver($cargoWeight)
     {
@@ -102,7 +103,8 @@ class BookingModel extends Model
             }
         }
 
-        // Try to find a truck that can handle the cargo weight and is not already assigned
+        // Try to find a truck that can handle the cargo weight, is not already assigned,
+        // and has at least a driver or conductor assigned.
         if ($trucks && is_array($trucks)) {
             foreach ($trucks as $truckKey => $truck) {
                 if (!isset($truck['truck_id'], $truck['load_capacity'])) {
@@ -113,23 +115,25 @@ class BookingModel extends Model
                     $truck['load_capacity'] >= $cargoWeight 
                     && !in_array($truck['truck_id'], $assignedTruckIds)
                 ) {
-                    // Found a suitable truck; now get driver & conductor details
+                    // Get driver and conductor information for this truck
                     $driverInfo = $this->getDriverAndConductor($truck['truck_id']);
 
-                    // Return all relevant assignment data
-                    return [
-                        'truck_id'       => $truck['truck_id'],
-                        'truck_model'    => $truck['truck_model']    ?? '',
-                        'license_plate'  => $truck['plate_number']   ?? '',
-                        'type_of_truck'  => $truck['truck_type']     ?? '',
-                        'driver_name'    => $driverInfo['driver']    ?? '',
-                        'conductor_name' => $driverInfo['conductor'] ?? ''
-                    ];
+                    // Ensure at least one is available (adjust this logic if both are required)
+                    if (!empty($driverInfo['driver']) || !empty($driverInfo['conductor'])) {
+                        return [
+                            'truck_id'       => $truck['truck_id'],
+                            'truck_model'    => $truck['truck_model']    ?? '',
+                            'license_plate'  => $truck['plate_number']   ?? '',
+                            'type_of_truck'  => $truck['truck_type']     ?? '',
+                            'driver_name'    => $driverInfo['driver']    ?? '',
+                            'conductor_name' => $driverInfo['conductor'] ?? ''
+                        ];
+                    }
                 }
             }
         }
 
-        // If no truck found, return empty array
+        // Return empty array if no suitable truck is found.
         return [];
     }
 
@@ -141,7 +145,6 @@ class BookingModel extends Model
      */
     protected function getDriverAndConductor($truckId)
     {
-        // Use "Drivers" as the node name to match DriverModel
         $driversRef = $this->db->getReference('Drivers');
         $drivers    = $driversRef->getValue();
 
@@ -221,11 +224,17 @@ class BookingModel extends Model
         return true;
     }
 
+    /**
+     * Update a booking with arbitrary data in Firebase.
+     *
+     * @param int   $bookingId
+     * @param array $data
+     * @return bool
+     */
     public function updateBooking($bookingId, $data)
     {
         $ref = $this->db->getReference('Bookings/' . $bookingId);
         $ref->update($data);
         return true;
     }
-
 }
