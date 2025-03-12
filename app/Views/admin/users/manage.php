@@ -2,6 +2,25 @@
 
 <?= $this->section('content') ?>
 <link href=<?=base_url('public/assets/css/style.css');?> rel="stylesheet">
+<style>
+    /* Define custom badge colors */
+    .badge-admin {
+        background-color: red !important;
+        color: white;
+    }
+    .badge-resource {
+        background-color: #fd7e14 !important;
+        color: white;
+    }
+    .badge-operation {
+        background-color: #ffc107 !important;
+        color: white;
+    }
+    .badge-driver, .badge-conductor {
+        background-color: #4AA15D !important;
+        color: white;
+    }
+</style>
 <body>
 <title>User Account</title>
 <h1>User Account</h1>
@@ -18,7 +37,7 @@
 
     <!-- Toolbar: Create button + Sort dropdown -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal" style="background-color:#336699" >
             <i class="bi bi-person-plus"></i> Create User
         </button>
 
@@ -98,7 +117,7 @@
                             </p>
                             <p class="card-text">
                                 <strong>Role:</strong>
-                                <span class="badge bg-info"><?= esc($userLevel) ?></span>
+                                <span id="roleBadge"class="badge bg-info"><?= esc($userLevel) ?></span>
                             </p>
                         </div>
                     </div>
@@ -110,7 +129,6 @@
         <?php endif; ?>
     </div>
 </div>
-
 
 <!-- ======================== Create User Modal ======================== -->
 <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
@@ -360,7 +378,42 @@
         // Re-append in sorted order
         cards.forEach(card => container.appendChild(card));
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Get all user cards
+        const userCards = document.querySelectorAll('.userCard');
+
+        userCards.forEach(card => {
+            const role = card.getAttribute('data-role'); // Read the role from data attribute
+            const badge = card.querySelector('#roleBadge');
+
+            // Remove any existing badge class
+            badge.classList.remove('badge-admin', 'badge-resource', 'badge-operation', 'badge-driver', 'badge-conductor');
+
+            // Apply the correct badge color based on the role
+            switch (role) {
+                case 'admin':
+                    badge.classList.add('badge-admin');
+                    break;
+                case 'resource manager':
+                    badge.classList.add('badge-resource');
+                    break;
+                case 'operations coordinator':
+                    badge.classList.add('badge-operation');
+                    break;
+                case 'driver':
+                case 'conductor':
+                    badge.classList.add('badge-driver');
+                    break;
+                default:
+                    // Keep the default badge color
+                    break;
+            }
+        });
+    });
 </script>
+
+
 
 <!-- <script src="<?= base_url('public/assets/js/script.js') ?>"></script> -->
 

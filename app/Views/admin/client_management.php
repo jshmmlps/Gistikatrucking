@@ -42,8 +42,8 @@
                 <td><?= esc($client['drop_off_address']) ?></td>
                 <td><?= esc($client['status']) ?></td>
                 <td>
-                    <button type="button" class="btn btn-primary btn-sm view-client" data-client-id="<?= esc($client['clientId']) ?>">View</button>
-                    <button type="button" class="btn btn-secondary btn-sm edit-client" data-client-id="<?= esc($client['clientId']) ?>">Edit</button>
+                    <button type="button" class="btn btn-info btn-sm view-client" data-client-id="<?= esc($client['clientId']) ?>">View</button>
+                    <button type="button" class="btn btn-warning btn-sm edit-client" data-client-id="<?= esc($client['clientId']) ?>">Edit</button>
                 </td>
             </tr>
             <?php endforeach; ?>
