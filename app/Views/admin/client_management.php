@@ -104,6 +104,8 @@
   </div>
 </div>
 
+
+
 <!-- Embed detailed client data as a JavaScript variable -->
 <script>
 var clientDetails = <?= json_encode($clientDetails) ?>;

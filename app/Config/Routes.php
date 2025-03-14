@@ -126,6 +126,12 @@ $routes->group('admin', function ($routes) {
     $routes->get('clients', 'AdminController::clientManagement');
     $routes->get('clientView/(:any)', 'AdminController::clientView/$1');
     $routes->match(['get', 'post'], 'clientEdit/(:any)', 'AdminController::clientEdit/$1');
+    
+    // Maintenance
+    $routes->get('maintenance', 'AdminController::Maintenance');
+
+    // Report Management
+    $routes->get('reports', 'AdminController::Report');
 
     // Logout
     $routes->get('logout', 'AdminController::logout');

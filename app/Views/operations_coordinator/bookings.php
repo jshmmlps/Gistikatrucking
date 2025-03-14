@@ -72,44 +72,107 @@
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                      <p><strong>Name:</strong> <?= esc($booking['name'] ?? '') ?></p>
-                      <p><strong>Contact Number:</strong> <?= esc($booking['contact_number'] ?? '') ?></p>
-                      <p><strong>Pick-up Address:</strong> <?= esc($booking['pick_up_address'] ?? '') ?></p>
-                      <p><strong>Drop-off Address:</strong> <?= esc($booking['drop_off_address'] ?? '') ?></p>
-                      <p><strong>Dispatch Date:</strong> <?= esc($booking['dispatch_date'] ?? '') ?></p>
-                      <p><strong>Cargo Type:</strong> <?= esc($booking['cargo_type'] ?? '') ?></p>
-                      <p><strong>Cargo Weight:</strong> <?= esc($booking['cargo_weight'] ?? '') ?></p>
-                      <p><strong>Delivery Note:</strong> <?= esc($booking['delivery_note'] ?? '') ?></p>
-                      <p><strong>Truck Model:</strong> <span id="truckModel<?= esc($booking['booking_id']) ?>"><?= esc($booking['truck_model'] ?? '') ?></span></p>
-                      <p><strong>Current Driver:</strong> <span id="currentDriver<?= esc($booking['booking_id']) ?>"><?= esc($booking['driver_name'] ?? '') ?></span></p>
-                      <p><strong>Current Conductor:</strong> <span id="currentConductor<?= esc($booking['booking_id']) ?>"><?= esc($booking['conductor_name'] ?? '') ?></span></p>
-                      <p><strong>License Plate:</strong> <?= esc($booking['license_plate'] ?? '') ?></p>
-                      <p><strong>Type of Truck:</strong> <?= esc($booking['type_of_truck'] ?? '') ?></p>
-                      <p><strong>Distance (km):</strong> <?= esc($booking['distance'] ?? '') ?></p>
-                      
-          
-                      <!-- Hidden field to store the truck id -->
-                      <input type="hidden" name="truck_id" id="truck_id<?= esc($booking['booking_id']) ?>" value="<?= esc($booking['truck_id'] ?? '') ?>">
-                      
-                     <!-- Dropdown to update booking status -->
-                     <div class="mb-3">
-                        <label for="status<?= esc($booking['booking_id']) ?>" class="form-label">Update Status:</label>
-                        <select name="status" id="status<?= esc($booking['booking_id']) ?>" class="form-select">
-                          <option value="approved" <?= (isset($booking['status']) && $booking['status'] == 'approved') ? 'selected' : '' ?>>Approve</option>
-                          <option value="rejected" <?= (isset($booking['status']) && $booking['status'] == 'rejected') ? 'selected' : '' ?>>Rejected</option>
-                          <option value="pending" <?= (isset($booking['status']) && $booking['status'] == 'pending') ? 'selected' : '' ?>>Pending</option>
-                          <option value="in-transit" <?= (isset($booking['status']) && $booking['status'] == 'in-transit') ? 'selected' : '' ?>>In-transit</option>
-                          <option value="complete" <?= (isset($booking['status']) && $booking['status'] == 'complete') ? 'selected' : '' ?>>Complete</option>
-                        </select>
+                      <!-- Booking Info Section -->
+                      <div class="p-3 rounded-3 shadow-sm bg-light mb-4">
+                          <h6 class="fw-bold mb-3 text-primary">Booking Information</h6>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">Name:</span>
+                              <span class="text-muted"><?= esc($booking['name'] ?? '') ?></span>
+                          </div>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">Contact Number:</span>
+                              <span class="text-muted"><?= esc($booking['contact_number'] ?? '') ?></span>
+                          </div>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">Pick-up Address:</span>
+                              <span class="text-muted"><?= esc($booking['pick_up_address'] ?? '') ?></span>
+                          </div>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">Drop-off Address:</span>
+                              <span class="text-muted"><?= esc($booking['drop_off_address'] ?? '') ?></span>
+                          </div>
+                          <div class="d-flex justify-content-between">
+                              <span class="fw-bold text-secondary">Dispatch Date:</span>
+                              <span class="text-muted"><?= esc($booking['dispatch_date'] ?? '') ?></span>
+                          </div>
                       </div>
-                      <input type="hidden" name="booking_id" value="<?= esc($booking['booking_id'] ?? '') ?>">
 
-                      <!-- Map container for this booking -->
-                      <div id="map<?= esc($booking['booking_id']) ?>" style="width:100%; height:300px; margin-bottom:20px;"></div>
-                      <!-- Display pickup and dropoff coordinates -->
-                      <p>Pick-up Coordinates: <span id="pickupCoords<?= esc($booking['booking_id']) ?>"></span></p>
-                      <p>Drop-off Coordinates: <span id="dropoffCoords<?= esc($booking['booking_id']) ?>"></span></p>
-                    </div>
+                      <!-- Cargo Details Section -->
+                      <div class="p-3 rounded-3 shadow-sm bg-light mb-4">
+                          <h6 class="fw-bold mb-3 text-primary">Cargo Details</h6>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">Cargo Type:</span>
+                              <span class="text-muted"><?= esc($booking['cargo_type'] ?? '') ?></span>
+                          </div>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">Cargo Weight:</span>
+                              <span class="text-muted"><?= esc($booking['cargo_weight'] ?? '') ?></span>
+                          </div>
+                          <div class="d-flex justify-content-between">
+                              <span class="fw-bold text-secondary">Delivery Note:</span>
+                              <span class="text-muted"><?= esc($booking['delivery_note'] ?? '') ?></span>
+                          </div>
+                      </div>
+
+                      <!-- Truck Assignment Section -->
+                      <div class="p-3 rounded-3 shadow-sm bg-light mb-4">
+                          <h6 class="fw-bold mb-3 text-primary">Truck Assignment</h6>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">Truck Model:</span>
+                              <span class="text-muted" id="truckModel<?= esc($booking['booking_id']) ?>">
+                                  <?= esc($booking['truck_model'] ?? '') ?>
+                              </span>
+                          </div>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">Current Driver:</span>
+                              <span class="text-muted" id="currentDriver<?= esc($booking['booking_id']) ?>">
+                                  <?= esc($booking['driver_name'] ?? '') ?>
+                              </span>
+                          </div>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">Current Conductor:</span>
+                              <span class="text-muted" id="currentConductor<?= esc($booking['booking_id']) ?>">
+                                  <?= esc($booking['conductor_name'] ?? '') ?>
+                              </span>
+                          </div>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">License Plate:</span>
+                              <span class="text-muted"><?= esc($booking['license_plate'] ?? '') ?></span>
+                          </div>
+                          <div class="d-flex justify-content-between border-bottom pb-2">
+                              <span class="fw-bold text-secondary">Type of Truck:</span>
+                              <span class="text-muted"><?= esc($booking['type_of_truck'] ?? '') ?></span>
+                          </div>
+                          <div class="d-flex justify-content-between">
+                              <span class="fw-bold text-secondary">Distance (km):</span>
+                              <span class="text-muted"><?= esc($booking['distance'] ?? '') ?></span>
+                          </div>
+                      </div>
+
+                      <!-- Update Status Section -->
+                      <div class="p-3 rounded-3 shadow-sm bg-light mb-4">
+                          <h6 class="fw-bold mb-3 text-primary">Update Status</h6>
+                          <div class="mb-3">
+                              <label for="status<?= esc($booking['booking_id']) ?>" class="form-label fw-bold">Booking Status:</label>
+                              <select name="status" id="status<?= esc($booking['booking_id']) ?>" class="form-select">
+                                  <option value="approved" <?= (isset($booking['status']) && $booking['status'] == 'approved') ? 'selected' : '' ?>>Approve</option>
+                                  <option value="rejected" <?= (isset($booking['status']) && $booking['status'] == 'rejected') ? 'selected' : '' ?>>Rejected</option>
+                                  <option value="pending" <?= (isset($booking['status']) && $booking['status'] == 'pending') ? 'selected' : '' ?>>Pending</option>
+                                  <option value="in-transit" <?= (isset($booking['status']) && $booking['status'] == 'in-transit') ? 'selected' : '' ?>>In-transit</option>
+                                  <option value="complete" <?= (isset($booking['status']) && $booking['status'] == 'complete') ? 'selected' : '' ?>>Complete</option>
+                              </select>
+                          </div>
+                      </div>
+
+                      <!-- Map Section -->
+                      <div class="p-3 rounded-3 shadow-sm bg-light">
+                          <h6 class="fw-bold mb-3 text-primary">Location</h6>
+                          <div id="map<?= esc($booking['booking_id']) ?>" style="width:100%; height:300px; border-radius: 8px;"></div>
+                          <p class="mt-2"><strong>Pick-up Coordinates:</strong> <span id="pickupCoords<?= esc($booking['booking_id']) ?>"></span></p>
+                          <p><strong>Drop-off Coordinates:</strong> <span id="dropoffCoords<?= esc($booking['booking_id']) ?>"></span></p>
+                      </div>
+                  </div>
+
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                       <button type="submit" class="btn btn-primary">Submit Update</button>

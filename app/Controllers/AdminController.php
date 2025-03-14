@@ -602,5 +602,95 @@ class AdminController extends Controller
             return json_encode(['success' => true]);
         }
     }
+    
+    public function Report()
+    {
+        // Here you can gather any reports data or analytics if needed.
+        // For now, we simply load the view.
+        return view('admin/reports_management');
+    }
 
+    public function Maintenance()
+    {
+        // 1) Get Firebase Realtime Database instance
+        $db = service('firebase');
+
+        // 2) Fetch all trucks from your "trucks" node
+        $trucksRef = $db->getReference('trucks');
+        $snapshot = $trucksRef->getSnapshot();
+
+        if (!$snapshot->exists()) {
+            // If no data in 'trucks' node, pass empty arrays
+            return view('maintenance', [
+                'totalTrucks'  => 0,
+                'dueTrucks'    => [],
+                'chartData'    => [],
+            ]);
+        }
+
+        // Convert the snapshot into an associative array
+        $trucksData = $snapshot->getValue();  // e.g. [ "Truck1" => [...], "Truck2" => [...], ...]
+
+        // 3) Basic example logic:
+        //    Let's say a truck is "due for inspection" if last_inspection_date is older than 6 months,
+        //    or if (currentMileage - lastInspectionMileage) >= 20,000
+        $dueTrucks = [];
+        $timeInterval = new DateInterval('P6M'); // 6 months
+        $mileageThreshold = 20000;
+
+        foreach ($trucksData as $truckId => $truck) {
+            // Extract fields (edit to match your actual structure)
+            $lastInspectionDate   = $truck['last_inspection_date']   ?? null; // "YYYY-MM-DD"
+            $lastInspectionMileage= $truck['last_inspection_mileage'] ?? 0;
+            $currentMileage       = $truck['current_mileage']         ?? 0;
+
+            // Time-based check
+            $timeOverdue = false;
+            if ($lastInspectionDate) {
+                $dateNow  = new DateTime();
+                $dateLast = new DateTime($lastInspectionDate);
+                $dateLast->add($timeInterval); // last inspection + 6 months
+
+                if ($dateNow > $dateLast) {
+                    $timeOverdue = true;
+                }
+            }
+
+            // Mileage-based check
+            $mileageOverdue = false;
+            if ($currentMileage - $lastInspectionMileage >= $mileageThreshold) {
+                $mileageOverdue = true;
+            }
+
+            // If either condition is met, it’s due for inspection
+            if ($timeOverdue || $mileageOverdue) {
+                $dueTrucks[] = [
+                    'truckId'  => $truckId,
+                    'details'  => $truck,
+                ];
+            }
+        }
+
+        // Prepare summary data for chart: for example, how many are due vs. not due
+        $totalTrucks    = count($trucksData);
+        $dueCount       = count($dueTrucks);
+        $notDueCount    = $totalTrucks - $dueCount;
+
+        // Build a simple data structure for Chart.js
+        // You can add more advanced charts or multiple datasets here
+        $chartData = [
+            'labels'   => ['Due For Inspection', 'Not Due'],
+            'datasets' => [[
+                'label' => 'Inspection Status',
+                'data'  => [$dueCount, $notDueCount],
+            ]]
+        ];
+
+        // Pass everything to the view
+        return view('maintenance', [
+            'totalTrucks' => $totalTrucks,
+            'dueTrucks'   => $dueTrucks,
+            'chartData'   => $chartData,
+        ]);
+    }
 }

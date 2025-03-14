@@ -70,34 +70,100 @@
                     
                     <!-- View Driver Modal -->
                     <div class="modal fade" id="viewDriverModal<?= $key ?>" tabindex="-1" aria-labelledby="viewDriverModalLabel<?= $key ?>" aria-hidden="true">
-                      <div class="modal-dialog">
+                      <div class="modal-dialog modal-md">
                         <div class="modal-content">
                           <div class="modal-header">
-                            <h5 class="modal-title" id="viewDriverModalLabel<?= $key ?>">Driver/Conductor Details (<?= esc($driver['first_name'] . ' ' . $driver['last_name']) ?>)</h5>
+                            <h5 class="modal-title text-center w-100" id="viewDriverModalLabel<?= $key ?>">Driver/Conductor Details (<?= esc($driver['first_name'] . ' ' . $driver['last_name']) ?>)</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
                           <div class="modal-body">
-                            <p><strong>Driver ID:</strong> <?= esc($driver['driver_id']) ?></p>
-                            <p><strong>First Name:</strong> <?= esc($driver['first_name']) ?></p>
-                            <p><strong>Last Name:</strong> <?= esc($driver['last_name']) ?></p>
-                            <p><strong>Contact Number:</strong> <?= esc($driver['contact_number']) ?></p>
-                            <p><strong>Position:</strong> <?= esc($driver['position']) ?></p>
-                            <p><strong>Home Address:</strong> <?= esc($driver['home_address']) ?></p>
-                            <p><strong>Employee ID:</strong> <?= esc($driver['employee_id']) ?></p>
-                            <p><strong>Date of Employment:</strong> <?= esc($driver['date_of_employment']) ?></p>
-                            <p><strong>Truck Assigned:</strong> <?= esc($driver['truck_assigned']) ?></p>
-                            <p><strong>License Number:</strong> <?= esc($driver['license_number']) ?></p>
-                            <p><strong>License Expiry:</strong> <?= esc($driver['license_expiry']) ?></p>
-                            <p><strong>Birthday:</strong> <?= esc($driver['birthday']) ?></p>
-                            <p><strong>Medical Record:</strong> <?= esc($driver['medical_record']) ?></p>
-                            <p><strong>Trips Completed:</strong> <?= esc($driver['trips_completed']) ?></p>
+                            <div class="p-3 rounded-3 shadow-sm bg-light">
+                                <h6 class="fw-bold mb-3 text-primary">Driver Information</h6>
+                                <div class="d-flex flex-column gap-3">
+                                    <!-- Driver ID -->
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">Driver ID:</span>
+                                        <span class="text-muted"><?= esc($driver['driver_id']) ?></span>
+                                    </div>
+
+                                    <!-- Name -->
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">First Name:</span>
+                                        <span class="text-muted"><?= esc($driver['first_name']) ?></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">Last Name:</span>
+                                        <span class="text-muted"><?= esc($driver['last_name']) ?></span>
+                                    </div>
+
+                                    <!-- Contact -->
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">Contact Number:</span>
+                                        <span class="text-muted"><?= esc($driver['contact_number']) ?></span>
+                                    </div>
+
+                                    <!-- Position and Home Address -->
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">Position:</span>
+                                        <span class="text-muted"><?= esc($driver['position']) ?></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">Home Address:</span>
+                                        <span class="text-muted"><?= esc($driver['home_address']) ?></span>
+                                    </div>
+
+                                    <!-- Employee Info -->
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">Employee ID:</span>
+                                        <span class="text-muted"><?= esc($driver['employee_id']) ?></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">Date of Employment:</span>
+                                        <span class="text-muted"><?= esc($driver['date_of_employment']) ?></span>
+                                    </div>
+
+                                    <!-- Truck Assignment -->
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">Truck Assigned:</span>
+                                        <span class="text-muted"><?= esc($driver['truck_assigned']) ?></span>
+                                    </div>
+
+                                    <!-- License Info -->
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">License Number:</span>
+                                        <span class="text-muted"><?= esc($driver['license_number']) ?></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">License Expiry:</span>
+                                        <span class="text-muted"><?= esc($driver['license_expiry']) ?></span>
+                                    </div>
+
+                                    <!-- Personal Info -->
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">Birthday:</span>
+                                        <span class="text-muted"><?= esc($driver['birthday']) ?></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between border-bottom pb-2">
+                                        <span class="fw-bold text-secondary">Medical Record:</span>
+                                        <span class="text-muted"><?= esc($driver['medical_record']) ?></span>
+                                    </div>
+
+                                    <!-- Performance Info -->
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-bold text-secondary">Trips Completed:</span>
+                                        <span class="text-muted"><?= esc($driver['trips_completed']) ?></span>
+                                    </div>
+                                </div>
+                            </div>
                           </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+
+              <!-- Modal Footer -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
                     
                     <!-- Edit Driver Modal -->
                     <div class="modal fade" id="editDriverModal<?= $key ?>" tabindex="-1" aria-labelledby="editDriverModalLabel<?= $key ?>" aria-hidden="true">

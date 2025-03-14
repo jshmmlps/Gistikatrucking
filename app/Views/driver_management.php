@@ -31,11 +31,7 @@
                         <button type="button" class="btn btn-warning btn-sm fw-bold px-4 view-client text-dark" 
                         data-bs-toggle="modal"
                         data-bs-target="#driverModal"
-                        onclick='getDriverDetails(<?= json_encode($driver) ?>)'>View</button>
-
-                        <!-- onclick='getAllDrivers(<?= json_encode($driver) ?>) -->
-                        <!-- This was the syntax before  -->
-                    
+                        onclick='getAllDrivers(<?= json_encode($driver) ?>)'>View</button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -52,59 +48,59 @@
             <h4 class="modal-title text-center w-100" id="offcanvasRightLabel">Complete Driver Details</h4>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-                <div class="modal-body">
+            <div class="modal-body">
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <tbody>
-                        <tr>
-                    <th>Name:</th>
-                    <td id="driverNamePlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Contact Number:</th>
-                    <td id="contactNumberPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Date of Employment:</th>
-                    <td id="dateOfEmploymentPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Address:</th>
-                    <td id="addressPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Position:</th>
-                    <td id="positionPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Employee ID:</th>
-                    <td id="employeeIdPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Last Truck Assigned:</th>
-                    <td id="lastTruckPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>License Number:</th>
-                    <td id="licenseNumberPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>License Expiry Date:</th>
-                    <td id="licenseExpiryPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Birthday:</th>
-                    <td id="birthdayPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Medical Record:</th>
-                    <td id="medicalRecordPlaceholder"></td>
-                </tr>
-                <tr>
-                    <th>Trips Completed:</th>
-                    <td id="tripsCompletedPlaceholder"></td>
-                </tr>
-                <tr>
+                            <tr>
+                                <th>Name:</th>
+                                <td id="driverNamePlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>Contact Number:</th>
+                                <td id="contactNumberPlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>Date of Employment:</th>
+                                <td id="dateOfEmploymentPlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>Address:</th>
+                                <td id="addressPlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>Position:</th>
+                                <td id="positionPlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>Employee ID:</th>
+                                <td id="employeeIdPlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>Last Truck Assigned:</th>
+                                <td id="lastTruckPlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>License Number:</th>
+                                <td id="licenseNumberPlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>License Expiry Date:</th>
+                                <td id="licenseExpiryPlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>Birthday:</th>
+                                <td id="birthdayPlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>Medical Record:</th>
+                                <td id="medicalRecordPlaceholder"></td>
+                            </tr>
+                            <tr>
+                                <th>Trips Completed:</th>
+                                <td id="tripsCompletedPlaceholder"></td>
+                            </tr>
+                            <tr>
                                 <th class="fw-bold">Notes:</th>
                                 <td>
                                     <textarea id="driver-notes" class="form-control" rows="3"></textarea>
