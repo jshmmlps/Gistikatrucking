@@ -8,9 +8,20 @@
     <link href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css" rel="stylesheet">
 
     <style>
+        .sidebar {
+            position: relative;
+            height: 100vh; /* Full viewport height */
+        }
         .sidebar .nav-link.active {
             background-color: #003366;
             color: #fff;
+        }
+        /* Fixed FAQs link at the bottom */
+        .faqs-link {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
         }
     </style>
 
@@ -60,6 +71,12 @@
                 <span class="description">Log Out</span>
             </a>
         </nav>
+        <a href="<?= base_url('client/faq') ?>" class="nav-link faqs-link <?= (current_url() == base_url('client/faq')) ? 'active' : '' ?>">
+            <span class="icon">
+                <img src="<?= base_url('public/images/icons/sidebar/FAQ.png') ?>" alt="">
+            </span>
+            <span class="description">FAQs</span>
+        </a>
     </div>
     <main class="main-content">
         <?= $this->renderSection('content') ?>

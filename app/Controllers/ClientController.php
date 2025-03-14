@@ -148,10 +148,16 @@ class ClientController extends BaseController
         return view('client/report');
     }
 
+    public function Faq()
+    {
+        return view('client/faq');
+    }
+
     public function logout()
     {
         $session = session();
         $session->destroy();
         return redirect()->to(base_url('login'))->send();
     }
+    
 }

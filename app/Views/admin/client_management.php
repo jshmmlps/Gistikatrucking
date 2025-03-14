@@ -76,12 +76,12 @@
 
 <!-- Single Modal for Client Edit -->
 <div class="modal fade" id="clientEditModal" tabindex="-1" aria-labelledby="clientEditModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-md">
     <div class="modal-content">
       <form id="clientEditForm" method="post" action="<?= site_url('admin/clientEdit') ?>"> 
       <!-- The clientId will be appended to the form action on click -->
       <div class="modal-header">
-        <h5 class="modal-title" id="clientEditModalLabel">Edit Client</h5>
+        <h5 class="modal-title text-center w-100" id="clientEditModalLabel">Edit Client</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="clientEditBody">
@@ -103,7 +103,6 @@
     </div>
   </div>
 </div>
-
 
 
 <!-- Embed detailed client data as a JavaScript variable -->
@@ -140,18 +139,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 var client = data.client;
                 var lastBooking = data.lastBooking;
                 var html = '';
-                html += '<p><strong>Email:</strong> ' + (client.email ? client.email : 'N/A') + '</p>';
-                html += '<p><strong>Address:</strong> ' + (client.address ? client.address : 'N/A') + '</p>';
-                html += '<p><strong>Business Type:</strong> ' + (client.business_type ? client.business_type : 'N/A') + '</p>';
-                html += '<p><strong>Cargo Type:</strong> ' + (lastBooking && lastBooking.cargo_type ? lastBooking.cargo_type : 'N/A') + '</p>';
-                html += '<p><strong>Pick up Location:</strong> ' + (lastBooking && lastBooking.pick_up_address ? lastBooking.pick_up_address : 'N/A') + '</p>';
-                html += '<p><strong>Contact Person:</strong> ' + (lastBooking && lastBooking.person_of_contact ? lastBooking.person_of_contact : 'N/A') + '</p>';
-                html += '<p><strong>Contact Number:</strong> ' + (lastBooking && lastBooking.contact_number ? lastBooking.contact_number : 'N/A') + '</p>';
-                html += '<p><strong>Username:</strong> ' + (client.username ? client.username : 'N/A') + '</p>';
-                html += '<p><strong>Preferred Truck:</strong> ' + (lastBooking && lastBooking.truck_model ? lastBooking.truck_model : 'N/A') + '</p>';
-                html += '<p><strong>Payment Mode:</strong> ' + (client.payment_mode ? client.payment_mode : 'N/A') + '</p>';
-                html += '<p><strong>Drop off Location:</strong> ' + (lastBooking && lastBooking.drop_off_address ? lastBooking.drop_off_address : 'N/A') + '</p>';
-                html += '<p><strong>Client Since:</strong> ' + (lastBooking && lastBooking.booking_date ? lastBooking.booking_date : 'N/A') + '</p>';
+                html += '<div class="p-3 rounded-3 shadow-sm bg-light"><h6 class="fw-bold mb-3 text-primary">Client Information</h6><div class="d-flex flex-column gap-3"><div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Email:</span><span class="text-muted">' + (client.email ? client.email : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Address:</span><span class="text-muted">' + (client.address ? client.address : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Business Type:</span><span class="text-muted">' + (client.business_type ? client.business_type : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Cargo Type:</span><span class="text-muted">' + (lastBooking && lastBooking.cargo_type ? lastBooking.cargo_type : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Pick up Location:</span><span class="text-muted">' + (lastBooking && lastBooking.pick_up_address ? lastBooking.pick_up_address : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Contact Person:</span><span class="text-muted">' + (lastBooking && lastBooking.person_of_contact ? lastBooking.person_of_contact : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Contact Number:</span><span class="text-muted">' + (lastBooking && lastBooking.contact_number ? lastBooking.contact_number : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Username:</span><span class="text-muted">' + (client.username ? client.username : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Preferred Truck:</span><span class="text-muted">' + (lastBooking && lastBooking.truck_model ? lastBooking.truck_model : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Payment Mode:</span><span class="text-muted">' + (client.payment_mode ? client.payment_mode : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between border-bottom pb-2"><span class="fw-bold text-secondary">Drop off Location:</span><span class="text-muted">' + (lastBooking && lastBooking.drop_off_address ? lastBooking.drop_off_address : 'N/A') + '</span></div>';
+                html += '<div class="d-flex justify-content-between"><span class="fw-bold text-secondary">Client Since:</span><span class="text-muted">' + (lastBooking && lastBooking.booking_date ? lastBooking.booking_date : 'N/A') + '</span></div></div></div>';
                 document.getElementById('clientViewBody').innerHTML = html;
                 var viewModal = new bootstrap.Modal(document.getElementById('clientViewModal'));
                 viewModal.show();

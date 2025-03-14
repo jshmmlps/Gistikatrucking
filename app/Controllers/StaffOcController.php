@@ -27,6 +27,12 @@ class StaffOcController extends Controller
     // ----- Dashboard -----
     public function dashboard()
     {
+        $firebase = Services::firebase();
+        $trucksRef = $firebase->getReference('Trucks');
+        $trucksData = $trucksRef->getValue();
+        $data['trucksCount'] = is_array($trucksData) ? count($trucksData) : 0;
+
+        // For this example, we'll simply load the view.
         return view('operations_coordinator/dashboard');
     }
 

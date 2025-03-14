@@ -74,6 +74,8 @@ $routes->group('client', function ($routes) {
 
     // Logout
     $routes->get('logout', 'ClientController::logout');
+
+    $routes->get('faq', 'ClientController::Faq');
 });
 
 // Client routes
@@ -145,6 +147,7 @@ $routes->group('admin', function ($routes) {
 $routes->group('operations', function($routes) {
     // Dashboard and profile routes
     $routes->get('dashboard', 'StaffOcController::dashboard');
+    $routes->get('dashboard/trucks-count', 'StaffOcController::trucksCount');
     $routes->get('profile', 'StaffOcController::profile');
     $routes->post('updateProfile', 'StaffOcController::updateProfile');
     
