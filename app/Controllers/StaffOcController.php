@@ -99,28 +99,30 @@ class StaffOcController extends Controller
     {
         if ($this->request->getMethod() == 'post') {
             $data = [
-                'truck_model'            => $this->request->getPost('truck_model'),
-                'plate_number'           => $this->request->getPost('plate_number'),
-                'engine_number'          => $this->request->getPost('engine_number'),
-                'chassis_number'         => $this->request->getPost('chassis_number'),
-                'color'                  => $this->request->getPost('color'),
-                'cor_number'             => $this->request->getPost('cor_number'),
-                'insurance_details'      => $this->request->getPost('insurance_details'),
-                'license_plate_expiry'   => $this->request->getPost('license_plate_expiry'),
-                'registration_expiry'    => $this->request->getPost('registration_expiry'),
-                'truck_type'             => $this->request->getPost('truck_type'),
-                'fuel_type'              => $this->request->getPost('fuel_type'),
-                'truck_length'           => $this->request->getPost('truck_length'),
-                'load_capacity'          => $this->request->getPost('load_capacity'),
-                'maintenance_technician' => $this->request->getPost('maintenance_technician'),
+                'truck_model'             => $this->request->getPost('truck_model'),
+                'plate_number'            => $this->request->getPost('plate_number'),
+                'engine_number'           => $this->request->getPost('engine_number'),
+                'chassis_number'          => $this->request->getPost('chassis_number'),
+                'color'                   => $this->request->getPost('color'),
+                'last_inspection_date'    => $this->request->getPost('last_inspection_date'),
+                'last_inspection_mileage' => $this->request->getPost('last_inspection_mileage'),
+                'cor_number'              => $this->request->getPost('cor_number'),
+                'insurance_details'       => $this->request->getPost('insurance_details'),
+                'license_plate_expiry'    => $this->request->getPost('license_plate_expiry'),
+                'registration_expiry'     => $this->request->getPost('registration_expiry'),
+                'truck_type'              => $this->request->getPost('truck_type'),
+                'fuel_type'               => $this->request->getPost('fuel_type'),
+                'truck_length'            => $this->request->getPost('truck_length'),
+                'load_capacity'           => $this->request->getPost('load_capacity'),
+                'maintenance_technician'  => $this->request->getPost('maintenance_technician'),
             ];
             $truckModel = new TruckModel();
             $newTruckId = $truckModel->insertTruck($data);
             return redirect()->to(base_url('operations/trucks'))
-                             ->with('success', 'Truck created successfully with ID: ' . $newTruckId);
+                            ->with('success', 'Truck created successfully with ID: ' . $newTruckId);
         }
         return redirect()->to(base_url('operations/trucks'))
-                         ->with('error', 'Invalid request.');
+                        ->with('error', 'Invalid request.');
     }
 
     // Update an existing truck record
@@ -128,28 +130,30 @@ class StaffOcController extends Controller
     {
         if ($this->request->getMethod() == 'post') {
             $data = [
-                'truck_model'            => $this->request->getPost('truck_model'),
-                'plate_number'           => $this->request->getPost('plate_number'),
-                'engine_number'          => $this->request->getPost('engine_number'),
-                'chassis_number'         => $this->request->getPost('chassis_number'),
-                'color'                  => $this->request->getPost('color'),
-                'cor_number'             => $this->request->getPost('cor_number'),
-                'insurance_details'      => $this->request->getPost('insurance_details'),
-                'license_plate_expiry'   => $this->request->getPost('license_plate_expiry'),
-                'registration_expiry'    => $this->request->getPost('registration_expiry'),
-                'truck_type'             => $this->request->getPost('truck_type'),
-                'fuel_type'              => $this->request->getPost('fuel_type'),
-                'truck_length'           => $this->request->getPost('truck_length'),
-                'load_capacity'          => $this->request->getPost('load_capacity'),
-                'maintenance_technician' => $this->request->getPost('maintenance_technician'),
+                'truck_model'             => $this->request->getPost('truck_model'),
+                'plate_number'            => $this->request->getPost('plate_number'),
+                'engine_number'           => $this->request->getPost('engine_number'),
+                'chassis_number'          => $this->request->getPost('chassis_number'),
+                'color'                   => $this->request->getPost('color'),
+                'last_inspection_date'    => $this->request->getPost('last_inspection_date'),
+                'last_inspection_mileage' => $this->request->getPost('last_inspection_mileage'),
+                'cor_number'              => $this->request->getPost('cor_number'),
+                'insurance_details'       => $this->request->getPost('insurance_details'),
+                'license_plate_expiry'    => $this->request->getPost('license_plate_expiry'),
+                'registration_expiry'     => $this->request->getPost('registration_expiry'),
+                'truck_type'              => $this->request->getPost('truck_type'),
+                'fuel_type'               => $this->request->getPost('fuel_type'),
+                'truck_length'            => $this->request->getPost('truck_length'),
+                'load_capacity'           => $this->request->getPost('load_capacity'),
+                'maintenance_technician'  => $this->request->getPost('maintenance_technician'),
             ];
             $truckModel = new TruckModel();
             $truckModel->updateTruck($truckId, $data);
             return redirect()->to(base_url('operations/trucks'))
-                             ->with('success', 'Truck updated successfully.');
+                            ->with('success', 'Truck updated successfully.');
         }
         return redirect()->to(base_url('operations/trucks'))
-                         ->with('error', 'Invalid request.');
+                        ->with('error', 'Invalid request.');
     }
 
     // Delete a truck record
@@ -158,7 +162,7 @@ class StaffOcController extends Controller
         $truckModel = new TruckModel();
         $truckModel->deleteTruck($truckId);
         return redirect()->to(base_url('operations/trucks'))
-                         ->with('success', 'Truck deleted successfully.');
+                        ->with('success', 'Truck deleted successfully.');
     }
 
     // View details of a specific truck
@@ -168,6 +172,7 @@ class StaffOcController extends Controller
         $data['truck'] = $truckModel->getTruck($truckId);
         return view('operations_coordinator/truck_detail', $data);
     }
+
 
     // ============== BOOKING MODULE ===================  //
     // List all bookings for review
