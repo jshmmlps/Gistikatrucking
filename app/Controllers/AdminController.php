@@ -616,11 +616,11 @@ class AdminController extends Controller
     {
         // 1) Get Firebase Realtime Database instance
         $db = service('firebase');
-    
+
         // 2) Fetch all trucks from your "Trucks" node
         $trucksRef = $db->getReference('Trucks');
         $snapshot = $trucksRef->getSnapshot();
-    
+
         if (!$snapshot->exists()) {
             // If no data in 'Trucks' node, pass empty arrays
             return view('maintenance', [
@@ -630,10 +630,10 @@ class AdminController extends Controller
                 'availableTrucks'  => [],
             ]);
         }
-    
+
         // Convert the snapshot into an associative array
-        $trucksData = $snapshot->getValue();  // e.g. [ "Truck1" => [...], "Truck2" => [...], ...]
-    
+        $trucksData = $snapshot->getValue();
+
         // 3) Determine which trucks are due for inspection
         // A truck is "due for inspection" if:
         // - Its last_inspection_date is older than 6 months, OR
@@ -641,13 +641,13 @@ class AdminController extends Controller
         $dueTrucks = [];
         $timeInterval = new \DateInterval('P6M'); // 6 months using global namespace
         $mileageThreshold = 20000;
-    
+
         foreach ($trucksData as $truckId => $truck) {
             // Extract required fields
             $lastInspectionDate    = $truck['last_inspection_date']   ?? null;
             $lastInspectionMileage = $truck['last_inspection_mileage'] ?? 0;
             $currentMileage        = $truck['current_mileage']         ?? 0;
-    
+
             // Time-based check
             $timeOverdue = false;
             if ($lastInspectionDate) {
@@ -662,13 +662,13 @@ class AdminController extends Controller
                     // Optionally log or handle invalid date formats
                 }
             }
-    
+
             // Mileage-based check
             $mileageOverdue = false;
             if (($currentMileage - $lastInspectionMileage) >= $mileageThreshold) {
                 $mileageOverdue = true;
             }
-    
+
             // If either condition is met, mark truck as due for inspection
             if ($timeOverdue || $mileageOverdue) {
                 $dueTrucks[] = [
@@ -677,7 +677,7 @@ class AdminController extends Controller
                 ];
             }
         }
-    
+
         // Filter out trucks that are due for inspection to create the available trucks list
         $dueTruckIds = array_map(function ($dueTruck) {
             return $dueTruck['truckId'];
@@ -689,29 +689,34 @@ class AdminController extends Controller
                 $availableTrucks[$truckId] = $truck;
             }
         }
-    
+
         // Prepare summary data for chart: count of due vs. not due trucks
         $totalTrucks = count($trucksData);
         $dueCount    = count($dueTrucks);
         $notDueCount = count($availableTrucks);
-    
-        // Build a simple data structure for Chart.js
+
+        // Build a simple data structure for Chart.js with updated color for due trucks
         $chartData = [
             'labels'   => ['Due For Inspection', 'Not Due'],
             'datasets' => [[
                 'label' => 'Inspection Status',
                 'data'  => [$dueCount, $notDueCount],
+                'backgroundColor' => [
+                    'rgba(255, 0, 0, 0.6)',   // Red for "Due For Inspection"
+                    'rgba(75, 192, 192, 0.6)' // Alternate color for "Not Due"
+                ],
             ]]
         ];
-    
-        // Pass everything to the view using the key 'availableTrucks'
+
+        // Pass everything to the view
         return view('maintenance', [
             'totalTrucks'     => $totalTrucks,
             'dueTrucks'       => $dueTrucks,
             'chartData'       => $chartData,
-            'availableTrucks' => $availableTrucks,  // Make sure key matches what view expects
+            'availableTrucks' => $availableTrucks,
         ]);
     }
+
     
 
 }
