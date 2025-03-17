@@ -215,20 +215,22 @@ class AdminController extends Controller
     public function storeTruck()
     {
         $data = [
-            'truck_model'            => $this->request->getPost('truck_model'),
-            'plate_number'           => $this->request->getPost('plate_number'),
-            'engine_number'          => $this->request->getPost('engine_number'),
-            'chassis_number'         => $this->request->getPost('chassis_number'),
-            'color'                  => $this->request->getPost('color'),
-            'cor_number'             => $this->request->getPost('cor_number'),
-            'insurance_details'      => $this->request->getPost('insurance_details'),
-            'license_plate_expiry'   => $this->request->getPost('license_plate_expiry'),
-            'registration_expiry'    => $this->request->getPost('registration_expiry'),
-            'truck_type'             => $this->request->getPost('truck_type'),
-            'fuel_type'              => $this->request->getPost('fuel_type'),
-            'truck_length'           => $this->request->getPost('truck_length'),
-            'load_capacity'          => $this->request->getPost('load_capacity'),
-            'maintenance_technician' => $this->request->getPost('maintenance_technician'),
+            'truck_model'             => $this->request->getPost('truck_model'),
+            'plate_number'            => $this->request->getPost('plate_number'),
+            'engine_number'           => $this->request->getPost('engine_number'),
+            'chassis_number'          => $this->request->getPost('chassis_number'),
+            'color'                   => $this->request->getPost('color'),
+            'cor_number'              => $this->request->getPost('cor_number'),
+            'insurance_details'       => $this->request->getPost('insurance_details'),
+            'license_plate_expiry'    => $this->request->getPost('license_plate_expiry'),
+            'registration_expiry'     => $this->request->getPost('registration_expiry'),
+            'truck_type'              => $this->request->getPost('truck_type'),
+            'fuel_type'               => $this->request->getPost('fuel_type'),
+            'truck_length'            => $this->request->getPost('truck_length'),
+            'load_capacity'           => $this->request->getPost('load_capacity'),
+            'maintenance_technician'  => $this->request->getPost('maintenance_technician'),
+            'last_inspection_date'    => $this->request->getPost('last_inspection_date'),
+            'last_inspection_mileage' => $this->request->getPost('last_inspection_mileage'),
         ];
         
         $truckModel = new TruckModel();
@@ -241,20 +243,22 @@ class AdminController extends Controller
     public function updateTruck($truckId)
     {
         $data = [
-            'truck_model'            => $this->request->getPost('truck_model'),
-            'plate_number'           => $this->request->getPost('plate_number'),
-            'engine_number'          => $this->request->getPost('engine_number'),
-            'chassis_number'         => $this->request->getPost('chassis_number'),
-            'color'                  => $this->request->getPost('color'),
-            'cor_number'             => $this->request->getPost('cor_number'),
-            'insurance_details'      => $this->request->getPost('insurance_details'),
-            'license_plate_expiry'   => $this->request->getPost('license_plate_expiry'),
-            'registration_expiry'    => $this->request->getPost('registration_expiry'),
-            'truck_type'             => $this->request->getPost('truck_type'),
-            'fuel_type'              => $this->request->getPost('fuel_type'),
-            'truck_length'           => $this->request->getPost('truck_length'),
-            'load_capacity'          => $this->request->getPost('load_capacity'),
-            'maintenance_technician' => $this->request->getPost('maintenance_technician'),
+            'truck_model'             => $this->request->getPost('truck_model'),
+            'plate_number'            => $this->request->getPost('plate_number'),
+            'engine_number'           => $this->request->getPost('engine_number'),
+            'chassis_number'          => $this->request->getPost('chassis_number'),
+            'color'                   => $this->request->getPost('color'),
+            'cor_number'              => $this->request->getPost('cor_number'),
+            'insurance_details'       => $this->request->getPost('insurance_details'),
+            'license_plate_expiry'    => $this->request->getPost('license_plate_expiry'),
+            'registration_expiry'     => $this->request->getPost('registration_expiry'),
+            'truck_type'              => $this->request->getPost('truck_type'),
+            'fuel_type'               => $this->request->getPost('fuel_type'),
+            'truck_length'            => $this->request->getPost('truck_length'),
+            'load_capacity'           => $this->request->getPost('load_capacity'),
+            'maintenance_technician'  => $this->request->getPost('maintenance_technician'),
+            'last_inspection_date'    => $this->request->getPost('last_inspection_date'),
+            'last_inspection_mileage' => $this->request->getPost('last_inspection_mileage'),
         ];
         
         $truckModel = new TruckModel();
@@ -272,13 +276,14 @@ class AdminController extends Controller
         return redirect()->to(base_url('admin/trucks'));
     }
 
-    // View a truck's details (could be loaded into a modal via AJAX or as a partial view)
+    // View a truck's details
     public function viewTruck($truckId)
     {
         $truckModel = new TruckModel();
         $data['truck'] = $truckModel->getTruck($truckId);
         return view('admin/truck_detail', $data);
     }
+
 
 
     // ============== DRIVER MANAGEMENT MODULE ===================  //
@@ -652,7 +657,7 @@ class AdminController extends Controller
         return view('admin/geolocation');
     }
 
-    // ================== MAINTENANCE MODULE ===================  //
+   // ================== MAINTENANCE MODULE ===================  //
     public function Maintenance()
     {
         // 1) Get Firebase Realtime Database instance
@@ -674,6 +679,9 @@ class AdminController extends Controller
 
         // Convert the snapshot into an associative array
         $trucksData = $snapshot->getValue();
+
+        // Natural sort the trucks data by truck ID (keys)
+        uksort($trucksData, 'strnatcmp');
 
         // 3) Determine which trucks are due for inspection
         // A truck is "due for inspection" if:
@@ -719,6 +727,11 @@ class AdminController extends Controller
             }
         }
 
+        // Sort the due trucks naturally by truckId
+        usort($dueTrucks, function($a, $b) {
+            return strnatcmp($a['truckId'], $b['truckId']);
+        });
+
         // Filter out trucks that are due for inspection to create the available trucks list
         $dueTruckIds = array_map(function ($dueTruck) {
             return $dueTruck['truckId'];
@@ -730,13 +743,16 @@ class AdminController extends Controller
                 $availableTrucks[$truckId] = $truck;
             }
         }
+        
+        // Natural sort the available trucks by truckId
+        uksort($availableTrucks, 'strnatcmp');
 
         // Prepare summary data for chart: count of due vs. not due trucks
         $totalTrucks = count($trucksData);
         $dueCount    = count($dueTrucks);
         $notDueCount = count($availableTrucks);
 
-        // Build a simple data structure for Chart.js with updated color for due trucks
+        // Build a simple data structure for Chart.js with updated colors for due trucks
         $chartData = [
             'labels'   => ['Due For Inspection', 'Not Due'],
             'datasets' => [[

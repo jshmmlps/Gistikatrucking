@@ -190,6 +190,9 @@ class StaffRmController extends Controller
         // Convert the snapshot into an associative array
         $trucksData = $snapshot->getValue();
 
+        // Natural sort the trucks data by truck ID (keys)
+        uksort($trucksData, 'strnatcmp');
+
         // 3) Determine which trucks are due for inspection
         // A truck is "due for inspection" if:
         // - Its last_inspection_date is older than 6 months, OR
@@ -234,6 +237,11 @@ class StaffRmController extends Controller
             }
         }
 
+        // Sort the due trucks naturally by truckId
+        usort($dueTrucks, function($a, $b) {
+            return strnatcmp($a['truckId'], $b['truckId']);
+        });
+
         // Filter out trucks that are due for inspection to create the available trucks list
         $dueTruckIds = array_map(function ($dueTruck) {
             return $dueTruck['truckId'];
@@ -245,13 +253,16 @@ class StaffRmController extends Controller
                 $availableTrucks[$truckId] = $truck;
             }
         }
+        
+        // Natural sort the available trucks by truckId
+        uksort($availableTrucks, 'strnatcmp');
 
         // Prepare summary data for chart: count of due vs. not due trucks
         $totalTrucks = count($trucksData);
         $dueCount    = count($dueTrucks);
         $notDueCount = count($availableTrucks);
 
-        // Build a simple data structure for Chart.js with updated color for due trucks
+        // Build a simple data structure for Chart.js with updated colors for due trucks
         $chartData = [
             'labels'   => ['Due For Inspection', 'Not Due'],
             'datasets' => [[
@@ -272,4 +283,5 @@ class StaffRmController extends Controller
             'availableTrucks' => $availableTrucks,
         ]);
     }
+
 }
