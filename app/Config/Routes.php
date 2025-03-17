@@ -65,6 +65,8 @@ $routes->group('client', function ($routes) {
     // Profile
     $routes->get('profile', 'ClientController::profile');
     $routes->post('updateProfile', 'ClientController::updateProfile');
+    $routes->post('uploadProfilePicture', 'ClientController::uploadProfilePicture');
+    $routes->post('editProfilePicture', 'ClientController::uploadProfilePicture');
 
     // Geolocation
     $routes->get('geolocation', 'ClientController::geolocation');
@@ -109,6 +111,8 @@ $routes->group('admin', function ($routes) {
     $routes->post('users/(:segment)/edit', 'AdminController::edit/$1');
     $routes->get('users/(:segment)/delete', 'AdminController::delete/$1');
     $routes->post('users/(:segment)/delete', 'AdminController::delete/$1');
+    $routes->post('uploadProfilePicture', 'AdminController::uploadProfilePicture');
+    $routes->post('editProfilePicture', 'AdminController::uploadProfilePicture');
 
     // Truck Management
     $routes->get('trucks', 'AdminController::truck');
@@ -153,7 +157,9 @@ $routes->group('operations', function($routes) {
     $routes->get('dashboard/trucks-count', 'StaffOcController::trucksCount');
     $routes->get('profile', 'StaffOcController::profile');
     $routes->post('updateProfile', 'StaffOcController::updateProfile');
-    
+    $routes->post('uploadProfilePicture', 'StaffOcController::uploadProfilePicture');
+    $routes->post('editProfilePicture', 'StaffOcController::uploadProfilePicture');
+
     // Truck management routes
     $routes->get('trucks', 'StaffOcController::trucks');
     $routes->post('trucks/create', 'StaffOcController::createTruck');
@@ -176,6 +182,8 @@ $routes->group('resource', function($routes) {
     $routes->get('dashboard', 'StaffRmController::dashboard');
     $routes->get('profile', 'StaffRmController::profile');
     $routes->post('updateProfile', 'StaffRmController::updateProfile');
+    $routes->post('uploadProfilePicture', 'StaffRmController::uploadProfilePicture');
+    $routes->post('editProfilePicture', 'StaffRmController::uploadProfilePicture');
     
     // Truck management routes
     $routes->get('trucks', 'StaffRmController::trucks');
