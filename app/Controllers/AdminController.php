@@ -193,15 +193,24 @@ class AdminController extends Controller
     // }
 
     // ============== TRUCK MANAGEMENT MODULE ===================  //
-
     // List all trucks
     public function truck()
     {
         $truckModel = new TruckModel();
-        $data['trucks'] = $truckModel->getTrucks();
+        $trucks = $truckModel->getTrucks();
+
+        // Re-index the array in case it is associative
+        $trucks = array_values($trucks);
+        
+        // Sort the trucks naturally by truck_id (e.g., Truck1, Truck2, ..., Truck10)
+        usort($trucks, function($a, $b) {
+            return strnatcmp($a['truck_id'], $b['truck_id']);
+        });
+        
+        $data['trucks'] = $trucks;
         return view('admin/truck_management', $data);
     }
-    
+
     // Create a new truck (process create form submission)
     public function storeTruck()
     {
@@ -227,7 +236,7 @@ class AdminController extends Controller
         session()->setFlashdata('success', 'Truck created successfully with ID: ' . $newTruckId);
         return redirect()->to(base_url('admin/trucks'));
     }
-    
+
     // Update an existing truck
     public function updateTruck($truckId)
     {
@@ -253,7 +262,7 @@ class AdminController extends Controller
         session()->setFlashdata('success', 'Truck updated successfully.');
         return redirect()->to(base_url('admin/trucks'));
     }
-    
+
     // Delete a truck
     public function deleteTruck($truckId)
     {
@@ -262,7 +271,7 @@ class AdminController extends Controller
         session()->setFlashdata('success', 'Truck deleted successfully.');
         return redirect()->to(base_url('admin/trucks'));
     }
-    
+
     // View a truck's details (could be loaded into a modal via AJAX or as a partial view)
     public function viewTruck($truckId)
     {
@@ -274,7 +283,7 @@ class AdminController extends Controller
 
     // ============== DRIVER MANAGEMENT MODULE ===================  //
 
-    /**
+   /**
      * Display the Driver/Conductor management page.
      * - Fetch all driver records.
      * - Fetch eligible users (with user_level "driver" or "conductor") not already assigned.
@@ -415,6 +424,7 @@ class AdminController extends Controller
                 'trips_completed'    => $trips_completed,
             ];
 
+            // Driver ID is auto-generated in the DriverModel to be unique.
             $newDriverId = $driverModel->insertDriver($data);
             return redirect()->to(base_url('admin/driver'))
                              ->with('success', 'Driver/Conductor created successfully with ID: ' . $newDriverId);
@@ -455,7 +465,25 @@ class AdminController extends Controller
                 return redirect()->to(base_url('admin/driver'))->with('error', 'Trips Completed cannot be less than 0.');
             }
 
+            // Fetch all drivers and enforce uniqueness for employee_id and license_number
             $driverModel = new DriverModel();
+            $existingDrivers = $driverModel->getDrivers();
+            if ($existingDrivers) {
+                foreach ($existingDrivers as $id => $driver) {
+                    // Skip the driver being updated.
+                    if ($id == $driverId) {
+                        continue;
+                    }
+                    if (isset($driver['employee_id']) && $driver['employee_id'] === $data['employee_id']) {
+                        return redirect()->to(base_url('admin/driver'))->with('error', 'Employee ID already exists.');
+                    }
+                    if (isset($driver['license_number']) && $driver['license_number'] === $data['license_number']) {
+                        return redirect()->to(base_url('admin/driver'))->with('error', 'License Number already exists.');
+                    }
+                }
+            }
+
+            // If no uniqueness conflicts, perform the update.
             $driverModel->updateDriver($driverId, $data);
             return redirect()->to(base_url('admin/driver'))
                              ->with('success', 'Driver/Conductor updated successfully.');
@@ -604,6 +632,8 @@ class AdminController extends Controller
             return json_encode(['success' => true]);
         }
     }
+
+    // ================== REPORT MANAGEMENT MODULE ===================  //
     
     public function Report()
     {
@@ -612,6 +642,17 @@ class AdminController extends Controller
         return view('admin/reports_management');
     }
 
+
+    // ================== GEOLOCATION MODULE ===================  //
+
+    public function Geolocation()
+    {
+        // Here you can fetch and display geolocation data.
+        // For now, we simply load the view.
+        return view('admin/geolocation');
+    }
+
+    // ================== MAINTENANCE MODULE ===================  //
     public function Maintenance()
     {
         // 1) Get Firebase Realtime Database instance
@@ -709,7 +750,7 @@ class AdminController extends Controller
         ];
 
         // Pass everything to the view
-        return view('maintenance', [
+        return view('admin/maintenance', [
             'totalTrucks'     => $totalTrucks,
             'dueTrucks'       => $dueTrucks,
             'chartData'       => $chartData,

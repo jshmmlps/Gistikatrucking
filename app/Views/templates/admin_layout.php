@@ -59,16 +59,22 @@
                 </span>
                 <span class="description">Booking Management</span>
             </a>
-            <a href="<?= base_url('admin/trucks') ?>" class="nav-link <?= (current_url() == base_url('admin/trucks')) ? 'active' : '' ?>">
+            <?php
+                $currentUrl = current_url();
+                $active = (strpos($currentUrl, base_url('admin/trucks')) !== false ||
+                        strpos($currentUrl, base_url('admin/maintenance')) !== false ||
+                        strpos($currentUrl, base_url('admin/geolocation')) !== false)
+                        ? 'active' : '';
+            ?>
+            <a href="<?= base_url('admin/trucks') ?>" class="nav-link <?= $active ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/truck.png') ?>" alt="">
                 </span>
                 <span class="description">Truck Record and Monitoring Maintenance</span>
             </a>
-
-            <a href="<?= base_url('admin/maintenance') ?>" class="nav-link <?= (current_url() == base_url('admin/maintenance')) ? 'active' : '' ?>">
+            <!-- <a href="<?= base_url('admin/maintenance') ?>" class="nav-link <?= (current_url() == base_url('admin/maintenance')) ? 'active' : '' ?>">
                 <span class="description">Maintenance</span>
-            </a>
+            </a> -->
             
             <a href="<?= base_url('admin/reports') ?>" class="nav-link <?= (current_url() == base_url('admin/reports')) ? 'active' : '' ?>">
                 <span class="icon">

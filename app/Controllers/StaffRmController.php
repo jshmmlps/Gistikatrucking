@@ -69,7 +69,17 @@ class StaffRmController extends Controller
     public function trucks()
     {
         $truckModel = new TruckModel();
-        $data['trucks'] = $truckModel->getTrucks();
+        $trucks = $truckModel->getTrucks();
+        
+        // Re-index the array in case it is associative
+        $trucks = array_values($trucks);
+        
+        // Sort trucks naturally by truck_id (e.g., Truck1, Truck2, Truck3, ...)
+        usort($trucks, function($a, $b) {
+            return strnatcmp($a['truck_id'], $b['truck_id']);
+        });
+        
+        $data['trucks'] = $trucks;
         return view('resource_manager/truck_management', $data);
     }
 
@@ -146,5 +156,120 @@ class StaffRmController extends Controller
         $truckModel = new TruckModel();
         $data['truck'] = $truckModel->getTruck($truckId);
         return view('resource_manager/truck_detail', $data);
+    }
+
+    // ================== GEOLOCATION MODULE ===================  //
+
+    public function Geolocation()
+    {
+        // Here you can fetch and display geolocation data.
+        // For now, we simply load the view.
+        return view('resource_manager/geolocation');
+    }
+
+    // ================== MAINTENANCE MODULE ===================  //
+    public function Maintenance()
+    {
+        // 1) Get Firebase Realtime Database instance
+        $db = service('firebase');
+
+        // 2) Fetch all trucks from your "Trucks" node
+        $trucksRef = $db->getReference('Trucks');
+        $snapshot = $trucksRef->getSnapshot();
+
+        if (!$snapshot->exists()) {
+            // If no data in 'Trucks' node, pass empty arrays
+            return view('maintenance', [
+                'totalTrucks'      => 0,
+                'dueTrucks'        => [],
+                'chartData'        => [],
+                'availableTrucks'  => [],
+            ]);
+        }
+
+        // Convert the snapshot into an associative array
+        $trucksData = $snapshot->getValue();
+
+        // 3) Determine which trucks are due for inspection
+        // A truck is "due for inspection" if:
+        // - Its last_inspection_date is older than 6 months, OR
+        // - (currentMileage - lastInspectionMileage) >= 20,000
+        $dueTrucks = [];
+        $timeInterval = new \DateInterval('P6M'); // 6 months using global namespace
+        $mileageThreshold = 20000;
+
+        foreach ($trucksData as $truckId => $truck) {
+            // Extract required fields
+            $lastInspectionDate    = $truck['last_inspection_date']   ?? null;
+            $lastInspectionMileage = $truck['last_inspection_mileage'] ?? 0;
+            $currentMileage        = $truck['current_mileage']         ?? 0;
+
+            // Time-based check
+            $timeOverdue = false;
+            if ($lastInspectionDate) {
+                try {
+                    $dateNow  = new \DateTime();
+                    $dateLast = new \DateTime($lastInspectionDate);
+                    $dateLast->add($timeInterval); // last inspection + 6 months
+                    if ($dateNow > $dateLast) {
+                        $timeOverdue = true;
+                    }
+                } catch (\Exception $e) {
+                    // Optionally log or handle invalid date formats
+                }
+            }
+
+            // Mileage-based check
+            $mileageOverdue = false;
+            if (($currentMileage - $lastInspectionMileage) >= $mileageThreshold) {
+                $mileageOverdue = true;
+            }
+
+            // If either condition is met, mark truck as due for inspection
+            if ($timeOverdue || $mileageOverdue) {
+                $dueTrucks[] = [
+                    'truckId' => $truckId,
+                    'details' => $truck,
+                ];
+            }
+        }
+
+        // Filter out trucks that are due for inspection to create the available trucks list
+        $dueTruckIds = array_map(function ($dueTruck) {
+            return $dueTruck['truckId'];
+        }, $dueTrucks);
+        
+        $availableTrucks = [];
+        foreach ($trucksData as $truckId => $truck) {
+            if (!in_array($truckId, $dueTruckIds)) {
+                $availableTrucks[$truckId] = $truck;
+            }
+        }
+
+        // Prepare summary data for chart: count of due vs. not due trucks
+        $totalTrucks = count($trucksData);
+        $dueCount    = count($dueTrucks);
+        $notDueCount = count($availableTrucks);
+
+        // Build a simple data structure for Chart.js with updated color for due trucks
+        $chartData = [
+            'labels'   => ['Due For Inspection', 'Not Due'],
+            'datasets' => [[
+                'label' => 'Inspection Status',
+                'data'  => [$dueCount, $notDueCount],
+                'backgroundColor' => [
+                    'rgba(255, 0, 0, 0.6)',   // Red for "Due For Inspection"
+                    'rgba(75, 192, 192, 0.6)' // Alternate color for "Not Due"
+                ],
+            ]]
+        ];
+
+        // Pass everything to the view
+        return view('resource_manager/maintenance', [
+            'totalTrucks'     => $totalTrucks,
+            'dueTrucks'       => $dueTrucks,
+            'chartData'       => $chartData,
+            'availableTrucks' => $availableTrucks,
+        ]);
     }
 }

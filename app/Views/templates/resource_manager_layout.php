@@ -33,11 +33,18 @@
                 </span>
                 <span class="description">Profile</span>
             </a>
-            <a href="<?= base_url('resource/trucks') ?>" class="nav-link <?= (current_url() == base_url('resource/trucks')) ? 'active' : '' ?>">
+            <?php
+                $currentUrl = current_url();
+                $active = (strpos($currentUrl, base_url('resource/trucks')) !== false ||
+                        strpos($currentUrl, base_url('resource/maintenance')) !== false ||
+                        strpos($currentUrl, base_url('resource/geolocation')) !== false)
+                        ? 'active' : '';
+            ?>
+            <a href="<?= base_url('resource/trucks') ?>" class="nav-link <?= $active ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/truck.png') ?>" alt="">
                 </span>
-                <span class="description">Truck Monitoring</span>
+                <span class="description">Truck Record and Monitoring Maintenance</span>
             </a>
             <a href="#" class="nav-link <?= (current_url() == base_url('resource/reports')) ? 'active' : '' ?>">
                 <span class="icon">

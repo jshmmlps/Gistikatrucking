@@ -9,14 +9,17 @@
     
     <!-- Tab Navigation -->
     <ul class="nav nav-tabs" id="managementTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="truck-records-tab" data-bs-toggle="tab" href="#truck-records" role="tab" aria-controls="truck-records" aria-selected="true">Truck Records</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" id="geolocation-tab" data-bs-toggle="tab" href="#geolocation" role="tab" aria-controls="geolocation" aria-selected="false">Geolocation</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" id="maintenance-tab" data-bs-toggle="tab" href="#maintenance" role="tab" aria-controls="maintenance" aria-selected="false">Maintenance</a>
+        <a href="<?= base_url('operations/trucks'); ?>" class="nav-link <?= (current_url() == base_url('operations/trucks')) ? 'active' : '' ?>">
+            <span class="description">Truck Records</span>
+        </a>
+
+        <a href="<?= base_url('operations/geolocation'); ?>" class="nav-link <?= (current_url() == base_url('operations/geolocation')) ? 'active' : '' ?>">
+            <span class="description">Geolocation</span>
+        </a>
+<!--     
+        <a href="<?= base_url('operations/maintenance'); ?>" class="nav-link <?= (current_url() == base_url('operations/maintenance')) ? 'active' : '' ?>">
+            <span class="description">Maintenance Analytics</span>
+        </a> -->
         </li>
     </ul>
     
@@ -96,87 +99,86 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                   </div>
                                   <div class="modal-body">
-                                    <!-- Truck Info Section -->
-                                    <div class="p-3 rounded-3 shadow-sm bg-light mb-4">
-                                        <h6 class="fw-bold mb-3 text-primary">Truck Information</h6>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">Truck ID:</span>
-                                            <span class="text-muted"><?= esc($truck['truck_id']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">Truck Model:</span>
-                                            <span class="text-muted"><?= esc($truck['truck_model']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">Plate Number:</span>
-                                            <span class="text-muted"><?= esc($truck['plate_number']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="fw-bold text-secondary">Truck Type:</span>
-                                            <span class="text-muted"><?= esc($truck['truck_type']) ?></span>
-                                        </div>
-                                    </div>
+    <!-- Truck Info Section -->
+    <div class="p-3 mb-4 rounded-3 shadow-sm border bg-light">
+        <h6 class="fw-bold mb-3 text-primary">Truck Information</h6>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">Truck ID:</span>
+            <span><?= esc($truck['truck_id']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">Truck Model:</span>
+            <span><?= esc($truck['truck_model']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">Plate Number:</span>
+            <span><?= esc($truck['plate_number']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">Engine Number:</span>
+            <span><?= esc($truck['engine_number']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">Chassis Number:</span>
+            <span><?= esc($truck['chassis_number']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">Color:</span>
+            <span><?= esc($truck['color']) ?></span>
+        </div>
+    </div>
 
-                                    <!-- Engine & Chassis Section -->
-                                    <div class="p-3 rounded-3 shadow-sm bg-light mb-4">
-                                        <h6 class="fw-bold mb-3 text-primary">Engine & Chassis</h6>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">Engine Number:</span>
-                                            <span class="text-muted"><?= esc($truck['engine_number']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="fw-bold text-secondary">Chassis Number:</span>
-                                            <span class="text-muted"><?= esc($truck['chassis_number']) ?></span>
-                                        </div>
-                                    </div>
+    <!-- Registration & Insurance Section -->
+    <div class="p-3 mb-4 rounded-3 shadow-sm border bg-light">
+        <h6 class="fw-bold mb-3 text-primary">Registration & Insurance</h6>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">COR Number:</span>
+            <span><?= esc($truck['cor_number']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">Insurance Details:</span>
+            <span><?= esc($truck['insurance_details']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">License Plate Expiry:</span>
+            <span><?= esc($truck['license_plate_expiry']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between">
+            <span class="fw-bold text-secondary">Registration Expiry:</span>
+            <span><?= esc($truck['registration_expiry']) ?></span>
+        </div>
+    </div>
 
-                                    <!-- Registration & Insurance Section -->
-                                    <div class="p-3 rounded-3 shadow-sm bg-light mb-4">
-                                        <h6 class="fw-bold mb-3 text-primary">Registration & Insurance</h6>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">COR Number:</span>
-                                            <span class="text-muted"><?= esc($truck['cor_number']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">Insurance Details:</span>
-                                            <span class="text-muted"><?= esc($truck['insurance_details']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">License Plate Expiry:</span>
-                                            <span class="text-muted"><?= esc($truck['license_plate_expiry']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="fw-bold text-secondary">Registration Expiry:</span>
-                                            <span class="text-muted"><?= esc($truck['registration_expiry']) ?></span>
-                                        </div>
-                                    </div>
+    <!-- Specifications Section -->
+    <div class="p-3 mb-4 rounded-3 shadow-sm border bg-light">
+        <h6 class="fw-bold mb-3 text-primary">Truck Specifications</h6>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">Truck Type:</span>
+            <span><?= esc($truck['truck_type']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">Fuel Type:</span>
+            <span><?= esc($truck['fuel_type']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold text-secondary">Truck Length:</span>
+            <span><?= esc($truck['truck_length']) ?></span>
+        </div>
+        <div class="d-flex justify-content-between">
+            <span class="fw-bold text-secondary">Load Capacity (kg):</span>
+            <span><?= esc($truck['load_capacity']) ?></span>
+        </div>
+    </div>
 
-                                    <!-- Specifications Section -->
-                                    <div class="p-3 rounded-3 shadow-sm bg-light mb-4">
-                                        <h6 class="fw-bold mb-3 text-primary">Specifications</h6>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">Color:</span>
-                                            <span class="text-muted"><?= esc($truck['color']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">Fuel Type:</span>
-                                            <span class="text-muted"><?= esc($truck['fuel_type']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">Truck Length:</span>
-                                            <span class="text-muted"><?= esc($truck['truck_length']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2">
-                                            <span class="fw-bold text-secondary">Load Capacity (kg):</span>
-                                            <span class="text-muted"><?= esc($truck['load_capacity']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="fw-bold text-secondary">Maintenance Technician:</span>
-                                            <span class="text-muted"><?= esc($truck['maintenance_technician']) ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-
+    <!-- Maintenance Section -->
+    <div class="p-3 rounded-3 shadow-sm border bg-light">
+        <h6 class="fw-bold mb-3 text-primary">Maintenance</h6>
+        <div class="d-flex justify-content-between">
+            <span class="fw-bold text-secondary">Maintenance Technician:</span>
+            <span><?= esc($truck['maintenance_technician']) ?></span>
+        </div>
+    </div>
+</div>
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                   </div>
@@ -188,7 +190,7 @@
                             <div class="modal fade" id="editTruckModal<?= $key ?>" tabindex="-1" aria-labelledby="editTruckModalLabel<?= $key ?>" aria-hidden="true">
                               <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
-                                  <form action="<?= base_url('admin/trucks/update/' . $truck['truck_id']) ?>" method="post">
+                                  <form action="<?= base_url('operations/trucks/update/' . $truck['truck_id']) ?>" method="post">
                                   <div class="modal-header">
                                     <h5 class="modal-title" id="editTruckModalLabel<?= $key ?>">Edit Truck (<?= esc($truck['truck_model']) ?>)</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -273,7 +275,7 @@
                                     Are you sure you want to delete this truck?
                                   </div>
                                   <div class="modal-footer">
-                                    <a href="<?= base_url('admin/trucks/delete/' . $truck['truck_id']) ?>" class="btn btn-danger">Yes</a>
+                                    <a href="<?= base_url('operations/trucks/delete/' . $truck['truck_id']) ?>" class="btn btn-danger">Yes</a>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
                                   </div>
                                 </div>
@@ -306,7 +308,7 @@
 <div class="modal fade" id="createTruckModal" tabindex="-1" aria-labelledby="createTruckModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form action="<?= base_url('admin/trucks/create') ?>" method="post">
+      <form action="<?= base_url('operations/trucks/create') ?>" method="post">
       <div class="modal-header">
         <h5 class="modal-title" id="createTruckModalLabel">Create New Truck</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

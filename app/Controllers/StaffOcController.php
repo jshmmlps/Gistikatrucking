@@ -7,6 +7,7 @@ use App\Models\UserModel;
 use App\Models\TruckModel;
 use App\Models\BookingModel;
 use CodeIgniter\Controller;
+use Config\Services;
 
 class StaffOcController extends Controller
 {
@@ -27,14 +28,15 @@ class StaffOcController extends Controller
     // ----- Dashboard -----
     public function dashboard()
     {
-        $firebase = Services::firebase();
-        $trucksRef = $firebase->getReference('Trucks');
-        $trucksData = $trucksRef->getValue();
-        $data['trucksCount'] = is_array($trucksData) ? count($trucksData) : 0;
+        // $firebase = Services::firebase();
+        // $trucksRef = $firebase->getReference('Trucks');
+        // $trucksData = $trucksRef->getValue();
+        // $data['trucksCount'] = is_array($trucksData) ? count($trucksData) : 0;
 
         // For this example, we'll simply load the view.
         return view('operations_coordinator/dashboard');
     }
+
 
     // ----- User Profile Management -----
     /**
@@ -78,7 +80,17 @@ class StaffOcController extends Controller
     public function trucks()
     {
         $truckModel = new TruckModel();
-        $data['trucks'] = $truckModel->getTrucks();
+        $trucks = $truckModel->getTrucks();
+        
+        // Re-index the array in case it is associative
+        $trucks = array_values($trucks);
+        
+        // Sort trucks naturally by truck_id (e.g., Truck1, Truck2, Truck3, ...)
+        usort($trucks, function($a, $b) {
+            return strnatcmp($a['truck_id'], $b['truck_id']);
+        });
+        
+        $data['trucks'] = $trucks;
         return view('operations_coordinator/truck_management', $data);
     }
 
@@ -158,7 +170,7 @@ class StaffOcController extends Controller
     }
 
     // ============== BOOKING MODULE ===================  //
-    // List all bookings for admin review
+    // List all bookings for review
     public function bookings()
     {
         $bookingModel = new BookingModel();
@@ -219,6 +231,15 @@ class StaffOcController extends Controller
             
             return redirect()->to(base_url('operations_coordinator/bookings'));
         }
+
+    // ================== GEOLOCATION MODULE ===================  //
+
+    public function Geolocation()
+    {
+        // Here you can fetch and display geolocation data.
+        // For now, we simply load the view.
+        return view('operations_coordinator/geolocation');
+    }
 
     // ----- Logout -----
     public function logout()

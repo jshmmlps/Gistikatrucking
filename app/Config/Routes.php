@@ -132,6 +132,9 @@ $routes->group('admin', function ($routes) {
     // Maintenance
     $routes->get('maintenance', 'AdminController::Maintenance');
 
+    // Geolocation
+    $routes->get('geolocation', 'AdminController::Geolocation');
+
     // Report Management
     $routes->get('reports', 'AdminController::Report');
 
@@ -157,6 +160,9 @@ $routes->group('operations', function($routes) {
     $routes->post('trucks/update/(:segment)', 'StaffOcController::updateTruck/$1');
     $routes->get('trucks/delete/(:segment)', 'StaffOcController::deleteTruck/$1');
     $routes->get('trucks/view/(:segment)', 'StaffOcController::viewTruck/$1');
+
+    // Geolocation routes
+    $routes->get('geolocation', 'StaffOcController::geolocation');
     
     // Booking management routes
     $routes->get('bookings', 'StaffOcController::bookings');
@@ -177,6 +183,12 @@ $routes->group('resource', function($routes) {
     $routes->post('trucks/update/(:segment)', 'StaffRmController::updateTruck/$1');
     $routes->get('trucks/delete/(:segment)', 'StaffRmController::deleteTruck/$1');
     $routes->get('trucks/view/(:segment)', 'StaffRmController::viewTruck/$1');
+
+    // Maintenance management routes
+    $routes->get('maintenance', 'StaffRmController::maintenance');
+
+    // Geolocation routes
+    $routes->get('geolocation', 'StaffRmController::geolocation');
 });
 
 

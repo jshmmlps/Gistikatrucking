@@ -9,16 +9,16 @@
     
     <!-- Tab Navigation -->
     <ul class="nav nav-tabs" id="managementTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="truck-records-tab" data-bs-toggle="tab" href="#truck-records" role="tab" aria-controls="truck-records" aria-selected="true">Truck Records</a>
-        </li>
+        <a href="<?= base_url('admin/trucks'); ?>" class="nav-link <?= (current_url() == base_url('admin/trucks')) ? 'active' : '' ?>">
+            <span class="description">Truck Records</span>
+        </a>
 
         <a href="<?= base_url('admin/geolocation'); ?>" class="nav-link <?= (current_url() == base_url('admin/geolocation')) ? 'active' : '' ?>">
-        <span class="description">Geolocation</span>
+            <span class="description">Geolocation</span>
         </a>
     
         <a href="<?= base_url('admin/maintenance'); ?>" class="nav-link <?= (current_url() == base_url('admin/maintenance')) ? 'active' : '' ?>">
-        <span class="description">Maintenance Analytics</span>
+            <span class="description">Maintenance Analytics</span>
         </a>
         </li>
     </ul>

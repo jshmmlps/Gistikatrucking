@@ -33,17 +33,24 @@
                 </span>
                 <span class="description">Profile</span>
             </a>
-            <a href="<?= base_url('operations/bookings') ?>" class="nav-link <?= (current_url() == base_url('operations/booking_management')) ? 'active' : '' ?>">
+            <a href="<?= base_url('operations/bookings') ?>" class="nav-link <?= (current_url() == base_url('operations/bookings')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/booking.png') ?>" alt="">
                 </span>
                 <span class="description">Booking Management</span>
             </a>
-            <a href="<?= base_url('operations/trucks') ?>" class="nav-link <?= (current_url() == base_url('operations/trucks')) ? 'active' : '' ?>">
+            <?php
+                $currentUrl = current_url();
+                $active = (strpos($currentUrl, base_url('operations/trucks')) !== false ||
+                        // strpos($currentUrl, base_url('operations/maintenance')) !== false ||
+                        strpos($currentUrl, base_url('operations/geolocation')) !== false)
+                        ? 'active' : '';
+            ?>
+            <a href="<?= base_url('operations/trucks') ?>" class="nav-link <?= $active ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/truck.png') ?>" alt="">
                 </span>
-                <span class="description">Truck Monitoring</span>
+                <span class="description">Truck Record</span>
             </a>
             <a href="#" class="nav-link <?= (current_url() == base_url('operations/reports')) ? 'active' : '' ?>">
                 <span class="icon">
