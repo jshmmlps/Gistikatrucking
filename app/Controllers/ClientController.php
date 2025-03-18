@@ -7,6 +7,7 @@ use App\Models\TruckModel;
 use App\Models\DriverModel;
 use App\Models\BookingModel;
 use CodeIgniter\Controller;
+use Config\Services;
 
 class ClientController extends BaseController
 {
@@ -211,9 +212,72 @@ class ClientController extends BaseController
     //     return view('client/profile');
     // }
 
+   /**
+     * Display the geolocation page showing the drivers (with bookings)
+     * that are assigned to approved/in-transit bookings for the current client.
+     */
     public function geolocation()
     {
-        return view('client/geolocation');
+        $session = session();
+        // Assuming the client's Firebase key is stored in session (e.g., "User6")
+        $clientKey = $session->get('firebaseKey');
+        
+        // Get Firebase Realtime Database instance
+        $db = Services::firebase();
+        $bookingsRef = $db->getReference('Bookings');
+        $snapshot = $bookingsRef->getSnapshot();
+        $allBookings = $snapshot->getValue() ?? [];
+
+        // Define allowed statuses (adjust as needed)
+        $allowedStatuses = ['approved', 'in-transit', 'accepted'];
+
+        // Filter bookings for this client that have an allowed status
+        $clientBookings = [];
+        foreach ($allBookings as $booking) {
+            if (!is_array($booking)) {
+                continue;
+            }
+            if (
+                isset($booking['client_id'], $booking['status']) &&
+                $booking['client_id'] === $clientKey &&
+                in_array(strtolower($booking['status']), $allowedStatuses)
+            ) {
+                $clientBookings[] = $booking;
+            }
+        }
+
+        // Group bookings by driver name (normalized)
+        $driverBookings = [];
+        foreach ($clientBookings as $booking) {
+            $driverName = strtolower(trim($booking['driver_name'] ?? ''));
+            if (!empty($driverName)) {
+                // If multiple bookings exist for the same driver,
+                // you may decide to keep the latest or first; here, we keep the first occurrence.
+                if (!isset($driverBookings[$driverName])) {
+                    $driverBookings[$driverName] = $booking;
+                }
+            }
+        }
+
+        // Fetch all drivers from Firebase using DriverModel
+        $driverModel = new DriverModel();
+        $allDrivers = $driverModel->getDrivers();
+
+        // Filter drivers to include only those that appear in our driverBookings
+        $clientDrivers = [];
+        if ($allDrivers && is_array($allDrivers)) {
+            foreach ($allDrivers as $driverId => $driver) {
+                // Build full name from the driver's record and normalize it
+                $fullName = strtolower(trim(($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '')));
+                if (isset($driverBookings[$fullName])) {
+                    // Attach booking details for later use in the view
+                    $driver['booking'] = $driverBookings[$fullName];
+                    $clientDrivers[$driverId] = $driver;
+                }
+            }
+        }
+
+        return view('client/geolocation', ['drivers' => $clientDrivers]);
     }
 
     public function report()
