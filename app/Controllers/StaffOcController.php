@@ -28,15 +28,146 @@ class StaffOcController extends Controller
     }
 
     // ----- Dashboard -----
+    // public function dashboard()
+    // {
+    //     // $firebase = Services::firebase();
+    //     // $trucksRef = $firebase->getReference('Trucks');
+    //     // $trucksData = $trucksRef->getValue();
+    //     // $data['trucksCount'] = is_array($trucksData) ? count($trucksData) : 0;
+
+    //     // For this example, we'll simply load the view.
+    //     return view('operations_coordinator/dashboard');
+    // }
+
+    /**
+     * Display the dashboard.
+     */
     public function dashboard()
     {
-        // $firebase = Services::firebase();
-        // $trucksRef = $firebase->getReference('Trucks');
-        // $trucksData = $trucksRef->getValue();
-        // $data['trucksCount'] = is_array($trucksData) ? count($trucksData) : 0;
+        // Initialize Firebase
+        $db = Services::firebase();
 
-        // For this example, we'll simply load the view.
-        return view('operations_coordinator/dashboard');
+        // ---------------------
+        // A) BOOKING DATA
+        // ---------------------
+        $bookingsRef = $db->getReference('Bookings');
+        $bookingsSnapshot = $bookingsRef->getSnapshot();
+        $allBookings = $bookingsSnapshot->getValue() ?? [];
+
+        $totalBookings = 0;
+        $pendingBookings = 0;
+        $numRequests = 0; // Number of "pending" bookings
+        
+        if (is_array($allBookings)) {
+            $totalBookings = count($allBookings);
+            foreach ($allBookings as $bk) {
+                if (is_array($bk) && isset($bk['status'])) {
+                    if (strtolower($bk['status']) === 'pending') {
+                        $pendingBookings++;
+                    }
+                    $numRequests = $pendingBookings; 
+                }
+            }
+        }
+
+        // ---------------------
+        // B) USERS DATA (to count number of users)
+        // ---------------------
+        $usersRef = $db->getReference('Users');
+        $usersSnapshot = $usersRef->getSnapshot();
+        $allUsers = $usersSnapshot->getValue() ?? [];
+
+        // Count the number of users
+        $numUsers = is_array($allUsers) ? count($allUsers) : 0;
+
+        // ---------------------
+        // C) TRUCKS DATA
+        // ---------------------
+        $trucksRef = $db->getReference('Trucks');
+        $trucksSnapshot = $trucksRef->getSnapshot();
+        $allTrucks = $trucksSnapshot->getValue() ?? [];
+
+        $goodConditionCount = 0;
+        $needsMaintenanceCount = 0;
+        $trucksList = $allTrucks;
+
+        if (is_array($allTrucks)) {
+            foreach ($allTrucks as $tId => $truck) {
+                $lastInspectionDate    = $truck['last_inspection_date']    ?? null;
+                $lastInspectionMileage = $truck['last_inspection_mileage'] ?? 0;
+                $currentMileage        = $truck['current_mileage']         ?? 0;
+
+                $timeOverdue = false;
+                if (!empty($lastInspectionDate)) {
+                    try {
+                        $dateNow  = new \DateTime();
+                        $dateLast = new \DateTime($lastInspectionDate);
+                        $dateLast->add(new \DateInterval('P6M'));
+                        if ($dateNow > $dateLast) {
+                            $timeOverdue = true;
+                        }
+                    } catch (\Exception $e) {}
+                }
+
+                $mileageOverdue = false;
+                if (($currentMileage - $lastInspectionMileage) >= 20000) {
+                    $mileageOverdue = true;
+                }
+
+                if ($timeOverdue || $mileageOverdue) {
+                    $needsMaintenanceCount++;
+                } else {
+                    $goodConditionCount++;
+                }
+            }
+        }
+
+        // ---------------------
+        // D) DRIVERS DATA
+        // ---------------------
+        $driversRef = $db->getReference('Drivers');
+        $driversSnapshot = $driversRef->getSnapshot();
+        $allDrivers = $driversSnapshot->getValue() ?? [];
+
+        $driverLocations = [];
+        $assignedTruckIds = [];
+
+        if (is_array($allDrivers)) {
+            foreach ($allDrivers as $driverId => $driver) {
+                if (!empty($driver['last_lat']) && !empty($driver['last_lng'])) {
+                    $driverLocations[] = [
+                        'name' => ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? ''),
+                        'lat'  => $driver['last_lat'],
+                        'lng'  => $driver['last_lng'],
+                    ];
+                }
+                if (!empty($driver['truck_assigned'])) {
+                    $assignedTruckIds[$driver['truck_assigned']] = true;
+                }
+            }
+        }
+
+        // Filter trucks with assigned drivers
+        $trucksWithDrivers = [];
+        foreach ($trucksList as $tid => $truck) {
+            if (isset($assignedTruckIds[$tid])) {
+                $trucksWithDrivers[$tid] = $truck;
+            }
+        }
+
+        // Prepare data for the view
+        $data = [
+            'totalBookings'       => $totalBookings,
+            'numRequests'         => $numUsers,  // Updated: Use the number of users
+            'pendingBookings'     => $pendingBookings,
+            'goodConditionCount'  => $goodConditionCount,
+            'needsMaintenanceCount' => $needsMaintenanceCount,
+            'trucksWithDrivers'   => $trucksWithDrivers,
+            'driverLocations'     => $driverLocations,
+            'numUsers'            => $numUsers  // The number of users
+        ];
+
+        return view('operations_coordinator/dashboard', $data);
     }
 
 
