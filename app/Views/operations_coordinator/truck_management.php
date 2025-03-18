@@ -9,14 +9,11 @@
     
     <!-- Tab Navigation -->
     <ul class="nav nav-tabs" id="managementTabs" role="tablist">
-        <a href="<?= base_url('admin/trucks'); ?>" class="nav-link <?= (current_url() == base_url('admin/trucks')) ? 'active' : '' ?>">
+        <a href="<?= base_url('operations/trucks'); ?>" class="nav-link <?= (current_url() == base_url('operations/trucks')) ? 'active' : '' ?>">
             <span class="description">Truck Records</span>
         </a>
-        <a href="<?= base_url('admin/geolocation'); ?>" class="nav-link <?= (current_url() == base_url('admin/geolocation')) ? 'active' : '' ?>">
+        <a href="<?= base_url('operations/geolocation'); ?>" class="nav-link <?= (current_url() == base_url('operations/geolocation')) ? 'active' : '' ?>">
             <span class="description">Geolocation</span>
-        </a>
-        <a href="<?= base_url('admin/maintenance'); ?>" class="nav-link <?= (current_url() == base_url('admin/maintenance')) ? 'active' : '' ?>">
-            <span class="description">Maintenance Analytics</span>
         </a>
     </ul>
     
@@ -199,7 +196,7 @@
                             <div class="modal fade" id="editTruckModal<?= $key ?>" tabindex="-1" aria-labelledby="editTruckModalLabel<?= $key ?>" aria-hidden="true">
                               <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
-                                  <form action="<?= base_url('admin/trucks/update/' . $truck['truck_id']) ?>" method="post">
+                                  <form action="<?= base_url('operations/trucks/update/' . $truck['truck_id']) ?>" method="post">
                                   <div class="modal-header">
                                     <h5 class="modal-title" id="editTruckModalLabel<?= $key ?>">Edit Truck (<?= esc($truck['truck_model']) ?>)</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -292,7 +289,7 @@
                                     Are you sure you want to delete this truck?
                                   </div>
                                   <div class="modal-footer">
-                                    <a href="<?= base_url('admin/trucks/delete/' . $truck['truck_id']) ?>" class="btn btn-danger">Yes</a>
+                                    <a href="<?= base_url('operations/trucks/delete/' . $truck['truck_id']) ?>" class="btn btn-danger">Yes</a>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
                                   </div>
                                 </div>
@@ -325,7 +322,7 @@
 <div class="modal fade" id="createTruckModal" tabindex="-1" aria-labelledby="createTruckModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form action="<?= base_url('admin/trucks/create') ?>" method="post">
+      <form action="<?= base_url('operations/trucks/create') ?>" method="post">
       <div class="modal-header">
         <h5 class="modal-title" id="createTruckModalLabel">Create New Truck</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Models\TruckModel;
+use App\Models\DriverModel;
 use CodeIgniter\Controller;
 
 class StaffRmController extends Controller
@@ -20,6 +21,7 @@ class StaffRmController extends Controller
             exit; // Stop further execution
         }
         $this->userModel = new UserModel();
+        $this->driverModel = new DriverModel();
     }
 
     public function dashboard()
@@ -240,11 +242,14 @@ class StaffRmController extends Controller
 
     // ================== GEOLOCATION MODULE ===================  //
 
-    public function Geolocation()
+    public function geolocation()
     {
-        // Here you can fetch and display geolocation data.
-        // For now, we simply load the view.
-        return view('resource_manager/geolocation');
+        // Get only drivers with valid geolocation fields
+        $drivers = $this->driverModel->getDriversWithLocation();
+
+        return view('resource_manager/geolocation', [
+            'drivers' => $drivers
+        ]);
     }
 
     // ================== MAINTENANCE MODULE ===================  //

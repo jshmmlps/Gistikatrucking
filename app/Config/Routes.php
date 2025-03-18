@@ -137,7 +137,7 @@ $routes->group('admin', function ($routes) {
     $routes->get('maintenance', 'AdminController::Maintenance');
 
     // Geolocation
-    $routes->get('geolocation', 'AdminController::Geolocation');
+    $routes->get('geolocation', 'AdminController::geolocation');
 
     // Report Management
     $routes->get('reports', 'AdminController::Report');

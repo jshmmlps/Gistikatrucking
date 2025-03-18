@@ -27,6 +27,7 @@ class AdminController extends Controller
         }        
         
         $this->userModel = new UserModel();
+        $this->driverModel = new DriverModel();
         // Initialize the model
         $this->clientManagementModel = new ClientManagementModel();
     }
@@ -726,11 +727,14 @@ class AdminController extends Controller
 
     // ================== GEOLOCATION MODULE ===================  //
 
-    public function Geolocation()
+    public function geolocation()
     {
-        // Here you can fetch and display geolocation data.
-        // For now, we simply load the view.
-        return view('admin/geolocation');
+        // Get only drivers with valid geolocation fields
+        $drivers = $this->driverModel->getDriversWithLocation();
+
+        return view('admin/geolocation', [
+            'drivers' => $drivers
+        ]);
     }
 
    // ================== MAINTENANCE MODULE ===================  //

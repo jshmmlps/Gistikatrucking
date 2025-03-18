@@ -85,4 +85,24 @@ class DriverModel extends Model
         $this->firebase->getReference('Drivers/' . $driverId)->remove();
         return true;
     }
+
+    /**
+     * Retrieve only drivers with valid geolocation (last_lat and last_lng).
+     */
+    public function getDriversWithLocation()
+    {
+        $allDrivers = $this->getDrivers();
+        $driversWithLocation = [];
+        
+        if ($allDrivers && is_array($allDrivers)) {
+            foreach ($allDrivers as $driverId => $driver) {
+                if (!empty($driver['last_lat']) && !empty($driver['last_lng'])) {
+                    $driversWithLocation[$driverId] = $driver;
+                }
+            }
+        }
+        
+        return $driversWithLocation;
+    }
+
 }

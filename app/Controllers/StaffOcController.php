@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Models\UserModel;
 use App\Models\TruckModel;
 use App\Models\BookingModel;
+use App\Models\DriverModel;
 use CodeIgniter\Controller;
 use Config\Services;
 
@@ -23,6 +24,7 @@ class StaffOcController extends Controller
             exit; // Stop further execution
         }
         $this->userModel = new UserModel();
+        $this->driverModel = new DriverModel();
     }
 
     // ----- Dashboard -----
@@ -313,11 +315,14 @@ class StaffOcController extends Controller
 
     // ================== GEOLOCATION MODULE ===================  //
 
-    public function Geolocation()
+    public function geolocation()
     {
-        // Here you can fetch and display geolocation data.
-        // For now, we simply load the view.
-        return view('operations_coordinator/geolocation');
+        // Get only drivers with valid geolocation fields
+        $drivers = $this->driverModel->getDriversWithLocation();
+
+        return view('operations_coordinator/geolocation', [
+            'drivers' => $drivers
+        ]);
     }
 
     // ----- Logout -----
