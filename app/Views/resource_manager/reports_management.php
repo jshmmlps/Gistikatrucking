@@ -1,4 +1,4 @@
-<?= $this->extend('templates/admin_layout.php') ?>
+<?= $this->extend('templates/resource_manager_layout') ?>
 
 <?= $this->section('content') ?>
 <link href="<?= base_url('public/assets/css/style.css'); ?>" rel="stylesheet">

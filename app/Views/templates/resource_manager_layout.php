@@ -46,7 +46,7 @@
                 </span>
                 <span class="description">Truck Record and Monitoring Maintenance</span>
             </a>
-            <a href="#" class="nav-link <?= (current_url() == base_url('resource/reports')) ? 'active' : '' ?>">
+            <a href="<?= base_url('resource/reports') ?>" class="nav-link <?= (current_url() == base_url('resource/reports')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/report.png') ?>" alt="">
                 </span>

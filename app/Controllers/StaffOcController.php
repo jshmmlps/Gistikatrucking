@@ -325,6 +325,30 @@ class StaffOcController extends Controller
         ]);
     }
 
+      // ================== REPORT MANAGEMENT MODULE ===================  //
+    
+      public function Report()
+      {
+          // Get Firebase Realtime Database instance
+          $db = Services::firebase();
+          
+          // Get a reference to the "Reports" node
+          $reportsRef = $db->getReference('Reports');
+          $snapshot = $reportsRef->getSnapshot();
+          
+          // Get the reports as an associative array (or an empty array if none)
+          $reports = $snapshot->getValue() ?? [];
+          
+          // Optionally, sort the reports naturally by report number (keys like "R000001")
+          uksort($reports, function($a, $b) {
+              return strnatcmp($a, $b);
+          });
+          
+          // Pass the reports data to the view
+          return view('operations_coordinator/reports_management', ['reports' => $reports]);
+      }
+
+      
     // ----- Logout -----
     public function logout()
     {

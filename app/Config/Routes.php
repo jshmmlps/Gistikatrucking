@@ -86,6 +86,10 @@ $routes->group('client', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->post('store-booking', 'ClientController::storeBooking');
 });
 
+$routes->get('client/report', 'ClientController::report');
+$routes->post('client/report/store', 'ClientController::storeReport');
+
+
 // Admin routes
 $routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->get('bookings', 'AdminController::bookings');
@@ -173,6 +177,9 @@ $routes->group('operations', function($routes) {
     // Booking management routes
     $routes->get('bookings', 'StaffOcController::bookings');
     $routes->get('bookings/view/(:segment)', 'StaffOcController::viewBooking/$1');
+
+    // Report management routes
+    $routes->get('reports', 'StaffOcController::Report');
 });
 
 // Resource Manager
@@ -197,6 +204,9 @@ $routes->group('resource', function($routes) {
 
     // Geolocation routes
     $routes->get('geolocation', 'StaffRmController::geolocation');
+
+    // Report management routes
+    $routes->get('reports', 'StaffRmController::Report');
 });
 
 

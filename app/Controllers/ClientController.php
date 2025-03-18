@@ -6,6 +6,7 @@ use App\Models\UserModel;
 use App\Models\TruckModel;
 use App\Models\DriverModel;
 use App\Models\BookingModel;
+use App\Models\ReportModel;
 use CodeIgniter\Controller;
 use Config\Services;
 
@@ -26,6 +27,7 @@ class ClientController extends BaseController
         
         $this->userModel    = new UserModel();
         $this->bookingModel = new BookingModel();
+        $this->reportModel = new ReportModel();
     }
 
     public function dashboard()
@@ -280,9 +282,101 @@ class ClientController extends BaseController
         return view('client/geolocation', ['drivers' => $clientDrivers]);
     }
 
+   /**
+     * Display the report form.
+     * Also fetch the client's bookings from Firebase to populate the Booking ID dropdown.
+     */
     public function report()
     {
-        return view('client/report');
+        $session = session();
+        $clientKey = $session->get('firebaseKey');
+        
+        // Get Firebase Realtime Database instance
+        $db = Services::firebase();
+        $bookingsRef = $db->getReference('Bookings');
+        $snapshot = $bookingsRef->getSnapshot();
+        $allBookings = $snapshot->getValue() ?? [];
+
+        // Filter bookings for this client (assuming 'client_id' matches the session key)
+        $clientBookings = [];
+        if (is_array($allBookings)) {
+            foreach ($allBookings as $booking) {
+                if (is_array($booking) && isset($booking['client_id']) && $booking['client_id'] === $clientKey) {
+                    $clientBookings[] = $booking;
+                }
+            }
+        }
+
+        // Pass bookings to the view for the dropdown
+        return view('client/report', ['bookings' => $clientBookings]);
+    }
+
+    /**
+     * Process the report form submission.
+     * Upload the report image to Firebase Storage and store report data in Firebase Realtime Database.
+     */
+    public function storeReport()
+    {
+        $session = session();
+        $clientKey = $session->get('firebaseKey');
+
+        // Retrieve form inputs
+        $bookingId  = $this->request->getPost('booking_id');
+        $reportType = $this->request->getPost('report_type'); // "Delivery Report" or "Discrepancy Report"
+        $file       = $this->request->getFile('report_image');
+
+        // Validate inputs
+        if (empty($bookingId) || empty($reportType) || !$file || !$file->isValid()) {
+            $session->setFlashdata('error', 'All fields are required and a valid image must be uploaded.');
+            return redirect()->to(base_url('client/report'));
+        }
+
+        // Prepare initial report data (without img_url)
+        $data = [
+            'report_type' => $reportType,
+            'booking_id'  => $bookingId,
+            'user_id'     => $clientKey,
+        ];
+
+        // Insert the report record to generate a new report number and date
+        $reportNumber = $this->reportModel->insertReport($data);
+
+        // Build the file name using the report number and report type.
+        // Normalize report type (e.g., "Delivery Report" becomes "Delivery_Report")
+        $extension = $file->getClientExtension();
+        $normalizedType = str_replace(' ', '_', $reportType);
+        $newName = $reportNumber . '_' . $normalizedType . '.' . $extension;
+
+        // Move the file temporarily to a local directory
+        $file->move(WRITEPATH . 'uploads/', $newName);
+        $localPath = WRITEPATH . 'uploads/' . $newName;
+
+        // Get Firebase Storage instance and bucket
+        $storage = \Config\Services::firebaseStorage();
+        $bucketName = env('FIREBASE_STORAGE_BUCKET'); // e.g., "gistikat.firebasestorage.app"
+        $bucket = $storage->getBucket($bucketName);
+
+        // Upload the file to the "report_images" folder in Firebase Storage
+        $object = $bucket->upload(
+            fopen($localPath, 'r'),
+            ['name' => 'report_images/' . $newName]
+        );
+
+        // Build the public URL for the uploaded image
+        $imgUrl = sprintf(
+            'https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media',
+            $bucket->name(),
+            urlencode($object->name())
+        );
+
+        // Update the report record with the image URL
+        $this->reportModel->updateReport($reportNumber, ['img_url' => $imgUrl]);
+
+        // Delete the temporary file
+        unlink($localPath);
+
+        $session->setFlashdata('success', 'Report ' . $reportNumber . ' created successfully.');
+        return redirect()->to(base_url('client/report'));
     }
 
     public function Faq()

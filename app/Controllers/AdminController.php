@@ -8,6 +8,7 @@ use App\Models\DriverModel;
 use App\Models\BookingModel;
 use App\Models\ClientManagementModel;
 use CodeIgniter\Controller;
+use Config\Services;
 use DateTime;
 use DateInterval;
 
@@ -719,9 +720,23 @@ class AdminController extends Controller
     
     public function Report()
     {
-        // Here you can gather any reports data or analytics if needed.
-        // For now, we simply load the view.
-        return view('admin/reports_management');
+        // Get Firebase Realtime Database instance
+        $db = Services::firebase();
+        
+        // Get a reference to the "Reports" node
+        $reportsRef = $db->getReference('Reports');
+        $snapshot = $reportsRef->getSnapshot();
+        
+        // Get the reports as an associative array (or an empty array if none)
+        $reports = $snapshot->getValue() ?? [];
+        
+        // Optionally, sort the reports naturally by report number (keys like "R000001")
+        uksort($reports, function($a, $b) {
+            return strnatcmp($a, $b);
+        });
+        
+        // Pass the reports data to the view
+        return view('admin/reports_management', ['reports' => $reports]);
     }
 
 
