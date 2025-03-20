@@ -96,6 +96,12 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->post('update-booking-status', 'AdminController::updateBookingStatus');
 });
 
+// Operations Coordinator routes
+$routes->group('operations', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('bookings', 'StaffOcController::bookings');
+    $routes->post('update-booking-status', 'StaffOcController::updateBookingStatus');
+});
+
 
 // Admin Routes
 
@@ -177,6 +183,7 @@ $routes->group('operations', function($routes) {
     // Booking management routes
     $routes->get('bookings', 'StaffOcController::bookings');
     $routes->get('bookings/view/(:segment)', 'StaffOcController::viewBooking/$1');
+
 
     // Report management routes
     $routes->get('reports', 'StaffOcController::Report');

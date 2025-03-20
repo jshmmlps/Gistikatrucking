@@ -305,7 +305,7 @@ class AdminController extends Controller
     public function create()
     {
         if ($this->request->getMethod() === 'POST') {
-            
+
             // Capture the password fields
             $plainPassword   = $this->request->getPost('password');
             $confirmPassword = $this->request->getPost('confirm_password');
@@ -313,11 +313,11 @@ class AdminController extends Controller
             // Check if they match
             if ($plainPassword !== $confirmPassword) {
                 session()->setFlashdata('error', 'Passwords do not match!');
-                return redirect()->back(); // or redirect to the same page
+                return redirect()->back();
             }
 
-            // Prepare the data
-            $data = [
+            // Prepare the user data for the Users node
+            $userData = [
                 'first_name'      => $this->request->getPost('first_name'),
                 'last_name'       => $this->request->getPost('last_name'),
                 'email'           => $this->request->getPost('email'),
@@ -332,18 +332,56 @@ class AdminController extends Controller
                 'password'        => password_hash($plainPassword, PASSWORD_BCRYPT),
             ];
 
-            // Call the model to create user
-            $this->userModel->createUser($data);
+            // Create the user record (assume createUser() returns the new user key, e.g., "User30")
+            $userKey = $this->userModel->createUser($userData);
 
-            // Redirect back
+            // If the user is a driver or conductor, create a corresponding driver record
+            $userLevel = $this->request->getPost('user_level');
+            if ($userLevel === 'driver' || $userLevel === 'conductor') {
+
+                // Get the Firebase DB service
+                $firebaseDb = \Config\Services::firebase(false);
+                // Retrieve all drivers to determine the next sequential driver number
+                $driversSnapshot = $firebaseDb->getReference('Drivers')->getSnapshot();
+                $driversArray = $driversSnapshot->getValue();
+                $nextDriverNumber = is_array($driversArray) ? count($driversArray) + 1 : 1;
+                $driverKey = 'Driver' . $nextDriverNumber; // e.g., "Driver1", "Driver2", etc.
+
+                // Prepare the driver record with the old structure and additional fields
+                $driverData = [
+                    'birthday'           => $this->request->getPost('birthday'),
+                    'contact_number'     => $this->request->getPost('contact_number'),
+                    'date_of_employment' => $this->request->getPost('date_of_employment'),
+                    'driver_id'          => $driverKey,
+                    'employee_id'        => $this->request->getPost('employee_id'),
+                    'first_name'         => $this->request->getPost('first_name'),
+                    'home_address'       => $this->request->getPost('address'), // using address as home_address
+                    'last_name'          => $this->request->getPost('last_name'),
+                    'license_expiry'     => $this->request->getPost('license_expiry'),
+                    'license_number'     => $this->request->getPost('license_number'),
+                    'medical_record'     => $this->request->getPost('medical_record'),
+                    'position'           => $userLevel,  // "driver" or "conductor"
+                    'trips_completed'    => $this->request->getPost('trips_completed'),
+                    'truck_assigned'     => "", // blank since truck assignment is handled separately
+
+                    // Additional fields:
+                    'email'              => $this->request->getPost('email'),
+                    'last_lng'           => "",
+                    'last_lat'           => "",
+
+                    'user_id'            => $userKey, // reference to the Users node key
+                ];
+
+                // Create the driver record using the generated driverKey
+                $firebaseDb->getReference('Drivers/' . $driverKey)->set($driverData);
+            }
+
             session()->setFlashdata('message', 'User created successfully!');
             return redirect()->to(base_url('admin/users'));
         }
 
-        // If not a POST request, just redirect
         return redirect()->to(base_url('admin/users'));
     }
-
 
     /**
      * Edit user (Process the POST request from the modal).
@@ -351,7 +389,8 @@ class AdminController extends Controller
     public function edit($userKey)
     {
         if ($this->request->getMethod() === 'POST') {
-            $data = [
+            // Prepare the updated user data
+            $userData = [
                 'first_name'      => $this->request->getPost('first_name'),
                 'last_name'       => $this->request->getPost('last_name'),
                 'email'           => $this->request->getPost('email'),
@@ -364,16 +403,78 @@ class AdminController extends Controller
                 'address_dropoff' => $this->request->getPost('address_dropoff'),
             ];
 
-            // Update user
-            $this->userModel->updateUser($userKey, $data);
+            // Update the user record in the Users node
+            $this->userModel->updateUser($userKey, $userData);
+
+            // Determine if the user should have a driver record
+            $userLevel = $this->request->getPost('user_level');
+            $firebaseDb = \Config\Services::firebase(false);
+
+            if ($userLevel === 'driver' || $userLevel === 'conductor') {
+
+                // Try to find an existing driver record for this user by searching for matching user_id
+                $driverRef = $firebaseDb->getReference('Drivers');
+                $query = $driverRef->orderByChild('user_id')->equalTo($userKey);
+                $snapshot = $query->getSnapshot();
+                $driverRecord = $snapshot->getValue();
+                if ($driverRecord) {
+                    // Retrieve the existing driver key (e.g., "Driver8")
+                    $driverKey = array_key_first($driverRecord);
+                } else {
+                    // No driver record exists, so generate a new driver key
+                    $driversSnapshot = $firebaseDb->getReference('Drivers')->getSnapshot();
+                    $driversArray = $driversSnapshot->getValue();
+                    $nextDriverNumber = is_array($driversArray) ? count($driversArray) + 1 : 1;
+                    $driverKey = 'Driver' . $nextDriverNumber;
+                }
+                
+                // Prepare updated driver data following the old structure with additional fields
+                $driverData = [
+                    'birthday'           => $this->request->getPost('birthday'),
+                    'contact_number'     => $this->request->getPost('contact_number'),
+                    'date_of_employment' => $this->request->getPost('date_of_employment'),
+                    'driver_id'          => $driverKey,
+                    'employee_id'        => $this->request->getPost('employee_id'),
+                    'first_name'         => $this->request->getPost('first_name'),
+                    'home_address'       => $this->request->getPost('address'),
+                    'last_name'          => $this->request->getPost('last_name'),
+                    'license_expiry'     => $this->request->getPost('license_expiry'),
+                    'license_number'     => $this->request->getPost('license_number'),
+                    'medical_record'     => $this->request->getPost('medical_record'),
+                    'position'           => $userLevel,
+                    'trips_completed'    => $this->request->getPost('trips_completed'),
+                    'truck_assigned'     => "", // remains blank
+
+                    // Additional fields:
+                    'email'              => $this->request->getPost('email'),
+                    'last_lng'           => "",
+                    'last_lat'           => "",
+
+                    'user_id'            => $userKey,
+                ];
+
+                // Update (or create) the driver record using the driverKey
+                $firebaseDb->getReference('Drivers/' . $driverKey)->set($driverData);
+            } else {
+                // If the user is no longer a driver or conductor, remove any corresponding driver record
+                $driverRef = $firebaseDb->getReference('Drivers');
+                $query = $driverRef->orderByChild('user_id')->equalTo($userKey);
+                $snapshot = $query->getSnapshot();
+                $driverRecord = $snapshot->getValue();
+                if ($driverRecord) {
+                    $driverKey = array_key_first($driverRecord);
+                    $firebaseDb->getReference('Drivers/' . $driverKey)->remove();
+                }
+            }
 
             session()->setFlashdata('message', 'User updated successfully!');
             return redirect()->to(base_url('admin/users'));
         }
 
-        // If GET, you might load the user and show an edit page or return 404
         return redirect()->to(base_url('admin/users'));
     }
+
+
 
     /**
      * Delete user (Process the POST request from the modal).
@@ -486,28 +587,29 @@ class AdminController extends Controller
     }
 
 
-
     // ============== DRIVER MANAGEMENT MODULE ===================  //
 
-   /**
+    /**
      * Display the Driver/Conductor management page.
      * - Fetch all driver records.
      * - Fetch eligible users (with user_level "driver" or "conductor") not already assigned.
      * - Compute available trucks separately for drivers and conductors.
+     * - Also pass all trucks for display purposes.
      */
     public function driverManagement()
     {
-        $driverModel = new DriverModel();
+        $driverModel = new \App\Models\DriverModel();
         $data['drivers'] = $driverModel->getDrivers();
 
         // Get eligible users from the Users collection.
-        $userModel = new UserModel();
+        $userModel = new \App\Models\UserModel();
         $allEligibleUsers = $userModel->getEligibleUsers();
         
         // Remove users already assigned in the Drivers collection (assuming driver record stores 'user_id').
         if (!empty($data['drivers'])) {
             foreach ($data['drivers'] as $driver) {
-                if (isset($driver['user_id'])) {
+                // Remove only if a truck has already been assigned
+                if (isset($driver['user_id']) && !empty($driver['truck_assigned'])) {
                     unset($allEligibleUsers[$driver['user_id']]);
                 }
             }
@@ -515,10 +617,11 @@ class AdminController extends Controller
         $data['eligibleUsers'] = $allEligibleUsers;
 
         // Get all trucks from the Trucks collection.
-        $truckModel = new TruckModel();
+        $truckModel = new \App\Models\TruckModel();
         $allTrucks = $truckModel->getTrucks();
+        $data['allTrucks'] = $allTrucks; // pass complete trucks list for lookup in the view
 
-        // Initialize available trucks arrays for driver and conductor.
+        // Compute available trucks arrays for driver and conductor.
         $availableTrucksForDriver = $allTrucks;
         $availableTrucksForConductor = $allTrucks;
 
@@ -543,67 +646,120 @@ class AdminController extends Controller
 
         return view('admin/driver_management', $data);
     }
-    
+
     /**
-     * Create a new Driver/Conductor record.
-     * Validations are applied to required fields, dates, trips count, and uniqueness constraints.
+     * Assign Truck to a Driver/Conductor.
+     * Instead of creating a driver record with all fields, we simply
+     * create (or update) the record by assigning a truck to an eligible user.
      */
     public function createDriver()
     {
         if ($this->request->getMethod() == 'POST') {
-            // Retrieve POST data
-            $user_id            = $this->request->getPost('user_id'); // Selected eligible user
-            $employee_id        = $this->request->getPost('employee_id');
-            $date_of_employment = $this->request->getPost('date_of_employment');
-            $truck_assigned     = $this->request->getPost('truck_assigned');
-            $license_number     = $this->request->getPost('license_number');
-            $license_expiry     = $this->request->getPost('license_expiry');
-            $medical_record     = $this->request->getPost('medical_record'); // Optional
-            $trips_completed    = $this->request->getPost('trips_completed');
+            // Retrieve POST data: selected user and truck
+            $user_id        = $this->request->getPost('user_id'); 
+            $truck_assigned = $this->request->getPost('truck_assigned');
 
-            // Validate that all required fields are provided (except medical_record)
-            if (empty($user_id) || empty($employee_id) || empty($date_of_employment) || empty($truck_assigned) || empty($license_number) || empty($license_expiry) || $trips_completed === '' || $trips_completed === null) {
-                return redirect()->to(base_url('admin/driver'))->with('error', 'All fields except Medical Record are required.');
-            }
-
-            $today = date('Y-m-d');
-            // Validate date_of_employment should not exceed today
-            if ($date_of_employment > $today) {
-                return redirect()->to(base_url('admin/driver'))->with('error', 'Date of Employment cannot exceed today.');
-            }
-            // Validate license_expiry should be today or in the future
-            if ($license_expiry < $today) {
-                return redirect()->to(base_url('admin/driver'))->with('error', 'License Expiry must be today or later.');
-            }
-            // Validate trips_completed is not less than 0
-            if ($trips_completed < 0) {
-                return redirect()->to(base_url('admin/driver'))->with('error', 'Trips Completed cannot be less than 0.');
-            }
-
-            // Retrieve the user details from the Users collection.
-            $userModel = new UserModel();
-            $user = $userModel->getUser($user_id);
-            if (!$user) {
-                return redirect()->to(base_url('admin/driver'))->with('error', 'User not found.');
+            if (empty($user_id) || empty($truck_assigned)) {
+                return redirect()->to(base_url('admin/driver'))
+                                ->with('error', 'Both User and Truck must be selected.');
             }
             
-            // Determine the user's position (driver or conductor)
+            // Retrieve user details from Users collection.
+            $userModel = new \App\Models\UserModel();
+            $user = $userModel->getUser($user_id);
+            if (!$user) {
+                return redirect()->to(base_url('admin/driver'))
+                                ->with('error', 'User not found.');
+            }
+            
             $user_position = strtolower($user['user_level']);
-
-            // Initialize DriverModel and fetch existing driver records.
-            $driverModel = new DriverModel();
+            
+            // Check if the selected truck is already assigned for this position.
+            $driverModel = new \App\Models\DriverModel();
             $existingDrivers = $driverModel->getDrivers();
             if ($existingDrivers) {
                 foreach ($existingDrivers as $driver) {
-                    if (isset($driver['employee_id']) && $driver['employee_id'] === $employee_id) {
-                        return redirect()->to(base_url('admin/driver'))->with('error', 'Employee ID already exists.');
+                    if (isset($driver['truck_assigned']) && 
+                        $driver['truck_assigned'] === $truck_assigned &&
+                        isset($driver['position']) && strtolower($driver['position']) === $user_position) {
+                        return redirect()->to(base_url('admin/driver'))
+                                        ->with('error', 'This truck is already assigned to a ' . ucfirst($user_position) . '.');
                     }
-                    if (isset($driver['license_number']) && $driver['license_number'] === $license_number) {
-                        return redirect()->to(base_url('admin/driver'))->with('error', 'License Number already exists.');
+                }
+            }
+            
+            // Check if a driver record already exists for this user.
+            $existingDriverKey = null;
+            if ($existingDrivers) {
+                foreach ($existingDrivers as $key => $driver) {
+                    if (isset($driver['user_id']) && $driver['user_id'] == $user_id) {
+                        $existingDriverKey = $key;
+                        break;
                     }
+                }
+            }
+            
+            if ($existingDriverKey) {
+                // Update the existing driver record with the new truck assignment.
+                $driverModel->updateDriver($existingDriverKey, ['truck_assigned' => $truck_assigned]);
+                $driverId = $existingDriverKey;
+            } else {
+                // Merge user details with the truck assignment to create a new record.
+                $data = [
+                    'user_id'         => $user_id,
+                    'first_name'      => $user['first_name'],
+                    'last_name'       => $user['last_name'],
+                    'contact_number'  => $user['contact_number'],
+                    'position'        => $user['user_level'], // driver or conductor
+                    'home_address'    => $user['address'],
+                    'birthday'        => $user['birthday'],
+                    'email'           => $user['email'],
+                    'truck_assigned'  => $truck_assigned,
+                    // Optionally set defaults for other fields:
+                    'employee_id'        => '',
+                    'date_of_employment' => date('Y-m-d'),
+                    'license_number'     => '',
+                    'license_expiry'     => '',
+                    'medical_record'     => '',
+                    'trips_completed'    => 0,
+                ];
+                $driverId = $driverModel->insertDriver($data);
+            }
+
+            return redirect()->to(base_url('admin/driver'))
+                            ->with('success', 'Truck assignment updated successfully. Driver ID: ' . $driverId);
+        }
+        return redirect()->to(base_url('admin/driver'))->with('error', 'Invalid request.');
+    }
+
+
+    /**
+     * Update an existing Driver/Conductor record.
+     * Now, only the truck assignment is updated.
+     */
+    public function updateDriver($driverId)
+    {
+        if ($this->request->getMethod() == 'POST') {
+            $truck_assigned = $this->request->getPost('truck_assigned');
+            if (empty($truck_assigned)) {
+                return redirect()->to(base_url('admin/driver'))->with('error', 'Truck must be selected.');
+            }
+
+            // Optional: enforce uniqueness of truck assignment.
+            $driverModel = new \App\Models\DriverModel();
+            $existingDrivers = $driverModel->getDrivers();
+            // First, retrieve the record being updated to know its position.
+            $currentDriver = $driverModel->getDriver($driverId);
+            if (!$currentDriver) {
+                return redirect()->to(base_url('admin/driver'))->with('error', 'Driver record not found.');
+            }
+            $user_position = strtolower($currentDriver['position']);
+            if ($existingDrivers) {
+                foreach ($existingDrivers as $id => $driver) {
+                    if ($id == $driverId) continue; // skip current record
                     if (
                         isset($driver['truck_assigned']) && 
-                        $driver['truck_assigned'] === $truck_assigned && 
+                        $driver['truck_assigned'] === $truck_assigned &&
                         isset($driver['position']) && strtolower($driver['position']) === $user_position
                     ) {
                         return redirect()->to(base_url('admin/driver'))->with('error', 'This truck is already assigned to a ' . ucfirst($user_position) . '.');
@@ -611,113 +767,36 @@ class AdminController extends Controller
                 }
             }
 
-            // Merge user details with additional form data.
             $data = [
-                'user_id'            => $user_id,
-                'first_name'         => $user['first_name'],
-                'last_name'          => $user['last_name'],
-                'contact_number'     => $user['contact_number'],
-                'position'           => $user['user_level'], // Using user_level as position
-                'home_address'       => $user['address'],
-                'birthday'           => $user['birthday'],
-                // Additional fields
-                'employee_id'        => $employee_id,
-                'date_of_employment' => $date_of_employment,
-                'truck_assigned'     => $truck_assigned,
-                'license_number'     => $license_number,
-                'license_expiry'     => $license_expiry,
-                'medical_record'     => $medical_record,
-                'trips_completed'    => $trips_completed,
+                'truck_assigned' => $truck_assigned
             ];
 
-            // Driver ID is auto-generated in the DriverModel to be unique.
-            $newDriverId = $driverModel->insertDriver($data);
-            return redirect()->to(base_url('admin/driver'))
-                             ->with('success', 'Driver/Conductor created successfully with ID: ' . $newDriverId);
-        }
-        return redirect()->to(base_url('admin/driver'))
-                         ->with('error', 'Invalid request.');
-    }
-    
-    /**
-     * Update an existing Driver/Conductor record.
-     */
-    public function updateDriver($driverId)
-    {
-        if ($this->request->getMethod() == 'POST') {
-            $data = [
-                'employee_id'        => $this->request->getPost('employee_id'),
-                'date_of_employment' => $this->request->getPost('date_of_employment'),
-                'truck_assigned'     => $this->request->getPost('truck_assigned'),
-                'license_number'     => $this->request->getPost('license_number'),
-                'license_expiry'     => $this->request->getPost('license_expiry'),
-                'medical_record'     => $this->request->getPost('medical_record'),
-                'trips_completed'    => $this->request->getPost('trips_completed'),
-            ];
-
-            // Validate required fields
-            if (empty($data['employee_id']) || empty($data['truck_assigned']) || empty($data['license_number']) || empty($data['license_expiry']) || $data['trips_completed'] === '' || $data['trips_completed'] === null) {
-                return redirect()->to(base_url('admin/driver'))->with('error', 'All required fields must be provided.');
-            }
-
-            $today = date('Y-m-d');
-            if ($data['date_of_employment'] > $today) {
-                return redirect()->to(base_url('admin/driver'))->with('error', 'Date of Employment cannot exceed today.');
-            }
-            if ($data['license_expiry'] < $today) {
-                return redirect()->to(base_url('admin/driver'))->with('error', 'License Expiry must be today or later.');
-            }
-            if ($data['trips_completed'] < 0) {
-                return redirect()->to(base_url('admin/driver'))->with('error', 'Trips Completed cannot be less than 0.');
-            }
-
-            // Fetch all drivers and enforce uniqueness for employee_id and license_number
-            $driverModel = new DriverModel();
-            $existingDrivers = $driverModel->getDrivers();
-            if ($existingDrivers) {
-                foreach ($existingDrivers as $id => $driver) {
-                    // Skip the driver being updated.
-                    if ($id == $driverId) {
-                        continue;
-                    }
-                    if (isset($driver['employee_id']) && $driver['employee_id'] === $data['employee_id']) {
-                        return redirect()->to(base_url('admin/driver'))->with('error', 'Employee ID already exists.');
-                    }
-                    if (isset($driver['license_number']) && $driver['license_number'] === $data['license_number']) {
-                        return redirect()->to(base_url('admin/driver'))->with('error', 'License Number already exists.');
-                    }
-                }
-            }
-
-            // If no uniqueness conflicts, perform the update.
             $driverModel->updateDriver($driverId, $data);
-            return redirect()->to(base_url('admin/driver'))
-                             ->with('success', 'Driver/Conductor updated successfully.');
+            return redirect()->to(base_url('admin/driver'))->with('success', 'Truck assignment updated successfully.');
         }
-        return redirect()->to(base_url('admin/driver'))
-                         ->with('error', 'Invalid request.');
+        return redirect()->to(base_url('admin/driver'))->with('error', 'Invalid request.');
     }
-    
+
     /**
      * Delete a Driver/Conductor record.
      */
     public function deleteDriver($driverId)
     {
-        $driverModel = new DriverModel();
+        $driverModel = new \App\Models\DriverModel();
         $driverModel->deleteDriver($driverId);
-        return redirect()->to(base_url('admin/driver'))
-                         ->with('success', 'Driver/Conductor deleted successfully.');
+        return redirect()->to(base_url('admin/driver'))->with('success', 'Driver/Conductor deleted successfully.');
     }
-    
+
     /**
      * View details of a specific Driver/Conductor.
      */
     public function viewDriver($driverId)
     {
-        $driverModel = new DriverModel();
+        $driverModel = new \App\Models\DriverModel();
         $data['driver'] = $driverModel->getDriver($driverId);
         return view('admin/driver_detail', $data);
     }
+
 
 
     // ============== BOOKING MODULE ===================  //

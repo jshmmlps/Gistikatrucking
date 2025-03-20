@@ -390,22 +390,22 @@ class StaffOcController extends Controller
         return view('operations_coordinator/bookings', $data);
     }
 
-    // Update booking status (approval/rejection)
     public function updateBookingStatus()
-        {
-            $bookingId  = $this->request->getPost('booking_id');
-            $status     = $this->request->getPost('status');     // e.g., "approved", "rejected", etc.
-            $distance   = $this->request->getPost('distance');   // New distance value
-            $driverId   = $this->request->getPost('driver');       // Selected driver id (if any)
-            $conductorId= $this->request->getPost('conductor');    // Selected conductor id (if any)
-            $truckId    = $this->request->getPost('truck_id');     // Hidden field updated via JS
+    {
+        $bookingId  = $this->request->getPost('booking_id');
+        $status     = $this->request->getPost('status');     // e.g., "approved", "rejected", etc.
+        $distance   = $this->request->getPost('distance');   // New distance value
+        $driverId   = $this->request->getPost('driver');     // Selected driver id (if any)
+        $conductorId= $this->request->getPost('conductor');  // Selected conductor id (if any)
+        $truckId    = $this->request->getPost('truck_id');   // Hidden field updated via JS
 
-            // Prepare the update data array
-            $updateData = [
-                'status'   => $status,
-                'distance' => $distance
-            ];
-            
+        // Prepare the update data array
+        $updateData = [
+            'status'   => $status,
+            'distance' => $distance
+        ];
+
+        try {
             // If a new driver is selected, lookup its full name from Firebase and update booking
             if (!empty($driverId)) {
                 $firebase    = service('firebase');
@@ -415,7 +415,7 @@ class StaffOcController extends Controller
                     $updateData['driver_name'] = $fullName;
                 }
             }
-            
+
             // Similarly for conductor
             if (!empty($conductorId)) {
                 $firebase      = service('firebase');
@@ -425,7 +425,7 @@ class StaffOcController extends Controller
                     $updateData['conductor_name'] = $fullName;
                 }
             }
-            
+
             // If a new truck id is provided (via driver selection), update truck details
             if (!empty($truckId)) {
                 $firebase  = service('firebase');
@@ -438,11 +438,24 @@ class StaffOcController extends Controller
                 }
             }
 
+            // Perform the update
             $bookingModel = new BookingModel();
-            $bookingModel->updateBooking($bookingId, $updateData);
-            
-            return redirect()->to(base_url('operations_coordinator/bookings'));
+            if ($bookingModel->updateBooking($bookingId, $updateData)) {
+                // Set success flash data
+                session()->setFlashdata('success', 'Booking updated successfully.');
+            } else {
+                // Set error flash data
+                session()->setFlashdata('error', 'Failed to update the booking.');
+            }
+        } catch (\Exception $e) {
+            // Catch any errors and set error flash data
+            session()->setFlashdata('error', 'An error occurred: ' . $e->getMessage());
         }
+
+        // Redirect back to the bookings page
+        return redirect()->to(base_url('operations/bookings'));
+    }
+
 
     // ================== GEOLOCATION MODULE ===================  //
 

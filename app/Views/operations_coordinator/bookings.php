@@ -65,7 +65,7 @@
                  aria-hidden="true">
               <div class="modal-dialog modal-md">
                 <div class="modal-content">
-                  <form action="<?= base_url('admin/update-booking-status') ?>" method="post" id="updateForm<?= esc($booking['booking_id'] ?? 'N/A') ?>">
+                  <form action="<?= base_url('operations/update-booking-status') ?>" method="post" id="updateForm<?= esc($booking['booking_id'] ?? 'N/A') ?>">
                     <?= csrf_field() ?>
                     <div class="modal-header">
                       <h5 class="modal-title text-center w-100" id="bookingModalLabel<?= esc($booking['booking_id'] ?? 'N/A') ?>">Booking Details (ID: <?= esc($booking['booking_id'] ?? 'N/A') ?>)</h5>

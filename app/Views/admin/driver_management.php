@@ -21,24 +21,23 @@
     
     <!-- Search Bar -->
     <div class="mb-3">
-        <input type="text" class="form-control" id="searchDriver" placeholder="Search by First or Last Name">
+        <input type="text" class="form-control" id="searchDriver" placeholder="Search by Name">
     </div>
     
-    <!-- Create Driver Button -->
+    <!-- Create (Assign Truck) Button -->
     <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createDriverModal">
-        Create Driver/Conductor
+        Assign Truck to Driver/Conductor
     </button>
     
     <!-- Drivers Table -->
     <table class="table table-bordered table-striped" id="driversTable">
         <thead>
             <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
+                <th>Name</th>
                 <th>Contact Number</th>
                 <th>Position</th>
-                <th>Home Address</th>
                 <th>Employee ID</th>
+                <th>Truck Assigned</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -46,18 +45,33 @@
             <?php if(!empty($drivers)): ?>
                 <?php foreach($drivers as $key => $driver): ?>
                     <tr>
-                        <td><?= esc($driver['first_name']) ?></td>
-                        <td><?= esc($driver['last_name']) ?></td>
+                        <td><?= esc($driver['first_name'] . ' ' . $driver['last_name']) ?></td>
                         <td><?= esc($driver['contact_number']) ?></td>
                         <td><?= esc($driver['position']) ?></td>
-                        <td><?= esc($driver['home_address']) ?></td>
                         <td><?= esc($driver['employee_id']) ?></td>
+                        <td>
+                            <?php 
+                                if(!empty($driver['truck_assigned'])):
+                                    // Look up truck details from allTrucks (passed from controller)
+                                    $truckInfo = '';
+                                    if(isset($allTrucks[$driver['truck_assigned']])) {
+                                        $truck = $allTrucks[$driver['truck_assigned']];
+                                        $truckInfo = $truck['truck_model'] . ' (' . $truck['plate_number'] . ')';
+                                    } else {
+                                        $truckInfo = $driver['truck_assigned'];
+                                    }
+                                    echo esc($truckInfo);
+                                else:
+                                    echo 'Not Assigned';
+                                endif;
+                            ?>
+                        </td>
                         <td>
                             <!-- View Button -->
                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewDriverModal<?= $key ?>">
                                 View
                             </button>
-                            <!-- Edit Button -->
+                            <!-- Edit Button (only truck assignment is editable) -->
                             <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editDriverModal<?= $key ?>">
                                 Edit
                             </button>
@@ -78,131 +92,78 @@
                           </div>
                           <div class="modal-body">
                             <div class="p-3 rounded-3 shadow-sm bg-light">
-                                <h6 class="fw-bold mb-3 text-primary">Driver Information</h6>
-                                <div class="d-flex flex-column gap-3">
-                                    <!-- Driver ID -->
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">Driver ID:</span>
-                                        <span class="text-muted"><?= esc($driver['driver_id']) ?></span>
-                                    </div>
-
-                                    <!-- Name -->
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">First Name:</span>
-                                        <span class="text-muted"><?= esc($driver['first_name']) ?></span>
-                                    </div>
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">Last Name:</span>
-                                        <span class="text-muted"><?= esc($driver['last_name']) ?></span>
-                                    </div>
-
-                                    <!-- Contact -->
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">Contact Number:</span>
-                                        <span class="text-muted"><?= esc($driver['contact_number']) ?></span>
-                                    </div>
-
-                                    <!-- Position and Home Address -->
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">Position:</span>
-                                        <span class="text-muted"><?= esc($driver['position']) ?></span>
-                                    </div>
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">Home Address:</span>
-                                        <span class="text-muted"><?= esc($driver['home_address']) ?></span>
-                                    </div>
-
-                                    <!-- Employee Info -->
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">Employee ID:</span>
-                                        <span class="text-muted"><?= esc($driver['employee_id']) ?></span>
-                                    </div>
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">Date of Employment:</span>
-                                        <span class="text-muted"><?= esc($driver['date_of_employment']) ?></span>
-                                    </div>
-
-                                    <!-- Truck Assignment -->
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">Truck Assigned:</span>
-                                        <span class="text-muted"><?= esc($driver['truck_assigned']) ?></span>
-                                    </div>
-
-                                    <!-- License Info -->
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">License Number:</span>
-                                        <span class="text-muted"><?= esc($driver['license_number']) ?></span>
-                                    </div>
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">License Expiry:</span>
-                                        <span class="text-muted"><?= esc($driver['license_expiry']) ?></span>
-                                    </div>
-
-                                    <!-- Personal Info -->
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">Birthday:</span>
-                                        <span class="text-muted"><?= esc($driver['birthday']) ?></span>
-                                    </div>
-                                    <div class="d-flex justify-content-between border-bottom pb-2">
-                                        <span class="fw-bold text-secondary">Medical Record:</span>
-                                        <span class="text-muted"><?= esc($driver['medical_record']) ?></span>
-                                    </div>
-
-                                    <!-- Performance Info -->
-                                    <div class="d-flex justify-content-between">
-                                        <span class="fw-bold text-secondary">Trips Completed:</span>
-                                        <span class="text-muted"><?= esc($driver['trips_completed']) ?></span>
-                                    </div>
+                                <!-- (Display details as desired; here we show truck assignment as well) -->
+                                <div class="d-flex justify-content-between border-bottom pb-2">
+                                    <span class="fw-bold text-secondary">Driver ID:</span>
+                                    <span class="text-muted"><?= esc($driver['driver_id']) ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between border-bottom pb-2">
+                                    <span class="fw-bold text-secondary">Name:</span>
+                                    <span class="text-muted"><?= esc($driver['first_name'] . ' ' . $driver['last_name']) ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between border-bottom pb-2">
+                                    <span class="fw-bold text-secondary">Contact Number:</span>
+                                    <span class="text-muted"><?= esc($driver['contact_number']) ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between border-bottom pb-2">
+                                    <span class="fw-bold text-secondary">Position:</span>
+                                    <span class="text-muted"><?= esc($driver['position']) ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between border-bottom pb-2">
+                                    <span class="fw-bold text-secondary">Employee ID:</span>
+                                    <span class="text-muted"><?= esc($driver['employee_id']) ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between border-bottom pb-2">
+                                    <span class="fw-bold text-secondary">Truck Assigned:</span>
+                                    <span class="text-muted">
+                                        <?php 
+                                            if(!empty($driver['truck_assigned'])):
+                                                if(isset($allTrucks[$driver['truck_assigned']])) {
+                                                    $truck = $allTrucks[$driver['truck_assigned']];
+                                                    echo esc($truck['truck_model'] . ' (' . $truck['plate_number'] . ')');
+                                                } else {
+                                                    echo esc($driver['truck_assigned']);
+                                                }
+                                            else:
+                                                echo 'Not Assigned';
+                                            endif;
+                                        ?>
+                                    </span>
                                 </div>
                             </div>
                           </div>
-
-              <!-- Modal Footer -->
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              </div>
-            </div>
-          </div>
-        </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     
-                    <!-- Edit Driver Modal -->
+                    <!-- Edit Driver Modal (only truck assignment editable) -->
                     <div class="modal fade" id="editDriverModal<?= $key ?>" tabindex="-1" aria-labelledby="editDriverModalLabel<?= $key ?>" aria-hidden="true">
-                      <div class="modal-dialog modal-lg">
+                      <div class="modal-dialog modal-md">
                         <div class="modal-content">
                           <form action="<?= base_url('admin/driver/update/' . $driver['driver_id']) ?>" method="POST">
                           <div class="modal-header">
-                            <h5 class="modal-title" id="editDriverModalLabel<?= $key ?>">Edit Driver/Conductor (<?= esc($driver['first_name'] . ' ' . $driver['last_name']) ?>)</h5>
+                            <h5 class="modal-title" id="editDriverModalLabel<?= $key ?>">Edit Truck Assignment for <?= esc($driver['first_name'] . ' ' . $driver['last_name']) ?></h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
                           <div class="modal-body">
-                            <!-- For edit, you may allow editing only additional fields -->
-                            <div class="mb-3">
-                                <label for="employee_id_<?= $key ?>" class="form-label">Employee ID</label>
-                                <input type="text" class="form-control" name="employee_id" id="employee_id_<?= $key ?>" value="<?= esc($driver['employee_id']) ?>" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="date_of_employment_<?= $key ?>" class="form-label">Date of Employment</label>
-                                <input type="date" class="form-control" name="date_of_employment" id="date_of_employment_<?= $key ?>" value="<?= esc($driver['date_of_employment']) ?>">
-                            </div>
                             <div class="mb-3">
                                 <label for="truck_assigned_<?= $key ?>" class="form-label">Truck Assigned</label>
-                                <input type="text" class="form-control" name="truck_assigned" id="truck_assigned_<?= $key ?>" value="<?= esc($driver['truck_assigned']) ?>">
-                            </div>
-                            <div class="mb-3">
-                                <label for="license_number_<?= $key ?>" class="form-label">License Number</label>
-                                <input type="text" class="form-control" name="license_number" id="license_number_<?= $key ?>" value="<?= esc($driver['license_number']) ?>">
-                            </div>
-                            <div class="mb-3">
-                                <label for="license_expiry_<?= $key ?>" class="form-label">License Expiry</label>
-                                <input type="date" class="form-control" name="license_expiry" id="license_expiry_<?= $key ?>" value="<?= esc($driver['license_expiry']) ?>">
-                            </div>
-                            <div class="mb-3">
-                                <label for="medical_record_<?= $key ?>" class="form-label">Medical Record</label>
-                                <textarea class="form-control" name="medical_record" id="medical_record_<?= $key ?>"><?= esc($driver['medical_record']) ?></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="trips_completed_<?= $key ?>" class="form-label">Trips Completed</label>
-                                <input type="number" class="form-control" name="trips_completed" id="trips_completed_<?= $key ?>" value="<?= esc($driver['trips_completed']) ?>">
+                                <select name="truck_assigned" id="truck_assigned_<?= $key ?>" class="form-select" required>
+                                    <option value="">-- Select Truck --</option>
+                                    <?php
+                                    // Determine the appropriate trucks array based on position.
+                                    $position = strtolower($driver['position']);
+                                    $trucksToUse = ($position === 'driver') ? $availableTrucksForDriver : $availableTrucksForConductor;
+                                    foreach($trucksToUse as $truck):
+                                    ?>
+                                        <option value="<?= esc($truck['truck_id']) ?>" <?= ($truck['truck_id'] == $driver['truck_assigned']) ? 'selected' : '' ?>>
+                                            <?= esc($truck['truck_model'] . ' (' . $truck['plate_number'] . ')') ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                           </div>
                           <div class="modal-footer">
@@ -235,19 +196,19 @@
                     
                 <?php endforeach; ?>
             <?php else: ?>
-                <tr><td colspan="7" class="text-center">No drivers found.</td></tr>
+                <tr><td colspan="6" class="text-center">No drivers found.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
 </div>
 
-<!-- Create Driver Modal -->
+<!-- Create (Assign Truck) Driver Modal -->
 <div class="modal fade" id="createDriverModal" tabindex="-1" aria-labelledby="createDriverModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-md">
     <div class="modal-content">
       <form action="<?= base_url('admin/driver/create') ?>" method="post">
         <div class="modal-header">
-          <h5 class="modal-title" id="createDriverModalLabel">Create New Driver/Conductor</h5>
+          <h5 class="modal-title" id="createDriverModalLabel">Assign Truck to Driver/Conductor</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -265,47 +226,17 @@
               <?php endif; ?>
             </select>
           </div>
-          <!-- Employee ID -->
-          <div class="mb-3">
-            <label for="employee_id" class="form-label">Employee ID</label>
-            <input type="text" class="form-control" name="employee_id" id="employee_id" required>
-          </div>
-          <!-- Date of Employment -->
-          <div class="mb-3">
-            <label for="date_of_employment" class="form-label">Date of Employment</label>
-            <input type="date" class="form-control" name="date_of_employment" id="date_of_employment" max="<?= date('Y-m-d') ?>">
-          </div>
           <!-- Truck selection dropdown -->
           <div class="mb-3">
             <label for="truck_assigned" class="form-label">Truck Assigned</label>
             <select name="truck_assigned" id="truck_assigned" class="form-select" required>
               <option value="">-- Select Truck --</option>
-              <!-- Options will be populated dynamically based on user selection -->
+              <!-- Options will be populated dynamically based on selected user -->
             </select>
-          </div>
-          <!-- License Number -->
-          <div class="mb-3">
-            <label for="license_number" class="form-label">License Number</label>
-            <input type="text" class="form-control" name="license_number" id="license_number" required>
-          </div>
-          <!-- License Expiry -->
-          <div class="mb-3">
-            <label for="license_expiry" class="form-label">License Expiry</label>
-            <input type="date" class="form-control" name="license_expiry" id="license_expiry" min="<?= date('Y-m-d') ?>" required>
-          </div>
-          <!-- Medical Record (optional) -->
-          <div class="mb-3">
-            <label for="medical_record" class="form-label">Medical Record</label>
-            <textarea class="form-control" name="medical_record" id="medical_record"></textarea>
-          </div>
-          <!-- Trips Completed -->
-          <div class="mb-3">
-            <label for="trips_completed" class="form-label">Trips Completed</label>
-            <input type="number" class="form-control" name="trips_completed" id="trips_completed" min="0" required>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Create Driver/Conductor</button>
+          <button type="submit" class="btn btn-primary">Assign Truck</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         </div>
       </form>
@@ -314,46 +245,43 @@
 </div>
 
 <script>
-    // Dynamically filter drivers by first or last name
+    // Search functionality
     document.getElementById('searchDriver').addEventListener('keyup', function() {
         var searchValue = this.value.toLowerCase();
         var rows = document.querySelectorAll('#driversTable tbody tr');
         rows.forEach(function(row) {
-            var firstName = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
-            var lastName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-            row.style.display = (firstName.indexOf(searchValue) > -1 || lastName.indexOf(searchValue) > -1) ? '' : 'none';
+            var name = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+            row.style.display = (name.indexOf(searchValue) > -1) ? '' : 'none';
         });
     });
 
-    // Available trucks arrays passed from the controller
+    // Populate truck dropdown in Create Modal based on selected user's position.
+    // Available trucks arrays for driver and conductor are passed from controller.
     var availableTrucksForDriver = <?= json_encode($availableTrucksForDriver) ?>;
     var availableTrucksForConductor = <?= json_encode($availableTrucksForConductor) ?>;
 
     document.getElementById('user_id').addEventListener('change', function() {
         var selectedOption = this.options[this.selectedIndex];
-        var userLevel = selectedOption.getAttribute('data-user-level'); // driver or conductor
+        var userLevel = selectedOption.getAttribute('data-user-level'); // "driver" or "conductor"
         var truckSelect = document.getElementById('truck_assigned');
         
         // Reset the truck dropdown
         truckSelect.innerHTML = '<option value="">-- Select Truck --</option>';
 
-        // Choose the appropriate trucks array based on user level
+        // Choose the appropriate trucks array based on user level.
         var trucksToUse = (userLevel === 'driver') ? availableTrucksForDriver : availableTrucksForConductor;
 
-        // Loop over trucksToUse and create options
         for (var key in trucksToUse) {
-        if (trucksToUse.hasOwnProperty(key)) {
-            var truck = trucksToUse[key];
-            // Assume each truck object includes truck_id, truck_model, and plate_number
-            var optionText = truck.truck_model + ' (' + truck.plate_number + ')';
-            var option = document.createElement('option');
-            option.value = truck.truck_id;
-            option.text = optionText;
-            truckSelect.appendChild(option);
-        }
+            if (trucksToUse.hasOwnProperty(key)) {
+                var truck = trucksToUse[key];
+                var optionText = truck.truck_model + ' (' + truck.plate_number + ')';
+                var option = document.createElement('option');
+                option.value = truck.truck_id;
+                option.text = optionText;
+                truckSelect.appendChild(option);
+            }
         }
     });
 </script>
 
-<script src="<?= base_url('assets/js/script.js') ?>"></script>
 <?= $this->endSection() ?>

@@ -191,29 +191,6 @@ class ClientController extends BaseController
     }
 
 
-
-    // Process the create booking form submission
-    // public function storeBooking()
-    // {
-    //     $session  = session();
-    //     $clientId = $session->get('user_id'); // get user_id here in the controller
-    
-    //     $data = $this->request->getPost();
-    //     // Tag your booking with the client ID
-    //     $data['client_id'] = $clientId;
-    
-    //     // Now pass $data to the model
-    //     $bookingId = $this->bookingModel->createBooking($data);
-
-    //     $session->setFlashdata('success', 'Booking created with ID: ' . $bookingId);
-    //     return redirect()->to(base_url('client/bookings'));
-    // }
-
-    // public function profile()
-    // {
-    //     return view('client/profile');
-    // }
-
    /**
      * Display the geolocation page showing the drivers (with bookings)
      * that are assigned to approved/in-transit bookings for the current client.
@@ -221,19 +198,17 @@ class ClientController extends BaseController
     public function geolocation()
     {
         $session = session();
-        // Assuming the client's Firebase key is stored in session (e.g., "User6")
+        // e.g., the session might store "User6" for the client
         $clientKey = $session->get('firebaseKey');
         
-        // Get Firebase Realtime Database instance
+        // 1. Get Firebase DB data
         $db = Services::firebase();
         $bookingsRef = $db->getReference('Bookings');
         $snapshot = $bookingsRef->getSnapshot();
         $allBookings = $snapshot->getValue() ?? [];
 
-        // Define allowed statuses (adjust as needed)
+        // 2. Filter bookings by this client + allowed statuses
         $allowedStatuses = ['approved', 'in-transit', 'accepted'];
-
-        // Filter bookings for this client that have an allowed status
         $clientBookings = [];
         foreach ($allBookings as $booking) {
             if (!is_array($booking)) {
@@ -248,39 +223,43 @@ class ClientController extends BaseController
             }
         }
 
-        // Group bookings by driver name (normalized)
+        // 3. Group those bookings by normalized driver name
         $driverBookings = [];
         foreach ($clientBookings as $booking) {
-            $driverName = strtolower(trim($booking['driver_name'] ?? ''));
+            // Remove extra spaces, convert to lowercase
+            $driverName = strtolower(preg_replace('/\s+/', ' ', trim($booking['driver_name'] ?? '')));
             if (!empty($driverName)) {
-                // If multiple bookings exist for the same driver,
-                // you may decide to keep the latest or first; here, we keep the first occurrence.
+                // If multiple bookings exist for the same driver, keep the first
                 if (!isset($driverBookings[$driverName])) {
                     $driverBookings[$driverName] = $booking;
                 }
             }
         }
 
-        // Fetch all drivers from Firebase using DriverModel
+        // 4. Load all drivers; match them by normalized "first_name last_name"
         $driverModel = new DriverModel();
         $allDrivers = $driverModel->getDrivers();
 
-        // Filter drivers to include only those that appear in our driverBookings
         $clientDrivers = [];
         if ($allDrivers && is_array($allDrivers)) {
             foreach ($allDrivers as $driverId => $driver) {
-                // Build full name from the driver's record and normalize it
-                $fullName = strtolower(trim(($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '')));
+                // Also remove extra spaces here
+                $fullName = strtolower(preg_replace('/\s+/', ' ', trim(
+                    ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '')
+                )));
+
+                // If the driver's full name matches the booking's driver_name, attach the booking
                 if (isset($driverBookings[$fullName])) {
-                    // Attach booking details for later use in the view
                     $driver['booking'] = $driverBookings[$fullName];
                     $clientDrivers[$driverId] = $driver;
                 }
             }
         }
 
+        // 5. Send to the view
         return view('client/geolocation', ['drivers' => $clientDrivers]);
     }
+
 
    /**
      * Display the report form.
