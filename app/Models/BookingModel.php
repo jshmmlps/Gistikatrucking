@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace App\Models;
 
 use CodeIgniter\Model;
@@ -57,28 +57,28 @@ class BookingModel extends Model
         $data['booking_date'] = date('Y-m-d H:i:s');
         $data['status']       = 'pending';
 
-    
         // Auto-assign truck & driver if cargo_weight is set
         if (isset($data['cargo_weight'])) {
             $assignment = $this->assignTruckAndDriver($data['cargo_weight']);
             if (empty($assignment)) {
-                // Throw an exception if no truck with an assigned driver or conductor is available
+                // Throw an exception if no truck/driver match is found
                 throw new \RuntimeException('No available driver or conductors');
             }
             // Merge assignment data while preserving existing keys (e.g., client_id)
             $data = $data + $assignment;
         }
-    
+
         // Save booking into the "Bookings" node under booking_id
         $this->db->getReference('Bookings/' . $bookingId)->set($data);
-    
+
         return $bookingId;
     }
-    
+
     /**
      * Auto-assign a truck and its driver/conductor based on cargo weight.
-     * Excludes any trucks that are currently assigned to active (non-completed) bookings.
-     * Only returns a truck if it has at least a driver or a conductor assigned.
+     * Excludes trucks in current active (non-completed/rejected) bookings on the first pass.
+     * If none is found, it re-tries ignoring the concurrency restriction
+     * so the same truck can be used again.
      *
      * @param float|int $cargoWeight  The weight of the cargo to be transported.
      * @return array                  An associative array of assignment data, or empty if none found.
@@ -89,59 +89,87 @@ class BookingModel extends Model
         $trucksRef = $this->db->getReference('Trucks');
         $trucks    = $trucksRef->getValue();
 
-        // Get current active bookings to filter out trucks in use
+        // Get current bookings to figure out which trucks are in active use
         $bookingsRef = $this->db->getReference('Bookings');
         $bookings    = $bookingsRef->getValue();
 
+        // Collect IDs of trucks that are "in use" (not completed/rejected)
         $assignedTruckIds = [];
-        if ($bookings) {
+        if ($bookings && is_array($bookings)) {
             foreach ($bookings as $booking) {
-                // If booking is not completed/rejected, that truck is considered in use
-                if (isset($booking['truck_id']) && !in_array($booking['status'], ['rejected', 'completed'])) {
+                if (
+                    isset($booking['truck_id']) 
+                    && !in_array($booking['status'], ['rejected', 'completed'])
+                ) {
                     $assignedTruckIds[] = $booking['truck_id'];
                 }
             }
         }
 
-        // Try to find a truck that can handle the cargo weight, is not already assigned,
-        // and has at least a driver or conductor assigned.
+        // ------ First Pass: exclude trucks that are currently "in use" ------
+        $firstPass = $this->tryAssign($trucks, $assignedTruckIds, $cargoWeight, $excludeInUse = true);
+        if (!empty($firstPass)) {
+            return $firstPass;
+        }
+
+        // ------ Second Pass (Fallback): ignore the concurrency rule ------
+        // Let the same truck (already in use) be used again, if necessary
+        $secondPass = $this->tryAssign($trucks, $assignedTruckIds, $cargoWeight, $excludeInUse = false);
+        if (!empty($secondPass)) {
+            return $secondPass;
+        }
+
+        // Return empty if no suitable truck found even after fallback
+        return [];
+    }
+
+    /**
+     * Internal helper that loops through the trucks array, applying an optional "excludeInUse" filter,
+     * to see if we can find a truck that can handle the cargo weight and has at least one assigned driver or conductor.
+     */
+    protected function tryAssign($trucks, $assignedTruckIds, $cargoWeight, $excludeInUse)
+    {
         if ($trucks && is_array($trucks)) {
-            foreach ($trucks as $truckKey => $truck) {
+            foreach ($trucks as $truck) {
                 if (!isset($truck['truck_id'], $truck['load_capacity'])) {
-                    continue; // skip invalid truck entries
+                    continue; // skip invalid truck
                 }
 
-                if (
-                    $truck['load_capacity'] >= $cargoWeight 
-                    && !in_array($truck['truck_id'], $assignedTruckIds)
-                ) {
-                    // Get driver and conductor information for this truck
+                // If excluding in-use trucks, skip if truck is in assignedTruckIds
+                if ($excludeInUse && in_array($truck['truck_id'], $assignedTruckIds)) {
+                    continue;
+                }
+
+                // Check capacity
+                if ($truck['load_capacity'] >= $cargoWeight) {
+                    // Get assigned driver info
                     $driverInfo = $this->getDriverAndConductor($truck['truck_id']);
 
-                    // Ensure at least one is available (adjust this logic if both are required)
-                    if (!empty($driverInfo['driver']) || !empty($driverInfo['conductor'])) {
+                    // If we have at least a driver or conductor
+                    if (!empty($driverInfo['driver_name']) || !empty($driverInfo['conductor_name'])) {
                         return [
-                            'truck_id'       => $truck['truck_id'],
-                            'truck_model'    => $truck['truck_model']    ?? '',
-                            'license_plate'  => $truck['plate_number']   ?? '',
-                            'type_of_truck'  => $truck['truck_type']     ?? '',
-                            'driver_name'    => $driverInfo['driver']    ?? '',
-                            'conductor_name' => $driverInfo['conductor'] ?? ''
+                            'truck_id'        => $truck['truck_id'],
+                            'truck_model'     => $truck['truck_model']    ?? '',
+                            'license_plate'   => $truck['plate_number']   ?? '',
+                            'type_of_truck'   => $truck['truck_type']     ?? '',
+                            'driver_id'       => $driverInfo['driver_id']       ?? '',
+                            'driver_name'     => $driverInfo['driver_name']     ?? '',
+                            'conductor_id'    => $driverInfo['conductor_id']    ?? '',
+                            'conductor_name'  => $driverInfo['conductor_name']  ?? ''
                         ];
                     }
                 }
             }
         }
-
-        // Return empty array if no suitable truck is found.
+        // If no match found, return empty
         return [];
     }
 
     /**
      * Helper function to get the assigned driver and conductor for a given truck ID.
-     *
-     * @param string|int $truckId
-     * @return array  e.g. ['driver' => 'John Doe', 'conductor' => 'Jane Roe']
+     * 1) Checks if any driver/conductor has truck_assigned == $truckId.
+     * 2) If none, picks a random driver/conductor who has either no truck assigned or the same truck ID.
+     *    Returns both the name and the firebase key (as driver_id or conductor_id).
      */
     protected function getDriverAndConductor($truckId)
     {
@@ -149,22 +177,92 @@ class BookingModel extends Model
         $drivers    = $driversRef->getValue();
 
         $result = [
-            'driver'    => '',
-            'conductor' => ''
+            'driver_id'       => '',
+            'driver_name'     => '',
+            'conductor_id'    => '',
+            'conductor_name'  => ''
         ];
 
         if ($drivers && is_array($drivers)) {
+
+            //------------------------------------------
+            // 1) Check for driver/conductor on this truck
+            //------------------------------------------
             foreach ($drivers as $driverKey => $driverData) {
                 if (
-                    isset($driverData['truck_assigned'], $driverData['position']) 
-                    && $driverData['truck_assigned'] == $truckId
+                    isset($driverData['truck_assigned'], $driverData['position']) &&
+                    $driverData['truck_assigned'] === $truckId
                 ) {
                     $fullname = trim(($driverData['first_name'] ?? '') . ' ' . ($driverData['last_name'] ?? ''));
-                    if ($driverData['position'] === 'driver' && empty($result['driver'])) {
-                        $result['driver'] = $fullname;
-                    } elseif ($driverData['position'] === 'conductor' && empty($result['conductor'])) {
-                        $result['conductor'] = $fullname;
+                    $pos      = strtolower($driverData['position']);
+                    if ($pos === 'driver' && empty($result['driver_id'])) {
+                        $result['driver_id']   = $driverKey;
+                        $result['driver_name'] = $fullname;
+                    } elseif ($pos === 'conductor' && empty($result['conductor_id'])) {
+                        $result['conductor_id']   = $driverKey;
+                        $result['conductor_name'] = $fullname;
                     }
+                }
+            }
+
+            //------------------------------------------
+            // 2) If still missing a driver or conductor,
+            //    pick a random one who is either unassigned
+            //    or assigned to the same truck ID.
+            //------------------------------------------
+            if (empty($result['driver_id'])) {
+                $possibleDrivers = [];
+                foreach ($drivers as $key => $driverData) {
+                    if (
+                        isset($driverData['position']) &&
+                        strtolower($driverData['position']) === 'driver'
+                    ) {
+                        // If they're assigned to a different truck, skip
+                        if (
+                            !empty($driverData['truck_assigned']) &&
+                            $driverData['truck_assigned'] !== $truckId
+                        ) {
+                            continue;
+                        }
+                        $fullname = trim(($driverData['first_name'] ?? '') . ' ' . ($driverData['last_name'] ?? ''));
+                        $possibleDrivers[] = [
+                            'driver_key' => $key,
+                            'driver_name'=> $fullname
+                        ];
+                    }
+                }
+                if (!empty($possibleDrivers)) {
+                    $randomDriver = $possibleDrivers[array_rand($possibleDrivers)];
+                    $result['driver_id']   = $randomDriver['driver_key'];
+                    $result['driver_name'] = $randomDriver['driver_name'];
+                }
+            }
+
+            if (empty($result['conductor_id'])) {
+                $possibleConductors = [];
+                foreach ($drivers as $key => $driverData) {
+                    if (
+                        isset($driverData['position']) &&
+                        strtolower($driverData['position']) === 'conductor'
+                    ) {
+                        // Skip if assigned to a different truck
+                        if (
+                            !empty($driverData['truck_assigned']) &&
+                            $driverData['truck_assigned'] !== $truckId
+                        ) {
+                            continue;
+                        }
+                        $fullname = trim(($driverData['first_name'] ?? '') . ' ' . ($driverData['last_name'] ?? ''));
+                        $possibleConductors[] = [
+                            'cond_key'  => $key,
+                            'cond_name' => $fullname
+                        ];
+                    }
+                }
+                if (!empty($possibleConductors)) {
+                    $randomCond = $possibleConductors[array_rand($possibleConductors)];
+                    $result['conductor_id']   = $randomCond['cond_key'];
+                    $result['conductor_name'] = $randomCond['cond_name'];
                 }
             }
         }
@@ -187,15 +285,14 @@ class BookingModel extends Model
         if ($bookings && is_array($bookings)) {
             foreach ($bookings as $booking) {
                 if (
-                    is_array($booking) 
-                    && isset($booking['client_id']) 
+                    is_array($booking)
+                    && isset($booking['client_id'])
                     && $booking['client_id'] == $client_id
                 ) {
                     $results[] = $booking;
                 }
             }
         }
-
         return $results;
     }
 

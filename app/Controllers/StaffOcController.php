@@ -382,77 +382,146 @@ class StaffOcController extends Controller
 
 
     // ============== BOOKING MODULE ===================  //
+
     // List all bookings for review
     public function bookings()
     {
         $bookingModel = new BookingModel();
-        $data['bookings'] = $bookingModel->getAllBookings();
+        $data['bookings'] = $bookingModel->getAllBookings() ?? [];
+
+        // Load all drivers from Firebase
+        $firebase       = service('firebase');
+        $driversRef     = $firebase->getReference('Drivers');
+        $allDriversData = $driversRef->getValue() ?? [];
+
+        // We'll separate them into "drivers" and "conductors"
+        $driversList = [];
+        $conductorsList = [];
+        foreach ($allDriversData as $driverKey => $driverInfo) {
+            $pos = strtolower($driverInfo['position'] ?? '');
+            if ($pos === 'driver') {
+                $driversList[$driverKey] = $driverInfo;
+            } elseif ($pos === 'conductor') {
+                $conductorsList[$driverKey] = $driverInfo;
+            }
+        }
+
+        $data['driversList']    = $driversList;
+        $data['conductorsList'] = $conductorsList;
+
         return view('operations_coordinator/bookings', $data);
     }
 
+    // Update booking status (approval/rejection, etc.), or reassign driver/conductor
     public function updateBookingStatus()
     {
-        $bookingId  = $this->request->getPost('booking_id');
-        $status     = $this->request->getPost('status');     // e.g., "approved", "rejected", etc.
-        $distance   = $this->request->getPost('distance');   // New distance value
-        $driverId   = $this->request->getPost('driver');     // Selected driver id (if any)
-        $conductorId= $this->request->getPost('conductor');  // Selected conductor id (if any)
-        $truckId    = $this->request->getPost('truck_id');   // Hidden field updated via JS
+        $bookingId   = $this->request->getPost('booking_id');
+        $status      = $this->request->getPost('status');     // e.g., "approved", "rejected", etc.
+        $distance    = $this->request->getPost('distance');   // new distance value
+        $driverId    = $this->request->getPost('driver');     // selected driver key
+        $conductorId = $this->request->getPost('conductor');  // selected conductor key
+        $truckId     = $this->request->getPost('truck_id');   // hidden field in the form
 
-        // Prepare the update data array
         $updateData = [
             'status'   => $status,
-            'distance' => $distance
+            'distance' => $distance,
         ];
 
-        try {
-            // If a new driver is selected, lookup its full name from Firebase and update booking
-            if (!empty($driverId)) {
-                $firebase    = service('firebase');
-                $driverData  = $firebase->getReference('Drivers/' . $driverId)->getValue();
-                if ($driverData) {
-                    $fullName = trim(($driverData['first_name'] ?? '') . ' ' . ($driverData['last_name'] ?? ''));
-                    $updateData['driver_name'] = $fullName;
+        $bookingModel = new BookingModel();
+        $allBookings  = $bookingModel->getAllBookings(); // to detect conflicts
+
+        $firebase     = service('firebase');
+        $driversRef   = $firebase->getReference('Drivers');
+
+        // 1) If a new driver is selected, check for conflict
+        if (!empty($driverId)) {
+            if ($allBookings && is_array($allBookings)) {
+                foreach ($allBookings as $b) {
+                    if (!is_array($b)) continue; // skip invalid
+                    // if booking has driver_id == $driverId and status is active
+                    if (
+                        isset($b['driver_id']) && 
+                        $b['driver_id'] === $driverId && 
+                        !in_array($b['status'], ['completed','rejected'])
+                    ) {
+                        // conflict
+                        session()->setFlashdata('error', 'Driver is currently assigned to an ongoing booking (#'.$b['booking_id'].').');
+                        return redirect()->to(base_url('operations/bookings'));
+                    }
                 }
             }
 
-            // Similarly for conductor
-            if (!empty($conductorId)) {
-                $firebase      = service('firebase');
-                $conductorData = $firebase->getReference('Drivers/' . $conductorId)->getValue();
-                if ($conductorData) {
-                    $fullName = trim(($conductorData['first_name'] ?? '') . ' ' . ($conductorData['last_name'] ?? ''));
-                    $updateData['conductor_name'] = $fullName;
+            // If no conflict, fetch driver data
+            $driverData = $driversRef->getChild($driverId)->getValue();
+            if ($driverData) {
+                $fullName = trim(($driverData['first_name'] ?? '').' '.($driverData['last_name'] ?? ''));
+                $updateData['driver_name'] = $fullName;
+                $updateData['driver_id']   = $driverId;
+
+                // see which truck they are assigned to
+                if (!empty($driverData['truck_assigned'])) {
+                    $newTruckId = $driverData['truck_assigned'];
+                    $truckData  = $firebase->getReference('Trucks/'.$newTruckId)->getValue();
+                    if ($truckData) {
+                        $updateData['truck_id']      = $truckData['truck_id']       ?? $newTruckId;
+                        $updateData['truck_model']   = $truckData['truck_model']     ?? '';
+                        $updateData['license_plate'] = $truckData['plate_number']    ?? '';
+                        $updateData['type_of_truck'] = $truckData['truck_type']      ?? '';
+                    }
                 }
             }
-
-            // If a new truck id is provided (via driver selection), update truck details
-            if (!empty($truckId)) {
-                $firebase  = service('firebase');
-                $truckData = $firebase->getReference('Trucks/' . $truckId)->getValue();
-                if ($truckData) {
-                    $updateData['truck_id']       = $truckData['truck_id'] ?? $truckId;
-                    $updateData['truck_model']    = $truckData['truck_model'] ?? '';
-                    $updateData['license_plate']  = $truckData['plate_number'] ?? '';
-                    $updateData['type_of_truck']  = $truckData['truck_type'] ?? '';
-                }
-            }
-
-            // Perform the update
-            $bookingModel = new BookingModel();
-            if ($bookingModel->updateBooking($bookingId, $updateData)) {
-                // Set success flash data
-                session()->setFlashdata('success', 'Booking updated successfully.');
-            } else {
-                // Set error flash data
-                session()->setFlashdata('error', 'Failed to update the booking.');
-            }
-        } catch (\Exception $e) {
-            // Catch any errors and set error flash data
-            session()->setFlashdata('error', 'An error occurred: ' . $e->getMessage());
         }
 
-        // Redirect back to the bookings page
+        // 2) If a new conductor is selected, check for conflict
+        if (!empty($conductorId)) {
+            if ($allBookings && is_array($allBookings)) {
+                foreach ($allBookings as $b) {
+                    if (!is_array($b)) continue;
+                    if (
+                        isset($b['conductor_id']) && 
+                        $b['conductor_id'] === $conductorId && 
+                        !in_array($b['status'], ['completed','rejected'])
+                    ) {
+                        // conflict
+                        session()->setFlashdata('error', 'Conductor is currently assigned to an ongoing booking (#'.$b['booking_id'].').');
+                        return redirect()->to(base_url('operations/bookings'));
+                    }
+                }
+            }
+
+            $condData = $driversRef->getChild($conductorId)->getValue();
+            if ($condData) {
+                $fullNameCond = trim(($condData['first_name'] ?? '').' '.($condData['last_name'] ?? ''));
+                $updateData['conductor_name'] = $fullNameCond;
+                $updateData['conductor_id']   = $conductorId;
+
+                // Optionally, if you want to also override the truck with the conductor's truck_assigned, do so:
+                /*
+                if (!empty($condData['truck_assigned'])) {
+                    $newTruckId = $condData['truck_assigned'];
+                    // ...
+                }
+                */
+            }
+        }
+
+        // 3) If the operation changed the truck manually (through some hidden field?), do as usual
+        //    But typically picking a new driver sets the truck automatically. 
+        if (!empty($truckId) && !isset($updateData['truck_id'])) {
+            // We only update truck details if we haven't overridden them via new driver
+            $truckData = $firebase->getReference('Trucks/' . $truckId)->getValue();
+            if ($truckData) {
+                $updateData['truck_id']      = $truckData['truck_id']       ?? $truckId;
+                $updateData['truck_model']   = $truckData['truck_model']     ?? '';
+                $updateData['license_plate'] = $truckData['plate_number']    ?? '';
+                $updateData['type_of_truck'] = $truckData['truck_type']      ?? '';
+            }
+        }
+
+        // Update the booking with the final data
+        $bookingModel->updateBooking($bookingId, $updateData);
+
+        session()->setFlashdata('success', 'Booking #'.$bookingId.' updated successfully!');
         return redirect()->to(base_url('operations/bookings'));
     }
 
