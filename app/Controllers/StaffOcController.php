@@ -471,7 +471,7 @@ class StaffOcController extends Controller
 
     // ============== BOOKING MODULE ===================  //
 
-    // List all bookings for review
+    // List all bookings for operations to review
     public function bookings()
     {
         $bookingModel = new BookingModel();
@@ -505,48 +505,73 @@ class StaffOcController extends Controller
     {
         $bookingId   = $this->request->getPost('booking_id');
         $status      = $this->request->getPost('status');     // e.g., "approved", "rejected", etc.
-        $distance    = $this->request->getPost('distance');   // new distance value
-        $driverId    = $this->request->getPost('driver');     // selected driver key
-        $conductorId = $this->request->getPost('conductor');  // selected conductor key
-        $truckId     = $this->request->getPost('truck_id');   // hidden field in the form
+        $distance    = $this->request->getPost('distance');     // new distance value
+        $driverId    = $this->request->getPost('driver');       // selected driver key
+        $conductorId = $this->request->getPost('conductor');    // (if provided, but now we are using driver-only selection)
+        $truckId     = $this->request->getPost('truck_id');     // hidden field in the form
 
+        // Initialize update data with status and distance.
         $updateData = [
             'status'   => $status,
             'distance' => $distance,
         ];
 
+        // Get Firebase service instance
+        $firebase = service('firebase');
+        $bookingRef = $firebase->getReference('Bookings/' . $bookingId);
+        $existingBooking = $bookingRef->getValue();
+
+        // Prevent changes if booking is already completed or rejected.
+        if ($existingBooking && in_array($existingBooking['status'], ['completed', 'rejected'])) {
+            session()->setFlashdata('error', 'Cannot update a booking that is already completed or rejected.');
+            return redirect()->to(base_url('operations/bookings'));
+        }
+
         $bookingModel = new BookingModel();
         $allBookings  = $bookingModel->getAllBookings(); // to detect conflicts
-
-        $firebase     = service('firebase');
         $driversRef   = $firebase->getReference('Drivers');
 
-        // 1) If a new driver is selected, check for conflict
+        // 1) If a new driver is selected, check for conflict.
         if (!empty($driverId)) {
             if ($allBookings && is_array($allBookings)) {
                 foreach ($allBookings as $b) {
                     if (!is_array($b)) continue; // skip invalid
-                    // if booking has driver_id == $driverId and status is active
+                    // Only flag conflict if the booking is active (approved or in-transit)
                     if (
-                        isset($b['driver_id']) && 
-                        $b['driver_id'] === $driverId && 
-                        !in_array($b['status'], ['completed','rejected'])
+                        isset($b['driver_id']) &&
+                        $b['driver_id'] === $driverId &&
+                        in_array($b['status'], ['approved', 'in-transit'])
                     ) {
-                        // conflict
                         session()->setFlashdata('error', 'Driver is currently assigned to an ongoing booking (#'.$b['booking_id'].').');
                         return redirect()->to(base_url('operations/bookings'));
                     }
                 }
             }
 
-            // If no conflict, fetch driver data
+            // If no conflict, fetch driver data.
             $driverData = $driversRef->getChild($driverId)->getValue();
             if ($driverData) {
-                $fullName = trim(($driverData['first_name'] ?? '').' '.($driverData['last_name'] ?? ''));
+                $fullName = trim(($driverData['first_name'] ?? '') . ' ' . ($driverData['last_name'] ?? ''));
                 $updateData['driver_name'] = $fullName;
                 $updateData['driver_id']   = $driverId;
 
-                // see which truck they are assigned to
+                // Automatically assign a conductor partner based on the driver's truck assignment.
+                $partnerConductor = null;
+                $allDrivers = $driversRef->getValue() ?? [];
+                foreach ($allDrivers as $key => $info) {
+                    if (
+                        strtolower($info['position'] ?? '') === 'conductor' &&
+                        !empty($info['truck_assigned']) &&
+                        $info['truck_assigned'] === ($driverData['truck_assigned'] ?? '')
+                    ) {
+                        $partnerConductor = $info;
+                        $updateData['conductor_id']   = $key;
+                        $updateData['conductor_name'] = trim(($info['first_name'] ?? '') . ' ' . ($info['last_name'] ?? ''));
+                        break;
+                    }
+                }
+
+                // Update truck details based on the driver's assigned truck.
                 if (!empty($driverData['truck_assigned'])) {
                     $newTruckId = $driverData['truck_assigned'];
                     $truckData  = $firebase->getReference('Trucks/'.$newTruckId)->getValue();
@@ -560,43 +585,8 @@ class StaffOcController extends Controller
             }
         }
 
-        // 2) If a new conductor is selected, check for conflict
-        if (!empty($conductorId)) {
-            if ($allBookings && is_array($allBookings)) {
-                foreach ($allBookings as $b) {
-                    if (!is_array($b)) continue;
-                    if (
-                        isset($b['conductor_id']) && 
-                        $b['conductor_id'] === $conductorId && 
-                        !in_array($b['status'], ['completed','rejected'])
-                    ) {
-                        // conflict
-                        session()->setFlashdata('error', 'Conductor is currently assigned to an ongoing booking (#'.$b['booking_id'].').');
-                        return redirect()->to(base_url('operations/bookings'));
-                    }
-                }
-            }
-
-            $condData = $driversRef->getChild($conductorId)->getValue();
-            if ($condData) {
-                $fullNameCond = trim(($condData['first_name'] ?? '').' '.($condData['last_name'] ?? ''));
-                $updateData['conductor_name'] = $fullNameCond;
-                $updateData['conductor_id']   = $conductorId;
-
-                // Optionally, if you want to also override the truck with the conductor's truck_assigned, do so:
-                /*
-                if (!empty($condData['truck_assigned'])) {
-                    $newTruckId = $condData['truck_assigned'];
-                    // ...
-                }
-                */
-            }
-        }
-
-        // 3) If the operation changed the truck manually (through some hidden field?), do as usual
-        //    But typically picking a new driver sets the truck automatically. 
+        // 2) If the operations changed the truck manually (and no driver update occurred), update truck details.
         if (!empty($truckId) && !isset($updateData['truck_id'])) {
-            // We only update truck details if we haven't overridden them via new driver
             $truckData = $firebase->getReference('Trucks/' . $truckId)->getValue();
             if ($truckData) {
                 $updateData['truck_id']      = $truckData['truck_id']       ?? $truckId;
@@ -606,13 +596,24 @@ class StaffOcController extends Controller
             }
         }
 
-        // Update the booking with the final data
+        // Update the booking with the final data.
         $bookingModel->updateBooking($bookingId, $updateData);
+
+        // 3) If the booking is being marked as "completed", update the truck's current mileage.
+        if ($status === 'completed' && isset($updateData['truck_id'])) {
+            $truckRef = $firebase->getReference('Trucks/' . $updateData['truck_id']);
+            $truckData = $truckRef->getValue();
+            if ($truckData) {
+                $currentMileage = isset($truckData['current_mileage']) ? floatval($truckData['current_mileage']) : 0;
+                $newMileage = $currentMileage + floatval($distance);
+                // Update the truck's current mileage.
+                $truckRef->update(['current_mileage' => $newMileage]);
+            }
+        }
 
         session()->setFlashdata('success', 'Booking #'.$bookingId.' updated successfully!');
         return redirect()->to(base_url('operations/bookings'));
     }
-
 
     // ================== GEOLOCATION MODULE ===================  //
 

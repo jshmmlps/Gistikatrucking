@@ -93,7 +93,7 @@
 
                             <!-- View Truck Modal -->
                             <div class="modal fade" id="viewTruckModal<?= $key ?>" tabindex="-1" aria-labelledby="viewTruckModalLabel<?= $key ?>" aria-hidden="true">
-                              <div class="modal-dialog">
+                              <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                   <div class="modal-header">
                                     <h5 class="modal-title" id="viewTruckModalLabel<?= $key ?>">Truck Details (<?= esc($truck['truck_model']) ?>)</h5>
@@ -127,6 +127,11 @@
                                             <span class="fw-bold text-secondary">Color:</span>
                                             <span><?= esc($truck['color']) ?></span>
                                         </div>
+                                        <!-- Added Current Mileage Row -->
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="fw-bold text-secondary">Current Mileage:</span>
+                                            <span><?= esc($truck['current_mileage'] ?? 'N/A') ?></span>
+                                        </div>
                                         <div class="d-flex justify-content-between mb-2">
                                             <span class="fw-bold text-secondary">Last Inspection Date:</span>
                                             <span><?= esc($truck['last_inspection_date'] ?? 'N/A') ?></span>
@@ -158,7 +163,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Specifications Section -->
+                                    <!-- Truck Specifications Section -->
                                     <div class="p-3 mb-4 rounded-3 shadow-sm border bg-light">
                                         <h6 class="fw-bold mb-3 text-primary">Truck Specifications</h6>
                                         <div class="d-flex justify-content-between mb-2">
@@ -179,7 +184,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Maintenance Section -->
+                                    <!-- Maintenance Technician Section -->
                                     <div class="p-3 rounded-3 shadow-sm border bg-light">
                                         <h6 class="fw-bold mb-3 text-primary">Maintenance</h6>
                                         <div class="d-flex justify-content-between">
@@ -187,6 +192,23 @@
                                             <span><?= esc($truck['maintenance_technician']) ?></span>
                                         </div>
                                     </div>
+
+                                    <!-- New Section: Maintenance Items Details -->
+                                    <?php if(isset($truck['maintenance_items'])): ?>
+                                    <div class="p-3 rounded-3 shadow-sm border bg-light mt-4">
+                                        <h6 class="fw-bold mb-3 text-primary">Maintenance Items</h6>
+                                        <?php foreach($truck['maintenance_items'] as $itemName => $item): ?>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="fw-bold text-secondary"><?= ucwords(str_replace('_', ' ', $itemName)) ?>:</span>
+                                                <span>
+                                                    Last Service Mileage: <?= esc($item['last_service_mileage'] ?? 'N/A') ?>,
+                                                    Last Service Date: <?= esc($item['last_service_date'] ?? 'N/A') ?>
+                                                </span>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <?php endif; ?>
+
                                   </div>
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -164,43 +164,43 @@
                         </div>
                       </div>
 
-                      <!-- Reassign driver/conductor if needed -->
+                      <!-- Reassign driver (and conductor) -->
                       <div class="p-3 mb-3 rounded-3 shadow-sm bg-light">
                         <h6 class="fw-bold mb-3 text-primary">Reassign Driver / Conductor</h6>
-
-                        <!-- Drivers dropdown -->
                         <div class="mb-3">
-                          <label class="form-label fw-bold">Select Driver (Optional):</label>
+                          <label class="form-label fw-bold">Select Driver (and Partner Conductor):</label>
                           <select name="driver" class="form-select">
                             <option value="">-- No Change --</option>
-                            <?php if (!empty($driversList)): ?>
-                              <?php foreach ($driversList as $dKey => $dInfo): ?>
-                                <?php 
-                                  $dName = trim(($dInfo['first_name'] ?? '').' '.($dInfo['last_name'] ?? ''));
-                                ?>
-                                <option value="<?= esc($dKey) ?>">
-                                  <?= esc($dName) ?> (<?= esc($dKey) ?>)
-                                </option>
-                              <?php endforeach; ?>
-                            <?php endif; ?>
-                          </select>
-                        </div>
-
-                        <!-- Conductors dropdown -->
-                        <div class="mb-3">
-                          <label class="form-label fw-bold">Select Conductor (Optional):</label>
-                          <select name="conductor" class="form-select">
-                            <option value="">-- No Change --</option>
-                            <?php if (!empty($conductorsList)): ?>
-                              <?php foreach ($conductorsList as $cKey => $cInfo): ?>
-                                <?php 
-                                  $cName = trim(($cInfo['first_name'] ?? '').' '.($cInfo['last_name'] ?? ''));
-                                ?>
-                                <option value="<?= esc($cKey) ?>">
-                                  <?= esc($cName) ?> (<?= esc($cKey) ?>)
-                                </option>
-                              <?php endforeach; ?>
-                            <?php endif; ?>
+                            <?php 
+                              // Loop through driversList and for each, try to find a matching conductor from conductorsList.
+                              if (!empty($driversList) && is_array($driversList)):
+                                foreach ($driversList as $dKey => $dInfo):
+                                  $dName = trim(($dInfo['first_name'] ?? '') . ' ' . ($dInfo['last_name'] ?? ''));
+                                  $dEmp  = $dInfo['employee_id'] ?? '';
+                                  $partnerConductor = null;
+                                  if (!empty($conductorsList) && is_array($conductorsList)) {
+                                      foreach ($conductorsList as $cKey => $cInfo) {
+                                          if (isset($cInfo['truck_assigned']) && $cInfo['truck_assigned'] === ($dInfo['truck_assigned'] ?? '')) {
+                                              $partnerConductor = $cInfo;
+                                              break;
+                                          }
+                                      }
+                                  }
+                                  if ($partnerConductor) {
+                                      $cName = trim(($partnerConductor['first_name'] ?? '') . ' ' . ($partnerConductor['last_name'] ?? ''));
+                                      $cEmp  = $partnerConductor['employee_id'] ?? '';
+                                  } else {
+                                      $cName = 'No Conductor';
+                                      $cEmp  = '';
+                                  }
+                            ?>
+                              <option value="<?= esc($dKey) ?>">
+                                Driver <?= esc($dName) ?> (<?= esc($dEmp) ?>) - D / <?= esc($cName) ?> <?= $cEmp ? '(' . esc($cEmp) . ')' : '' ?> - C
+                              </option>
+                            <?php 
+                                endforeach;
+                              endif;
+                            ?>
                           </select>
                         </div>
                       </div>
