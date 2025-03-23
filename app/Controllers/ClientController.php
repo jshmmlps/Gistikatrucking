@@ -32,8 +32,87 @@ class ClientController extends BaseController
 
     public function dashboard()
     {
-        return view('client/dashboard');
+        $session  = session();
+        $clientId = $session->get('user_id'); // e.g. "User5"
+    
+        // 1) Fetch all of this client's bookings from Firebase
+        $allBookings = $this->bookingModel->getBookingsByClient($clientId) ?? [];
+    
+        // 2) Prepare counters
+        $pendingCount   = 0;
+        $ongoingCount   = 0;  // e.g. "approved", "in-transit"
+        $completedCount = 0;  // e.g. "complete"
+        $rejectedCount  = 0;
+    
+        // We'll store "monthlyBookings" = the bookings for the current month
+        $monthlyBookings = [];
+    
+        // 3) Identify the current month (and year).
+        //    For example, "2023-09" if this code runs in September 2023.
+        $currentYearMonth = date('Y-m'); // "YYYY-mm"
+    
+        // 4) Loop through the bookings
+        foreach ($allBookings as $booking) {
+            if (!is_array($booking)) {
+                continue; 
+            }
+            $status      = strtolower($booking['status'] ?? '');
+            $bookingDate = $booking['booking_date'] ?? '';  
+            $dispatchDate= $booking['dispatch_date'] ?? '';
+    
+            // Count by status
+            if ($status === 'pending') {
+                $pendingCount++;
+            } elseif (in_array($status, ['approved', 'in-transit'])) {
+                $ongoingCount++;
+            } elseif (in_array($status, ['completed','complete'])) {
+                $completedCount++;
+            } elseif ($status === 'rejected') {
+                $rejectedCount++;
+            }
+    
+            // Check if this booking belongs to the current year-month
+            // We'll parse $bookingDate and compare
+            if (!empty($bookingDate)) {
+                $ts = strtotime($bookingDate); // e.g. 1693473948
+                if ($ts !== false) {
+                    $yearMonth = date('Y-m', $ts); // e.g. "2023-09"
+                    if ($yearMonth === $currentYearMonth) {
+                        $monthlyBookings[] = $booking;
+                    }
+                }
+            }
+        }
+    
+        // 5) "History" = bookings with statuses like completed or rejected
+        //    or you can define "history" however you want. 
+        $historyBookings = [];
+        foreach ($allBookings as $b) {
+            if (!is_array($b)) {
+                continue;
+            }
+            $st = strtolower($b['status'] ?? '');
+            // We'll define "history" = completed or rejected
+            if (in_array($st, ['completed','complete','rejected'])) {
+                $historyBookings[] = $b;
+            }
+        }
+    
+        // 6) Prepare data for the view
+        $data = [
+            'pendingCount'    => $pendingCount,
+            'ongoingCount'    => $ongoingCount,
+            'completedCount'  => $completedCount,
+            'rejectedCount'   => $rejectedCount,
+            'monthlyBookings' => $monthlyBookings,
+            'historyBookings' => $historyBookings,
+            'currentYearMonth'=> $currentYearMonth, // for display in the view
+        ];
+    
+        return view('client/dashboard', $data);
     }
+    
+
     
     // =================== PROFILE =================== 
     

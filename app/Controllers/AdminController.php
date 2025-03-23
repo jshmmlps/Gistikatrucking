@@ -327,7 +327,7 @@ class AdminController extends Controller
                 'birthday'        => $this->request->getPost('birthday'),
                 'gender'          => $this->request->getPost('gender'),
                 'user_level'      => $this->request->getPost('user_level'),
-                'address_dropoff' => $this->request->getPost('address_dropoff'),
+                'address_dropoff' => '', // set to blank by default
                 // Hash the password before storing
                 'password'        => password_hash($plainPassword, PASSWORD_BCRYPT),
             ];

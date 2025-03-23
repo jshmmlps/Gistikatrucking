@@ -195,10 +195,10 @@
                             <option value="conductor">conductor</option>
                         </select>
                     </div>
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="create_address_dropoff" class="form-label">Address Dropoff</label>
                         <input type="text" name="address_dropoff" id="create_address_dropoff" class="form-control">
-                    </div>
+                    </div> -->
                     <!-- Password Fields -->
                     <div class="mb-3">
                         <label for="create_password" class="form-label">Password</label>
