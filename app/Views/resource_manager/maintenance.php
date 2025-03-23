@@ -19,7 +19,6 @@
         <a href="<?= base_url('resource/maintenance'); ?>" class="nav-link <?= (current_url() == base_url('resource/maintenance')) ? 'active' : '' ?>">
             <span class="description">Maintenance Analytics</span>
         </a>
-        </li>
     </ul>
     
 </div>
@@ -28,7 +27,7 @@
 <div class="row mt-4">
     <div class="col-md-6">
         <!-- Chart.js Integration -->
-        <canvas id="inspectionChart" style="max-width: 600px;"></canvas>
+        <canvas id="inspectionChart" style="max-width: 750px; margin-left:40px;"></canvas>
     </div>
     <div class="col-md-6">
         <h2>Trucks Needing Inspection</h2>
@@ -39,20 +38,36 @@
                         <th>Truck ID</th>
                         <th>Last Inspection Date</th>
                         <th>Current Mileage</th>
-                        <th>Action Needed</th>
+                        <th style="width:300px;">Action Needed</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <?php 
+                        // Mapping maintenance keys to user-friendly names.
+                        $componentNames = [
+                            'engine_oil'       => 'Engine Oil & Filter',
+                            'transmission'     => 'Transmission Fluids & Filter',
+                            'air_filters'      => 'Air Filters',
+                            'brake_components' => 'Brake Components',
+                            'tires'            => 'Tires',
+                            'belt_hoses'       => 'Belt & Hoses'
+                        ];
+                    ?>
                     <?php foreach ($dueTrucks as $item): ?>
                         <?php
                             $truckId = $item['truckId'];
                             $info    = $item['details'];
+                            $dueComponents = $item['dueComponents'];
+                            // Convert component keys to user-friendly names.
+                            $dueNames = array_map(function($component) use ($componentNames) {
+                                return $componentNames[$component] ?? $component;
+                            }, $dueComponents);
                         ?>
                         <tr>
                             <td><?= esc($truckId) ?></td>
                             <td><?= esc($info['last_inspection_date'] ?? 'N/A') ?></td>
                             <td><?= esc($info['current_mileage'] ?? 'N/A') ?></td>
-                            <td>Inspection Due</td>
+                            <td><?= implode(", ", $dueNames) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

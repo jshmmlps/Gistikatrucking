@@ -281,18 +281,17 @@ class StaffOcController extends Controller
     }
 
 
-    // ----- Truck Management Methods -----
-
+    // ============== TRUCK MANAGEMENT MODULE ===================  //
     // List all trucks
     public function trucks()
     {
         $truckModel = new TruckModel();
         $trucks = $truckModel->getTrucks();
-        
+
         // Re-index the array in case it is associative
         $trucks = array_values($trucks);
         
-        // Sort trucks naturally by truck_id (e.g., Truck1, Truck2, Truck3, ...)
+        // Sort the trucks naturally by truck_id (e.g., Truck1, Truck2, ..., Truck10)
         usort($trucks, function($a, $b) {
             return strnatcmp($a['truck_id'], $b['truck_id']);
         });
@@ -301,78 +300,167 @@ class StaffOcController extends Controller
         return view('operations_coordinator/truck_management', $data);
     }
 
-    // Create a new truck record
-    public function createTruck()
+    // Create a new truck (process create form submission)
+    public function storeTruck()
     {
-        if ($this->request->getMethod() == 'post') {
-            $data = [
-                'truck_model'             => $this->request->getPost('truck_model'),
-                'plate_number'            => $this->request->getPost('plate_number'),
-                'engine_number'           => $this->request->getPost('engine_number'),
-                'chassis_number'          => $this->request->getPost('chassis_number'),
-                'color'                   => $this->request->getPost('color'),
-                'last_inspection_date'    => $this->request->getPost('last_inspection_date'),
-                'last_inspection_mileage' => $this->request->getPost('last_inspection_mileage'),
-                'cor_number'              => $this->request->getPost('cor_number'),
-                'insurance_details'       => $this->request->getPost('insurance_details'),
-                'license_plate_expiry'    => $this->request->getPost('license_plate_expiry'),
-                'registration_expiry'     => $this->request->getPost('registration_expiry'),
-                'truck_type'              => $this->request->getPost('truck_type'),
-                'fuel_type'               => $this->request->getPost('fuel_type'),
-                'truck_length'            => $this->request->getPost('truck_length'),
-                'load_capacity'           => $this->request->getPost('load_capacity'),
-                'maintenance_technician'  => $this->request->getPost('maintenance_technician'),
-            ];
-            $truckModel = new TruckModel();
-            $newTruckId = $truckModel->insertTruck($data);
-            return redirect()->to(base_url('operations/trucks'))
-                            ->with('success', 'Truck created successfully with ID: ' . $newTruckId);
-        }
-        return redirect()->to(base_url('operations/trucks'))
-                        ->with('error', 'Invalid request.');
+        $data = [
+            'truck_model'             => $this->request->getPost('truck_model'),
+            'plate_number'            => $this->request->getPost('plate_number'),
+            'engine_number'           => $this->request->getPost('engine_number'),
+            'chassis_number'          => $this->request->getPost('chassis_number'),
+            'color'                   => $this->request->getPost('color'),
+            'cor_number'              => $this->request->getPost('cor_number'),
+            'insurance_details'       => $this->request->getPost('insurance_details'),
+            'license_plate_expiry'    => $this->request->getPost('license_plate_expiry'),
+            'registration_expiry'     => $this->request->getPost('registration_expiry'),
+            'truck_type'              => $this->request->getPost('truck_type'),
+            'fuel_type'               => $this->request->getPost('fuel_type'),
+            'truck_length'            => $this->request->getPost('truck_length'),
+            'load_capacity'           => $this->request->getPost('load_capacity'),
+            'maintenance_technician'  => $this->request->getPost('maintenance_technician'),
+            'last_inspection_date'    => $this->request->getPost('last_inspection_date'),
+            'last_inspection_mileage' => $this->request->getPost('last_inspection_mileage'),
+            'current_mileage'         => $this->request->getPost('current_mileage'),
+            // Initialize maintenance items for specific parts
+            'maintenance_items' => [
+                'engine_oil' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 10000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+                'transmission' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 60000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+                'air_filters' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 20000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+                'brake_components' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 20000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+                'tires' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 50000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+                'belt_hoses' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 20000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+            ],
+        ];
+        
+        $truckModel = new TruckModel();
+        $newTruckId = $truckModel->insertTruck($data);
+        session()->setFlashdata('success', 'Truck created successfully with ID: ' . $newTruckId);
+        return redirect()->to(base_url('operations/trucks'));
     }
 
-    // Update an existing truck record
     public function updateTruck($truckId)
     {
-        if ($this->request->getMethod() == 'post') {
-            $data = [
-                'truck_model'             => $this->request->getPost('truck_model'),
-                'plate_number'            => $this->request->getPost('plate_number'),
-                'engine_number'           => $this->request->getPost('engine_number'),
-                'chassis_number'          => $this->request->getPost('chassis_number'),
-                'color'                   => $this->request->getPost('color'),
-                'last_inspection_date'    => $this->request->getPost('last_inspection_date'),
-                'last_inspection_mileage' => $this->request->getPost('last_inspection_mileage'),
-                'cor_number'              => $this->request->getPost('cor_number'),
-                'insurance_details'       => $this->request->getPost('insurance_details'),
-                'license_plate_expiry'    => $this->request->getPost('license_plate_expiry'),
-                'registration_expiry'     => $this->request->getPost('registration_expiry'),
-                'truck_type'              => $this->request->getPost('truck_type'),
-                'fuel_type'               => $this->request->getPost('fuel_type'),
-                'truck_length'            => $this->request->getPost('truck_length'),
-                'load_capacity'           => $this->request->getPost('load_capacity'),
-                'maintenance_technician'  => $this->request->getPost('maintenance_technician'),
-            ];
-            $truckModel = new TruckModel();
-            $truckModel->updateTruck($truckId, $data);
-            return redirect()->to(base_url('operations/trucks'))
-                            ->with('success', 'Truck updated successfully.');
-        }
-        return redirect()->to(base_url('operations/trucks'))
-                        ->with('error', 'Invalid request.');
+        // Retrieve common truck update values
+        $lastInspectionDate   = $this->request->getPost('last_inspection_date');
+        $lastInspectionMileage = $this->request->getPost('last_inspection_mileage');
+        $currentMileage        = $this->request->getPost('current_mileage');
+
+        // Retrieve individual maintenance item values, if provided, or default to the common inspection values
+        $engineOilMileage = $this->request->getPost('engine_oil_last_service_mileage') ?? $lastInspectionMileage;
+        $engineOilDate    = $this->request->getPost('engine_oil_last_service_date') ?? $lastInspectionDate;
+
+        $transmissionMileage = $this->request->getPost('transmission_last_service_mileage') ?? $lastInspectionMileage;
+        $transmissionDate    = $this->request->getPost('transmission_last_service_date') ?? $lastInspectionDate;
+
+        $airFiltersMileage = $this->request->getPost('air_filters_last_service_mileage') ?? $lastInspectionMileage;
+        $airFiltersDate    = $this->request->getPost('air_filters_last_service_date') ?? $lastInspectionDate;
+
+        $brakeComponentsMileage = $this->request->getPost('brake_components_last_service_mileage') ?? $lastInspectionMileage;
+        $brakeComponentsDate    = $this->request->getPost('brake_components_last_service_date') ?? $lastInspectionDate;
+
+        $tiresMileage = $this->request->getPost('tires_last_service_mileage') ?? $lastInspectionMileage;
+        $tiresDate    = $this->request->getPost('tires_last_service_date') ?? $lastInspectionDate;
+
+        $beltHosesMileage = $this->request->getPost('belt_hoses_last_service_mileage') ?? $lastInspectionMileage;
+        $beltHosesDate    = $this->request->getPost('belt_hoses_last_service_date') ?? $lastInspectionDate;
+
+        // Build maintenance items array with individual values
+        $maintenanceItems = [
+            'engine_oil' => [
+                'last_service_mileage'    => $engineOilMileage,
+                'recommended_interval_km' => 10000,
+                'last_service_date'       => $engineOilDate,
+            ],
+            'transmission' => [
+                'last_service_mileage'    => $transmissionMileage,
+                'recommended_interval_km' => 60000,
+                'last_service_date'       => $transmissionDate,
+            ],
+            'air_filters' => [
+                'last_service_mileage'    => $airFiltersMileage,
+                'recommended_interval_km' => 20000,
+                'last_service_date'       => $airFiltersDate,
+            ],
+            'brake_components' => [
+                'last_service_mileage'    => $brakeComponentsMileage,
+                'recommended_interval_km' => 20000,
+                'last_service_date'       => $brakeComponentsDate,
+            ],
+            'tires' => [
+                'last_service_mileage'    => $tiresMileage,
+                'recommended_interval_km' => 50000,
+                'last_service_date'       => $tiresDate,
+            ],
+            'belt_hoses' => [
+                'last_service_mileage'    => $beltHosesMileage,
+                'recommended_interval_km' => 20000,
+                'last_service_date'       => $beltHosesDate,
+            ],
+        ];
+
+        // Update common truck data along with the maintenance items
+        $data = [
+            'truck_model'             => $this->request->getPost('truck_model'),
+            'plate_number'            => $this->request->getPost('plate_number'),
+            'engine_number'           => $this->request->getPost('engine_number'),
+            'chassis_number'          => $this->request->getPost('chassis_number'),
+            'color'                   => $this->request->getPost('color'),
+            'cor_number'              => $this->request->getPost('cor_number'),
+            'insurance_details'       => $this->request->getPost('insurance_details'),
+            'license_plate_expiry'    => $this->request->getPost('license_plate_expiry'),
+            'registration_expiry'     => $this->request->getPost('registration_expiry'),
+            'truck_type'              => $this->request->getPost('truck_type'),
+            'fuel_type'               => $this->request->getPost('fuel_type'),
+            'truck_length'            => $this->request->getPost('truck_length'),
+            'load_capacity'           => $this->request->getPost('load_capacity'),
+            'maintenance_technician'  => $this->request->getPost('maintenance_technician'),
+            'last_inspection_date'    => $lastInspectionDate,
+            'last_inspection_mileage' => $lastInspectionMileage,
+            'current_mileage'         => $currentMileage,
+            'maintenance_items'       => $maintenanceItems,
+        ];
+
+        $truckModel = new \App\Models\TruckModel();
+        $truckModel->updateTruck($truckId, $data);
+        session()->setFlashdata('success', 'Truck updated successfully.');
+        return redirect()->to(base_url('operations/trucks'));
     }
 
-    // Delete a truck record
+
+    // Delete a truck
     public function deleteTruck($truckId)
     {
         $truckModel = new TruckModel();
         $truckModel->deleteTruck($truckId);
-        return redirect()->to(base_url('operations/trucks'))
-                        ->with('success', 'Truck deleted successfully.');
+        session()->setFlashdata('success', 'Truck deleted successfully.');
+        return redirect()->to(base_url('operations/trucks'));
     }
 
-    // View details of a specific truck
+    // View a truck's details
     public function viewTruck($truckId)
     {
         $truckModel = new TruckModel();

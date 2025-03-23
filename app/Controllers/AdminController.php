@@ -533,6 +533,40 @@ class AdminController extends Controller
             'maintenance_technician'  => $this->request->getPost('maintenance_technician'),
             'last_inspection_date'    => $this->request->getPost('last_inspection_date'),
             'last_inspection_mileage' => $this->request->getPost('last_inspection_mileage'),
+            'current_mileage'         => $this->request->getPost('current_mileage'),
+            // Initialize maintenance items for specific parts
+            'maintenance_items' => [
+                'engine_oil' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 10000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+                'transmission' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 60000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+                'air_filters' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 20000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+                'brake_components' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 20000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+                'tires' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 50000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+                'belt_hoses' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 20000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                ],
+            ],
         ];
         
         $truckModel = new TruckModel();
@@ -541,9 +575,67 @@ class AdminController extends Controller
         return redirect()->to(base_url('admin/trucks'));
     }
 
-    // Update an existing truck
     public function updateTruck($truckId)
     {
+        // Retrieve common truck update values
+        $lastInspectionDate   = $this->request->getPost('last_inspection_date');
+        $lastInspectionMileage = $this->request->getPost('last_inspection_mileage');
+        $currentMileage        = $this->request->getPost('current_mileage');
+
+        // Retrieve individual maintenance item values, if provided, or default to the common inspection values
+        $engineOilMileage = $this->request->getPost('engine_oil_last_service_mileage') ?? $lastInspectionMileage;
+        $engineOilDate    = $this->request->getPost('engine_oil_last_service_date') ?? $lastInspectionDate;
+
+        $transmissionMileage = $this->request->getPost('transmission_last_service_mileage') ?? $lastInspectionMileage;
+        $transmissionDate    = $this->request->getPost('transmission_last_service_date') ?? $lastInspectionDate;
+
+        $airFiltersMileage = $this->request->getPost('air_filters_last_service_mileage') ?? $lastInspectionMileage;
+        $airFiltersDate    = $this->request->getPost('air_filters_last_service_date') ?? $lastInspectionDate;
+
+        $brakeComponentsMileage = $this->request->getPost('brake_components_last_service_mileage') ?? $lastInspectionMileage;
+        $brakeComponentsDate    = $this->request->getPost('brake_components_last_service_date') ?? $lastInspectionDate;
+
+        $tiresMileage = $this->request->getPost('tires_last_service_mileage') ?? $lastInspectionMileage;
+        $tiresDate    = $this->request->getPost('tires_last_service_date') ?? $lastInspectionDate;
+
+        $beltHosesMileage = $this->request->getPost('belt_hoses_last_service_mileage') ?? $lastInspectionMileage;
+        $beltHosesDate    = $this->request->getPost('belt_hoses_last_service_date') ?? $lastInspectionDate;
+
+        // Build maintenance items array with individual values
+        $maintenanceItems = [
+            'engine_oil' => [
+                'last_service_mileage'    => $engineOilMileage,
+                'recommended_interval_km' => 10000,
+                'last_service_date'       => $engineOilDate,
+            ],
+            'transmission' => [
+                'last_service_mileage'    => $transmissionMileage,
+                'recommended_interval_km' => 60000,
+                'last_service_date'       => $transmissionDate,
+            ],
+            'air_filters' => [
+                'last_service_mileage'    => $airFiltersMileage,
+                'recommended_interval_km' => 20000,
+                'last_service_date'       => $airFiltersDate,
+            ],
+            'brake_components' => [
+                'last_service_mileage'    => $brakeComponentsMileage,
+                'recommended_interval_km' => 20000,
+                'last_service_date'       => $brakeComponentsDate,
+            ],
+            'tires' => [
+                'last_service_mileage'    => $tiresMileage,
+                'recommended_interval_km' => 50000,
+                'last_service_date'       => $tiresDate,
+            ],
+            'belt_hoses' => [
+                'last_service_mileage'    => $beltHosesMileage,
+                'recommended_interval_km' => 20000,
+                'last_service_date'       => $beltHosesDate,
+            ],
+        ];
+
+        // Update common truck data along with the maintenance items
         $data = [
             'truck_model'             => $this->request->getPost('truck_model'),
             'plate_number'            => $this->request->getPost('plate_number'),
@@ -559,15 +651,18 @@ class AdminController extends Controller
             'truck_length'            => $this->request->getPost('truck_length'),
             'load_capacity'           => $this->request->getPost('load_capacity'),
             'maintenance_technician'  => $this->request->getPost('maintenance_technician'),
-            'last_inspection_date'    => $this->request->getPost('last_inspection_date'),
-            'last_inspection_mileage' => $this->request->getPost('last_inspection_mileage'),
+            'last_inspection_date'    => $lastInspectionDate,
+            'last_inspection_mileage' => $lastInspectionMileage,
+            'current_mileage'         => $currentMileage,
+            'maintenance_items'       => $maintenanceItems,
         ];
-        
-        $truckModel = new TruckModel();
+
+        $truckModel = new \App\Models\TruckModel();
         $truckModel->updateTruck($truckId, $data);
         session()->setFlashdata('success', 'Truck updated successfully.');
         return redirect()->to(base_url('admin/trucks'));
     }
+
 
     // Delete a truck
     public function deleteTruck($truckId)
@@ -585,7 +680,6 @@ class AdminController extends Controller
         $data['truck'] = $truckModel->getTruck($truckId);
         return view('admin/truck_detail', $data);
     }
-
 
     // ============== DRIVER MANAGEMENT MODULE ===================  //
 
@@ -1035,115 +1129,117 @@ class AdminController extends Controller
         ]);
     }
 
-   // ================== MAINTENANCE MODULE ===================  //
+    // ================== MAINTENANCE MODULE ===================  //
     public function Maintenance()
     {
         // 1) Get Firebase Realtime Database instance
         $db = service('firebase');
-
+    
         // 2) Fetch all trucks from your "Trucks" node
         $trucksRef = $db->getReference('Trucks');
         $snapshot = $trucksRef->getSnapshot();
-
+    
         if (!$snapshot->exists()) {
             // If no data in 'Trucks' node, pass empty arrays
-            return view('maintenance', [
+            return view('admin/maintenance', [
                 'totalTrucks'      => 0,
                 'dueTrucks'        => [],
                 'chartData'        => [],
                 'availableTrucks'  => [],
             ]);
         }
-
-        // Convert the snapshot into an associative array
+    
+        // Convert the snapshot into an associative array and natural sort by truck ID
         $trucksData = $snapshot->getValue();
-
-        // Natural sort the trucks data by truck ID (keys)
         uksort($trucksData, 'strnatcmp');
-
-        // 3) Determine which trucks are due for inspection
-        // A truck is "due for inspection" if:
-        // - Its last_inspection_date is older than 6 months, OR
-        // - (currentMileage - lastInspectionMileage) >= 20,000
+    
+        // Initialize arrays for due trucks and component counts.
         $dueTrucks = [];
-        $timeInterval = new \DateInterval('P6M'); // 6 months using global namespace
-        $mileageThreshold = 20000;
-
+        $componentCounts = [
+            'engine_oil'      => 0,
+            'transmission'    => 0,
+            'air_filters'     => 0,
+            'brake_components'=> 0,
+            'tires'           => 0,
+            'belt_hoses'      => 0,
+        ];
+    
+        // Loop over each truck and check its maintenance items
         foreach ($trucksData as $truckId => $truck) {
-            // Extract required fields
-            $lastInspectionDate    = $truck['last_inspection_date']   ?? null;
-            $lastInspectionMileage = $truck['last_inspection_mileage'] ?? 0;
-            $currentMileage        = $truck['current_mileage']         ?? 0;
-
-            // Time-based check
-            $timeOverdue = false;
-            if ($lastInspectionDate) {
-                try {
-                    $dateNow  = new \DateTime();
-                    $dateLast = new \DateTime($lastInspectionDate);
-                    $dateLast->add($timeInterval); // last inspection + 6 months
-                    if ($dateNow > $dateLast) {
-                        $timeOverdue = true;
+            $dueComponents = [];
+            if (isset($truck['maintenance_items'])) {
+                foreach ($truck['maintenance_items'] as $component => $item) {
+                    $lastServiceMileage    = $item['last_service_mileage'] ?? 0;
+                    $recommendedInterval   = $item['recommended_interval_km'] ?? 0;
+                    $currentMileage        = $truck['current_mileage'] ?? 0;
+                    // Check if the component is due based on mileage
+                    if (($currentMileage - $lastServiceMileage) >= $recommendedInterval) {
+                        $dueComponents[] = $component;
+                        if (isset($componentCounts[$component])) {
+                            $componentCounts[$component]++;
+                        } else {
+                            $componentCounts[$component] = 1;
+                        }
                     }
-                } catch (\Exception $e) {
-                    // Optionally log or handle invalid date formats
                 }
             }
-
-            // Mileage-based check
-            $mileageOverdue = false;
-            if (($currentMileage - $lastInspectionMileage) >= $mileageThreshold) {
-                $mileageOverdue = true;
-            }
-
-            // If either condition is met, mark truck as due for inspection
-            if ($timeOverdue || $mileageOverdue) {
+            if (!empty($dueComponents)) {
                 $dueTrucks[] = [
-                    'truckId' => $truckId,
-                    'details' => $truck,
+                    'truckId'       => $truckId,
+                    'details'       => $truck,
+                    'dueComponents' => $dueComponents,
                 ];
             }
         }
-
-        // Sort the due trucks naturally by truckId
-        usort($dueTrucks, function($a, $b) {
-            return strnatcmp($a['truckId'], $b['truckId']);
-        });
-
-        // Filter out trucks that are due for inspection to create the available trucks list
+    
+        // Determine available trucks (those that do NOT have any due maintenance items)
         $dueTruckIds = array_map(function ($dueTruck) {
             return $dueTruck['truckId'];
         }, $dueTrucks);
-        
         $availableTrucks = [];
         foreach ($trucksData as $truckId => $truck) {
             if (!in_array($truckId, $dueTruckIds)) {
                 $availableTrucks[$truckId] = $truck;
             }
         }
-        
-        // Natural sort the available trucks by truckId
         uksort($availableTrucks, 'strnatcmp');
-
-        // Prepare summary data for chart: count of due vs. not due trucks
-        $totalTrucks = count($trucksData);
-        $dueCount    = count($dueTrucks);
-        $notDueCount = count($availableTrucks);
-
-        // Build a simple data structure for Chart.js with updated colors for due trucks
+    
+        // Build chart data using a mapping for prettier labels
+        $labels = [
+            'Engine Oil & Filter', 
+            'Transmission Fluids & Filter', 
+            'Air Filters', 
+            'Brake Components', 
+            'Tires', 
+            'Belt & Hoses'
+        ];
+        $dataValues = [
+            $componentCounts['engine_oil']      ?? 0,
+            $componentCounts['transmission']    ?? 0,
+            $componentCounts['air_filters']     ?? 0,
+            $componentCounts['brake_components']?? 0,
+            $componentCounts['tires']           ?? 0,
+            $componentCounts['belt_hoses']      ?? 0,
+        ];
         $chartData = [
-            'labels'   => ['Due For Inspection', 'Not Due'],
+            'labels'   => $labels,
             'datasets' => [[
-                'label' => 'Inspection Status',
-                'data'  => [$dueCount, $notDueCount],
+                'label' => 'Components Due for Inspection',
+                'data'  => $dataValues,
                 'backgroundColor' => [
-                    'rgba(255, 0, 0, 0.6)',   // Red for "Due For Inspection"
-                    'rgba(75, 192, 192, 0.6)' // Alternate color for "Not Due"
+                    'rgba(255, 99, 132, 0.6)',   // Engine Oil & Filter
+                    'rgba(54, 162, 235, 0.6)',   // Transmission Fluids & Filter
+                    'rgba(255, 206, 86, 0.6)',   // Air Filters
+                    'rgba(75, 192, 192, 0.6)',   // Brake Components
+                    'rgba(153, 102, 255, 0.6)',  // Tires
+                    'rgba(255, 159, 64, 0.6)'    // Belt & Hoses
                 ],
             ]]
         ];
-
-        // Pass everything to the view
+    
+        $totalTrucks = count($trucksData);
+    
+        // Pass data to the view
         return view('admin/maintenance', [
             'totalTrucks'     => $totalTrucks,
             'dueTrucks'       => $dueTrucks,
@@ -1151,6 +1247,7 @@ class AdminController extends Controller
             'availableTrucks' => $availableTrucks,
         ]);
     }
+    
 
     
 

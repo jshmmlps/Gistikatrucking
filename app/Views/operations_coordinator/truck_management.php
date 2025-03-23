@@ -15,6 +15,9 @@
         <a href="<?= base_url('operations/geolocation'); ?>" class="nav-link <?= (current_url() == base_url('operations/geolocation')) ? 'active' : '' ?>">
             <span class="description">Geolocation</span>
         </a>
+        <!-- <a href="<?= base_url('operations/maintenance'); ?>" class="nav-link <?= (current_url() == base_url('operations/maintenance')) ? 'active' : '' ?>">
+            <span class="description">Maintenance Analytics</span>
+        </a> -->
     </ul>
     
     <!-- Tab Content -->
@@ -202,7 +205,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                   </div>
                                   <div class="modal-body">
-                                    <!-- Form fields with required asterisks -->
+                                    <!-- Common Truck Fields -->
                                     <div class="mb-3">
                                         <label for="truck_model_<?= $key ?>" class="form-label">Truck Model <span style="color:red;">*</span></label>
                                         <input type="text" class="form-control" name="truck_model" id="truck_model_<?= $key ?>" value="<?= esc($truck['truck_model']) ?>" required>
@@ -222,6 +225,11 @@
                                     <div class="mb-3">
                                         <label for="color_<?= $key ?>" class="form-label">Color <span style="color:red;">*</span></label>
                                         <input type="text" class="form-control" name="color" id="color_<?= $key ?>" value="<?= esc($truck['color']) ?>" required>
+                                    </div>
+                                    <!-- Added Current Mileage Field -->
+                                    <div class="mb-3">
+                                        <label for="current_mileage_<?= $key ?>" class="form-label">Current Mileage <span style="color:red;">*</span></label>
+                                        <input type="number" class="form-control" name="current_mileage" id="current_mileage_<?= $key ?>" value="<?= esc($truck['current_mileage'] ?? '') ?>" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="last_inspection_date_<?= $key ?>" class="form-label">Last Inspection Date <span style="color:red;">*</span></label>
@@ -266,6 +274,69 @@
                                     <div class="mb-3">
                                         <label for="maintenance_technician_<?= $key ?>" class="form-label">Maintenance Technician</label>
                                         <input type="text" class="form-control" name="maintenance_technician" id="maintenance_technician_<?= $key ?>" value="<?= esc($truck['maintenance_technician']) ?>">
+                                    </div>
+
+                                    <!-- New Section for Individual Maintenance Items -->
+                                    <hr>
+                                    <h5>Maintenance Items</h5>
+                                    <!-- Engine Oil & Filter -->
+                                    <div class="mb-3">
+                                        <label for="engine_oil_last_service_mileage_<?= $key ?>" class="form-label">Engine Oil - Last Service Mileage</label>
+                                        <input type="number" class="form-control" name="engine_oil_last_service_mileage" id="engine_oil_last_service_mileage_<?= $key ?>" value="<?= esc($truck['maintenance_items']['engine_oil']['last_service_mileage'] ?? $truck['last_inspection_mileage'] ?? '') ?>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="engine_oil_last_service_date_<?= $key ?>" class="form-label">Engine Oil - Last Service Date</label>
+                                        <input type="date" class="form-control" name="engine_oil_last_service_date" id="engine_oil_last_service_date_<?= $key ?>" value="<?= esc($truck['maintenance_items']['engine_oil']['last_service_date'] ?? $truck['last_inspection_date'] ?? '') ?>">
+                                    </div>
+
+                                    <!-- Transmission Fluids & Filter -->
+                                    <div class="mb-3">
+                                        <label for="transmission_last_service_mileage_<?= $key ?>" class="form-label">Transmission - Last Service Mileage</label>
+                                        <input type="number" class="form-control" name="transmission_last_service_mileage" id="transmission_last_service_mileage_<?= $key ?>" value="<?= esc($truck['maintenance_items']['transmission']['last_service_mileage'] ?? $truck['last_inspection_mileage'] ?? '') ?>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="transmission_last_service_date_<?= $key ?>" class="form-label">Transmission - Last Service Date</label>
+                                        <input type="date" class="form-control" name="transmission_last_service_date" id="transmission_last_service_date_<?= $key ?>" value="<?= esc($truck['maintenance_items']['transmission']['last_service_date'] ?? $truck['last_inspection_date'] ?? '') ?>">
+                                    </div>
+
+                                    <!-- Air Filters -->
+                                    <div class="mb-3">
+                                        <label for="air_filters_last_service_mileage_<?= $key ?>" class="form-label">Air Filters - Last Service Mileage</label>
+                                        <input type="number" class="form-control" name="air_filters_last_service_mileage" id="air_filters_last_service_mileage_<?= $key ?>" value="<?= esc($truck['maintenance_items']['air_filters']['last_service_mileage'] ?? $truck['last_inspection_mileage'] ?? '') ?>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="air_filters_last_service_date_<?= $key ?>" class="form-label">Air Filters - Last Service Date</label>
+                                        <input type="date" class="form-control" name="air_filters_last_service_date" id="air_filters_last_service_date_<?= $key ?>" value="<?= esc($truck['maintenance_items']['air_filters']['last_service_date'] ?? $truck['last_inspection_date'] ?? '') ?>">
+                                    </div>
+
+                                    <!-- Brake Components -->
+                                    <div class="mb-3">
+                                        <label for="brake_components_last_service_mileage_<?= $key ?>" class="form-label">Brake Components - Last Service Mileage</label>
+                                        <input type="number" class="form-control" name="brake_components_last_service_mileage" id="brake_components_last_service_mileage_<?= $key ?>" value="<?= esc($truck['maintenance_items']['brake_components']['last_service_mileage'] ?? $truck['last_inspection_mileage'] ?? '') ?>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="brake_components_last_service_date_<?= $key ?>" class="form-label">Brake Components - Last Service Date</label>
+                                        <input type="date" class="form-control" name="brake_components_last_service_date" id="brake_components_last_service_date_<?= $key ?>" value="<?= esc($truck['maintenance_items']['brake_components']['last_service_date'] ?? $truck['last_inspection_date'] ?? '') ?>">
+                                    </div>
+
+                                    <!-- Tires -->
+                                    <div class="mb-3">
+                                        <label for="tires_last_service_mileage_<?= $key ?>" class="form-label">Tires - Last Service Mileage</label>
+                                        <input type="number" class="form-control" name="tires_last_service_mileage" id="tires_last_service_mileage_<?= $key ?>" value="<?= esc($truck['maintenance_items']['tires']['last_service_mileage'] ?? $truck['last_inspection_mileage'] ?? '') ?>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tires_last_service_date_<?= $key ?>" class="form-label">Tires - Last Service Date</label>
+                                        <input type="date" class="form-control" name="tires_last_service_date" id="tires_last_service_date_<?= $key ?>" value="<?= esc($truck['maintenance_items']['tires']['last_service_date'] ?? $truck['last_inspection_date'] ?? '') ?>">
+                                    </div>
+
+                                    <!-- Belt & Hoses -->
+                                    <div class="mb-3">
+                                        <label for="belt_hoses_last_service_mileage_<?= $key ?>" class="form-label">Belt & Hoses - Last Service Mileage</label>
+                                        <input type="number" class="form-control" name="belt_hoses_last_service_mileage" id="belt_hoses_last_service_mileage_<?= $key ?>" value="<?= esc($truck['maintenance_items']['belt_hoses']['last_service_mileage'] ?? $truck['last_inspection_mileage'] ?? '') ?>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="belt_hoses_last_service_date_<?= $key ?>" class="form-label">Belt & Hoses - Last Service Date</label>
+                                        <input type="date" class="form-control" name="belt_hoses_last_service_date" id="belt_hoses_last_service_date_<?= $key ?>" value="<?= esc($truck['maintenance_items']['belt_hoses']['last_service_date'] ?? $truck['last_inspection_date'] ?? '') ?>">
                                     </div>
                                   </div>
                                   <div class="modal-footer">
@@ -348,6 +419,11 @@
         <div class="mb-3">
             <label for="color" class="form-label">Color <span style="color:red;">*</span></label>
             <input type="text" class="form-control" name="color" id="color" required>
+        </div>
+        <!-- Added Current Mileage Field -->
+        <div class="mb-3">
+            <label for="current_mileage" class="form-label">Current Mileage <span style="color:red;">*</span></label>
+            <input type="number" class="form-control" name="current_mileage" id="current_mileage" required>
         </div>
         <div class="mb-3">
             <label for="last_inspection_date" class="form-label">Last Inspection Date<span style="color:red;">*</span></label>
