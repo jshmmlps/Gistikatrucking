@@ -282,27 +282,32 @@ class StaffOcController extends Controller
 
 
     // ============== TRUCK MANAGEMENT MODULE ===================  //
-    // List all trucks
     public function trucks()
     {
         $truckModel = new TruckModel();
         $trucks = $truckModel->getTrucks();
 
         // Re-index the array in case it is associative
-        $trucks = array_values($trucks);
-        
+        $trucks = $trucks ? array_values($trucks) : [];
+
         // Sort the trucks naturally by truck_id (e.g., Truck1, Truck2, ..., Truck10)
         usort($trucks, function($a, $b) {
             return strnatcmp($a['truck_id'], $b['truck_id']);
         });
-        
+
         $data['trucks'] = $trucks;
         return view('operations_coordinator/truck_management', $data);
     }
 
-    // Create a new truck (process create form submission)
+    /**
+     * Create (store) a new truck in Firebase
+     */
     public function storeTruck()
     {
+        // Get manufacturing date
+        $manufacturingDate = $this->request->getPost('manufacturing_date');
+
+        // Prepare data from POST
         $data = [
             'truck_model'             => $this->request->getPost('truck_model'),
             'plate_number'            => $this->request->getPost('plate_number'),
@@ -321,108 +326,161 @@ class StaffOcController extends Controller
             'last_inspection_date'    => $this->request->getPost('last_inspection_date'),
             'last_inspection_mileage' => $this->request->getPost('last_inspection_mileage'),
             'current_mileage'         => $this->request->getPost('current_mileage'),
-            // Initialize maintenance items for specific parts
+
+            // NEW FIELD
+            'manufacturing_date'      => $manufacturingDate,
+
+            // Updated maintenance items with 7 major components
             'maintenance_items' => [
-                'engine_oil' => [
+                'engine_system' => [
                     'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
-                    'recommended_interval_km' => 10000,
-                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                    'recommended_interval_km' => 5000,  // example
+                    'last_service_date'       => $this->request->getPost('last_inspection_date'),
                 ],
-                'transmission' => [
+                'transmission_drivetrain' => [
                     'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
-                    'recommended_interval_km' => 60000,
-                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                    'recommended_interval_km' => 60000, // example
+                    'last_service_date'       => $this->request->getPost('last_inspection_date'),
                 ],
-                'air_filters' => [
+                'brake_system' => [
                     'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
                     'recommended_interval_km' => 20000,
-                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                    'last_service_date'       => $this->request->getPost('last_inspection_date'),
                 ],
-                'brake_components' => [
+                'suspension_chassis' => [
                     'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
                     'recommended_interval_km' => 20000,
-                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                    'last_service_date'       => $this->request->getPost('last_inspection_date'),
                 ],
-                'tires' => [
-                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
-                    'recommended_interval_km' => 50000,
-                    'last_service_date'       => $this->request->getPost('last_inspection_date')
-                ],
-                'belt_hoses' => [
+                'fuel_cooling_system' => [
                     'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
                     'recommended_interval_km' => 20000,
-                    'last_service_date'       => $this->request->getPost('last_inspection_date')
+                    'last_service_date'       => $this->request->getPost('last_inspection_date'),
+                ],
+                'steering_system' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 20000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date'),
+                ],
+                'electrical_auxiliary_system' => [
+                    'last_service_mileage'    => $this->request->getPost('last_inspection_mileage'),
+                    'recommended_interval_km' => 20000,
+                    'last_service_date'       => $this->request->getPost('last_inspection_date'),
                 ],
             ],
         ];
-        
+
+        // 2) Check if a file was uploaded (Truck Image)
+        $imageFile = $this->request->getFile('truck_image');
+        if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
+            // a) Get firebaseStorage service
+            $storage = service('firebaseStorage');
+
+            // b) Get bucket from .env
+            $bucketName = env('FIREBASE_STORAGE_BUCKET');
+            $bucket     = $storage->getBucket($bucketName);
+
+            // c) Move the file locally first
+            $filename  = $imageFile->getRandomName();
+            $localPath = WRITEPATH . 'uploads/' . $filename;
+            $imageFile->move(WRITEPATH . 'uploads', $filename);
+
+            // d) Upload to folder "truck_images/"
+            $firebasePath = 'truck_images/' . $filename;
+            $bucket->upload(fopen($localPath, 'r'), [
+                'name' => $firebasePath
+            ]);
+
+            // e) Generate a public download URL (assuming your bucket is publicly readable)
+            $storageRef = $bucket->object($firebasePath);
+            if ($storageRef->exists()) {
+                $info = $bucket->info(); 
+                $bucketRealName = $info['name'];
+                $imageUrl = 'https://firebasestorage.googleapis.com/v0/b/'
+                          . $bucketRealName
+                          . '/o/' . urlencode($firebasePath)
+                          . '?alt=media';
+                $data['image_url'] = $imageUrl;
+            }
+        }
+
+        // 3) Insert record in Firebase Realtime Database
         $truckModel = new TruckModel();
         $newTruckId = $truckModel->insertTruck($data);
+
         session()->setFlashdata('success', 'Truck created successfully with ID: ' . $newTruckId);
         return redirect()->to(base_url('operations/trucks'));
     }
 
+    /**
+     * Update an existing truck
+     */
     public function updateTruck($truckId)
     {
-        // Retrieve common truck update values
-        $lastInspectionDate   = $this->request->getPost('last_inspection_date');
+        // Gather inspection data
+        $lastInspectionDate    = $this->request->getPost('last_inspection_date');
         $lastInspectionMileage = $this->request->getPost('last_inspection_mileage');
         $currentMileage        = $this->request->getPost('current_mileage');
 
-        // Retrieve individual maintenance item values, if provided, or default to the common inspection values
-        $engineOilMileage = $this->request->getPost('engine_oil_last_service_mileage') ?? $lastInspectionMileage;
-        $engineOilDate    = $this->request->getPost('engine_oil_last_service_date') ?? $lastInspectionDate;
+        // NEW: Get the manufacturing date
+        $manufacturingDate     = $this->request->getPost('manufacturing_date');
 
-        $transmissionMileage = $this->request->getPost('transmission_last_service_mileage') ?? $lastInspectionMileage;
-        $transmissionDate    = $this->request->getPost('transmission_last_service_date') ?? $lastInspectionDate;
+        // Retrieve individual maintenance values for each component
+        $engineSystemMileage         = $this->request->getPost('engine_system_last_service_mileage') ?? $lastInspectionMileage;
+        $engineSystemDate            = $this->request->getPost('engine_system_last_service_date')     ?? $lastInspectionDate;
+        $transmissionDrivetrainMileage = $this->request->getPost('transmission_drivetrain_last_service_mileage') ?? $lastInspectionMileage;
+        $transmissionDrivetrainDate    = $this->request->getPost('transmission_drivetrain_last_service_date')     ?? $lastInspectionDate;
+        $brakeSystemMileage          = $this->request->getPost('brake_system_last_service_mileage') ?? $lastInspectionMileage;
+        $brakeSystemDate             = $this->request->getPost('brake_system_last_service_date')     ?? $lastInspectionDate;
+        $suspensionChassisMileage    = $this->request->getPost('suspension_chassis_last_service_mileage') ?? $lastInspectionMileage;
+        $suspensionChassisDate       = $this->request->getPost('suspension_chassis_last_service_date')     ?? $lastInspectionDate;
+        $fuelCoolingSystemMileage    = $this->request->getPost('fuel_cooling_system_last_service_mileage') ?? $lastInspectionMileage;
+        $fuelCoolingSystemDate       = $this->request->getPost('fuel_cooling_system_last_service_date')     ?? $lastInspectionDate;
+        $steeringSystemMileage       = $this->request->getPost('steering_system_last_service_mileage') ?? $lastInspectionMileage;
+        $steeringSystemDate          = $this->request->getPost('steering_system_last_service_date')     ?? $lastInspectionDate;
+        $electricalAuxSysMileage     = $this->request->getPost('electrical_auxiliary_system_last_service_mileage') ?? $lastInspectionMileage;
+        $electricalAuxSysDate        = $this->request->getPost('electrical_auxiliary_system_last_service_date')     ?? $lastInspectionDate;
 
-        $airFiltersMileage = $this->request->getPost('air_filters_last_service_mileage') ?? $lastInspectionMileage;
-        $airFiltersDate    = $this->request->getPost('air_filters_last_service_date') ?? $lastInspectionDate;
-
-        $brakeComponentsMileage = $this->request->getPost('brake_components_last_service_mileage') ?? $lastInspectionMileage;
-        $brakeComponentsDate    = $this->request->getPost('brake_components_last_service_date') ?? $lastInspectionDate;
-
-        $tiresMileage = $this->request->getPost('tires_last_service_mileage') ?? $lastInspectionMileage;
-        $tiresDate    = $this->request->getPost('tires_last_service_date') ?? $lastInspectionDate;
-
-        $beltHosesMileage = $this->request->getPost('belt_hoses_last_service_mileage') ?? $lastInspectionMileage;
-        $beltHosesDate    = $this->request->getPost('belt_hoses_last_service_date') ?? $lastInspectionDate;
-
-        // Build maintenance items array with individual values
+        // Build maintenance items array for the 7 major components
         $maintenanceItems = [
-            'engine_oil' => [
-                'last_service_mileage'    => $engineOilMileage,
-                'recommended_interval_km' => 10000,
-                'last_service_date'       => $engineOilDate,
+            'engine_system' => [
+                'last_service_mileage'    => $engineSystemMileage,
+                'recommended_interval_km' => 5000, // example
+                'last_service_date'       => $engineSystemDate,
             ],
-            'transmission' => [
-                'last_service_mileage'    => $transmissionMileage,
-                'recommended_interval_km' => 60000,
-                'last_service_date'       => $transmissionDate,
+            'transmission_drivetrain' => [
+                'last_service_mileage'    => $transmissionDrivetrainMileage,
+                'recommended_interval_km' => 60000, // example
+                'last_service_date'       => $transmissionDrivetrainDate,
             ],
-            'air_filters' => [
-                'last_service_mileage'    => $airFiltersMileage,
+            'brake_system' => [
+                'last_service_mileage'    => $brakeSystemMileage,
                 'recommended_interval_km' => 20000,
-                'last_service_date'       => $airFiltersDate,
+                'last_service_date'       => $brakeSystemDate,
             ],
-            'brake_components' => [
-                'last_service_mileage'    => $brakeComponentsMileage,
+            'suspension_chassis' => [
+                'last_service_mileage'    => $suspensionChassisMileage,
                 'recommended_interval_km' => 20000,
-                'last_service_date'       => $brakeComponentsDate,
+                'last_service_date'       => $suspensionChassisDate,
             ],
-            'tires' => [
-                'last_service_mileage'    => $tiresMileage,
-                'recommended_interval_km' => 50000,
-                'last_service_date'       => $tiresDate,
-            ],
-            'belt_hoses' => [
-                'last_service_mileage'    => $beltHosesMileage,
+            'fuel_cooling_system' => [
+                'last_service_mileage'    => $fuelCoolingSystemMileage,
                 'recommended_interval_km' => 20000,
-                'last_service_date'       => $beltHosesDate,
+                'last_service_date'       => $fuelCoolingSystemDate,
+            ],
+            'steering_system' => [
+                'last_service_mileage'    => $steeringSystemMileage,
+                'recommended_interval_km' => 20000,
+                'last_service_date'       => $steeringSystemDate,
+            ],
+            'electrical_auxiliary_system' => [
+                'last_service_mileage'    => $electricalAuxSysMileage,
+                'recommended_interval_km' => 20000,
+                'last_service_date'       => $electricalAuxSysDate,
             ],
         ];
 
-        // Update common truck data along with the maintenance items
+        // Prepare main data array
         $data = [
             'truck_model'             => $this->request->getPost('truck_model'),
             'plate_number'            => $this->request->getPost('plate_number'),
@@ -441,17 +499,53 @@ class StaffOcController extends Controller
             'last_inspection_date'    => $lastInspectionDate,
             'last_inspection_mileage' => $lastInspectionMileage,
             'current_mileage'         => $currentMileage,
-            'maintenance_items'       => $maintenanceItems,
+
+            // NEW manufacturing date
+            'manufacturing_date'      => $manufacturingDate,
+
+            // Updated maintenance items
+            'maintenance_items' => $maintenanceItems,
         ];
 
-        $truckModel = new \App\Models\TruckModel();
+        // 2) Check if a file was uploaded
+        $imageFile = $this->request->getFile('truck_image');
+        if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
+            $storage = service('firebaseStorage');
+            $bucketName = env('FIREBASE_STORAGE_BUCKET');
+            $bucket = $storage->getBucket($bucketName);
+
+            $filename  = $imageFile->getRandomName();
+            $localPath = WRITEPATH . 'uploads/' . $filename;
+            $imageFile->move(WRITEPATH . 'uploads', $filename);
+
+            $firebasePath = 'truck_images/' . $filename;
+            $bucket->upload(fopen($localPath, 'r'), [
+                'name' => $firebasePath
+            ]);
+
+            $storageRef = $bucket->object($firebasePath);
+            if ($storageRef->exists()) {
+                $info = $bucket->info();
+                $bucketRealName = $info['name'];
+                $imageUrl = 'https://firebasestorage.googleapis.com/v0/b/'
+                          . $bucketRealName
+                          . '/o/' . urlencode($firebasePath)
+                          . '?alt=media';
+                $data['image_url'] = $imageUrl;
+            }
+        }
+
+        // 3) Update the record in Realtime Database
+        $truckModel = new TruckModel();
         $truckModel->updateTruck($truckId, $data);
+
         session()->setFlashdata('success', 'Truck updated successfully.');
         return redirect()->to(base_url('operations/trucks'));
     }
 
-
-    // Delete a truck
+    /**
+     * Delete an existing truck
+     */
     public function deleteTruck($truckId)
     {
         $truckModel = new TruckModel();
@@ -460,7 +554,9 @@ class StaffOcController extends Controller
         return redirect()->to(base_url('operations/trucks'));
     }
 
-    // View a truck's details
+    /**
+     * View a truck's details
+     */
     public function viewTruck($truckId)
     {
         $truckModel = new TruckModel();
@@ -627,28 +723,71 @@ class StaffOcController extends Controller
         ]);
     }
 
-      // ================== REPORT MANAGEMENT MODULE ===================  //
+    // ================== REPORT MANAGEMENT MODULE ===================  //
+
+    public function Report()
+    {
+
+        // 1) Call the StorageScan logic
+        $storageScan = new \App\Controllers\StorageScan();
+        $storageScan->index(); 
+        // That will create any missing "Reports" records in Realtime DB
+        
+        // Get Firebase Realtime Database instance
+        $db = Services::firebase();
+        
+        // Get a reference to the "Reports" node
+        $reportsRef = $db->getReference('Reports');
+        $snapshot = $reportsRef->getSnapshot();
+        
+        // Get the reports as an associative array (or an empty array if none)
+        $reports = $snapshot->getValue() ?? [];
+        
+        // Optionally, sort the reports naturally by report number (keys like "R000001")
+        uksort($reports, function($a, $b) {
+            return strnatcmp($a, $b);
+        });
+        
+        // Pass the reports data to the view
+        return view('operations_coordinator/reports_management', ['reports' => $reports]);
+    }
+
+    public function saveRemark() 
+    {
+        // Get the POST data
+        $reportNumber = $this->request->getPost('report_number');
+        $remark = $this->request->getPost('remark');
+        $remarkStatus = $this->request->getPost('remark_status'); // new field: "Pending", "Approved", or "Rejected"
+        $action = $this->request->getPost('action'); // "save" or "delete"
     
-      public function Report()
-      {
-          // Get Firebase Realtime Database instance
-          $db = Services::firebase();
-          
-          // Get a reference to the "Reports" node
-          $reportsRef = $db->getReference('Reports');
-          $snapshot = $reportsRef->getSnapshot();
-          
-          // Get the reports as an associative array (or an empty array if none)
-          $reports = $snapshot->getValue() ?? [];
-          
-          // Optionally, sort the reports naturally by report number (keys like "R000001")
-          uksort($reports, function($a, $b) {
-              return strnatcmp($a, $b);
-          });
-          
-          // Pass the reports data to the view
-          return view('operations_coordinator/reports_management', ['reports' => $reports]);
-      }
+        // Default remark status to "Pending" if empty
+        if ($action !== 'delete' && empty($remarkStatus)) {
+            $remarkStatus = 'Pending';
+        }
+    
+        // Get Firebase instance and reference to Reports node
+        $db = \Config\Services::firebase();
+        $reportRef = $db->getReference('Reports/' . $reportNumber);
+    
+        if ($action === 'delete') {
+            // Remove remark field (or set them to empty strings)
+            $reportRef->update([
+                'remark' => '',
+                'remark_status' => ''
+            ]);
+            session()->setFlashdata('success', 'Remark deleted successfully.');
+        } else {
+            // Save or update the remark and remark_status
+            $reportRef->update([
+                'remark' => $remark,
+                'remark_status' => $remarkStatus
+            ]);
+            session()->setFlashdata('success', 'Remark saved successfully.');
+        }
+        
+        return redirect()->to(base_url('operations/reports'));
+    }
+    
 
       
     // ----- Logout -----

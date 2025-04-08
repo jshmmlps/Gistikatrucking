@@ -1,95 +1,236 @@
 <?= $this->extend('templates/resource_manager_layout') ?>
 
 <?= $this->section('content') ?>
+<!-- Custom style for read-only fields -->
+<style>
+  .custom-readonly {
+    background-color: #f2f2f2; /* Custom gray background */
+    color: #555;             /* Optional: dark gray text */
+    cursor: not-allowed;
+  }
+</style>
 <link href="<?= base_url('public/assets/css/style.css'); ?>" rel="stylesheet">
 <title>Reports Management</title>
 
 <div class="container-fluid mt-4">
-    <h1>Reports Management</h1>
+  <h1>Maintenance Reports</h1>
 
-    <!-- Flash Messages -->
-    <?php if(session()->getFlashdata('success')): ?>
-        <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-    <?php endif; ?>
-    <?php if(session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-    <?php endif; ?>
+  <!-- Flash Messages -->
+  <?php if(session()->getFlashdata('success')): ?>
+    <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+  <?php endif; ?>
+  <?php if(session()->getFlashdata('error')): ?>
+    <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+  <?php endif; ?>
 
-    <!-- Reports Table -->
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Report Number</th>
-                <th>Report Type</th>
-                <th>Date</th>
-                <th>Booking ID</th>
-                <th>Username</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (!empty($reports) && is_array($reports)): ?>
-                <?php foreach ($reports as $report): ?>
-                    <?php
-                        $reportNumber = $report['report_number'] ?? '';
-                        $reportType   = $report['report_type'] ?? '';
-                        $date         = $report['date'] ?? '';
-                        $bookingId    = $report['booking_id'] ?? '';
-                        // Use the user_id as username; if you have a lookup, update accordingly.
-                        $username     = $report['user_id'] ?? '';
-                        $imgUrl       = $report['img_url'] ?? '';
-                    ?>
-                    <tr>
-                        <td><?= esc($reportNumber) ?></td>
-                        <td><?= esc($reportType) ?></td>
-                        <td><?= esc($date) ?></td>
-                        <td><?= esc($bookingId) ?></td>
-                        <td><?= esc($username) ?></td>
-                        <td>
-                            <?php if (!empty($imgUrl)): ?>
-                                <button class="btn btn-primary btn-sm" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#viewReportModal" 
-                                        data-img="<?= esc($imgUrl) ?>">
-                                    View
-                                </button>
-                            <?php else: ?>
-                                <span class="text-muted">No Image</span>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
+  <!-- Create New Maintenance Report Form -->
+  <div class="card mb-4">
+    <div class="card-header">Create Maintenance Report</div>
+    <div class="card-body">
+      <form action="<?= base_url('resource/reports/store') ?>" method="post" enctype="multipart/form-data">
+        <?= csrf_field() ?>
+
+        <!-- Truck ID Dropdown -->
+        <div class="mb-3 row">
+          <label for="truck_id" class="col-sm-3 col-form-label">Truck ID</label>
+          <div class="col-sm-9">
+            <select name="truck_id" id="truck_id" class="form-select" required>
+              <option value="">Select Truck</option>
+              <?php if(isset($trucks) && is_array($trucks)): ?>
+                <?php foreach($trucks as $tKey => $tData): ?>
+                  <option value="<?= esc($tKey) ?>">
+                    <?= esc($tKey) ?> - <?= esc($tData['truck_model'] ?? 'Unknown') ?>
+                  </option>
                 <?php endforeach; ?>
-            <?php else: ?>
-                <tr><td colspan="6" class="text-center">No reports found.</td></tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
-</div>
+              <?php endif; ?>
+            </select>
+          </div>
+        </div>
 
-<!-- Modal to Display Report Image -->
-<div class="modal fade" id="viewReportModal" tabindex="-1" aria-labelledby="viewReportModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="viewReportModalLabel">Report Image</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        <img id="reportImage" src="" alt="Report Image" class="img-fluid">
-      </div>
+        <!-- Component Dropdown -->
+        <div class="mb-3 row">
+          <label for="component" class="col-sm-3 col-form-label">Component</label>
+          <div class="col-sm-9">
+            <select name="component" id="component" class="form-select" required>
+              <option value="">Select Component</option>
+              <?php if(isset($majorComponents) && is_array($majorComponents)): ?>
+                <?php foreach($majorComponents as $cKey => $cLabel): ?>
+                  <option value="<?= esc($cKey) ?>"><?= esc($cLabel) ?></option>
+                <?php endforeach; ?>
+              <?php endif; ?>
+            </select>
+          </div>
+        </div>
+
+        <!-- Inspection Date -->
+        <div class="mb-3 row">
+          <label for="inspection_date" class="col-sm-3 col-form-label">Inspection Date</label>
+          <div class="col-sm-9">
+            <input type="date" class="form-control" name="inspection_date" id="inspection_date" required>
+          </div>
+        </div>
+
+        <!-- Action Needed -->
+        <div class="mb-3 row">
+          <label for="action_needed" class="col-sm-3 col-form-label">Action Needed</label>
+          <div class="col-sm-9">
+            <textarea class="form-control" name="action_needed" id="action_needed" rows="3" required></textarea>
+          </div>
+        </div>
+
+        <!-- Service Type -->
+        <div class="mb-3 row">
+          <label for="service_type" class="col-sm-3 col-form-label">Service Type</label>
+          <div class="col-sm-9">
+            <select name="service_type" id="service_type" class="form-select" required>
+              <option value="">Choose...</option>
+              <option value="preventive">Preventive</option>
+              <option value="corrective">Corrective</option>
+              <option value="replacement">Replacement</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Technician Name -->
+        <div class="mb-3 row">
+          <label for="technician_name" class="col-sm-3 col-form-label">Technician Name</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" name="technician_name" id="technician_name" required>
+          </div>
+        </div>
+
+        <!-- Mileage After Inspection -->
+        <div class="mb-3 row">
+          <label for="mileage_after_inspection" class="col-sm-3 col-form-label">Mileage After Inspection (km)</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" name="mileage_after_inspection" id="mileage_after_inspection" required>
+          </div>
+        </div>
+
+        <!-- Estimate Next Service (Mileage) -->
+        <div class="mb-3 row">
+          <label for="estimate_next_service_mileage" class="col-sm-3 col-form-label">Estimate Next Service (Mileage)</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" name="estimate_next_service_mileage" id="estimate_next_service_mileage" required>
+          </div>
+        </div>
+
+        <!-- Expected Next Service (Time) -->
+        <div class="mb-3 row">
+          <label for="expected_next_service_time" class="col-sm-3 col-form-label">Expected Next Service (Time)</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" name="expected_next_service_time" id="expected_next_service_time" placeholder="e.g. 3 months" required>
+          </div>
+        </div>
+
+        <!-- Automatic Read-only Fields -->
+
+        <!-- Last Service Date -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Last Service Date (Auto)</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control custom-readonly" id="last_service_date" name="last_service_date" readonly>
+          </div>
+        </div>
+
+        <!-- Last Service Mileage -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Last Service Mileage (Auto)</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control custom-readonly" id="last_service_mileage" name="last_service_mileage" readonly>
+          </div>
+        </div>
+
+        <!-- Current Mileage -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Current Mileage (Auto)</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control custom-readonly" id="current_mileage" name="current_mileage" readonly>
+          </div>
+        </div>
+
+        <!-- Truck Age / MFG Date -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Truck Age / MFG Date (Auto)</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control custom-readonly" id="manufacturing_date" name="manufacturing_date" readonly>
+          </div>
+        </div>
+
+        <!-- Attach Image -->
+        <div class="mb-3 row">
+          <label for="report_image" class="col-sm-3 col-form-label">Attach Image</label>
+          <div class="col-sm-9">
+            <input type="file" class="form-control" id="report_image" name="report_image">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-9 offset-sm-3">
+            <button type="submit" class="btn btn-primary">Create Maintenance Report</button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
+
+  <!-- List of Existing Maintenance Reports -->
+  <?php if(isset($reports) && is_array($reports) && !empty($reports)): ?>
+    <div class="card">
+      <div class="card-header">Existing Maintenance Reports</div>
+      <div class="card-body">
+        <table class="table table-bordered table-striped">
+          <thead class="table-light">
+            <tr>
+              <th>Report Number</th>
+              <th>Report Type</th>
+              <th>Date</th>
+              <th>Truck ID</th>
+              <th>Component</th>
+              <th>Inspection Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach($reports as $rKey => $rData): ?>
+              <tr>
+                <td><?= esc($rData['report_number'] ?? $rKey) ?></td>
+                <td><?= esc($rData['report_type'] ?? '') ?></td>
+                <td><?= esc($rData['date'] ?? '') ?></td>
+                <td><?= esc($rData['truck_id'] ?? '') ?></td>
+                <td><?= esc($rData['component'] ?? '') ?></td>
+                <td><?= esc($rData['inspection_date'] ?? '') ?></td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <?php else: ?>
+    <p>No Maintenance Reports found.</p>
+  <?php endif; ?>
 </div>
 
 <script>
-    // When the "View" button is clicked, set the modal image's src attribute.
-    const viewReportModal = document.getElementById('viewReportModal');
-    viewReportModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const imgUrl = button.getAttribute('data-img');
-        const reportImage = document.getElementById('reportImage');
-        reportImage.src = imgUrl;
-    });
+  // Pass trucks data from the controller to a JS variable.
+  let trucksData = <?= json_encode($trucks) ?>;
+
+  // When a truck is selected, auto-populate the read-only fields.
+  const truckSelect = document.getElementById('truck_id');
+  truckSelect.addEventListener('change', function () {
+    const selectedTruckId = this.value;
+    if (selectedTruckId && trucksData[selectedTruckId]) {
+      const truck = trucksData[selectedTruckId];
+      document.getElementById('current_mileage').value = truck.current_mileage || '';
+      document.getElementById('last_service_date').value = truck.last_inspection_date || '';
+      document.getElementById('last_service_mileage').value = truck.last_inspection_mileage || '';
+      document.getElementById('manufacturing_date').value = truck.manufacturing_date || '';
+    } else {
+      document.getElementById('current_mileage').value = '';
+      document.getElementById('last_service_date').value = '';
+      document.getElementById('last_service_mileage').value = '';
+      document.getElementById('manufacturing_date').value = '';
+    }
+  });
 </script>
 
 <?= $this->endSection() ?>

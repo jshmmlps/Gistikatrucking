@@ -5,113 +5,84 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-// Dashboard routes
-$routes->get('/dashboard', 'DashboardController::dashboard');
 
-// Profile routes (FOR REMOVAL)
-// $routes->get('/user', 'UserController::user');
-// $routes->get('/user/getUserDetails/(:num)', 'UserController::getUserDetails/$1');
-
-// Client Routes
-$routes->get('/clients', 'ClientController::clients');
-$routes->post('/clients', 'ClientController::clients');
-
-//Driver Routes
-$routes->get('/drivers', 'DriverController::drivers');
-$routes->post('/drivers', 'DriverController::drivers');
-
-//Booking Routes
-$routes->get('/bookings', 'BookingController::bookings');
-$routes->post('/bookings', 'BookingController::bookings');
-
-// Truck Monitoring Routes (FOR REMOVAL)
-// $routes->get('/trucks', 'TruckController::trucks');
-// $routes->post('/trucks', 'TruckController::trucks');
-// $routes->get('trucks/view/(:num)', 'TruckController::view/$1');
-
-//Maintenance Routes
-$routes->get('maintenance', 'MaintenanceController::maintenance');
-$routes->post('maintenance', 'MaintenanceController::maintenance');
-$routes->get('maintenance/view/(:num)', 'MaintenanceController::view/$1');
-
-//Test
-$routes->get('firebase-test', 'FirebaseTestController::index');
-$routes->get('firebase-test-read', 'FirebaseTestController::read');
-
-// Registration
-$routes->get('register', 'RegistrationController::createForm');
-$routes->post('register/create', 'RegistrationController::createAccount');
-$routes->get('register/verifyOTP', 'RegistrationController::showOTPForm');
-$routes->post('register/verifyOTP', 'RegistrationController::verifyOTP');
-$routes->get('register/resendOTP', 'RegistrationController::resendOTP');
-
-// Forgot password
-$routes->get('password/forgot', 'PasswordController::forgotPassword');
-$routes->post('password/forgot', 'PasswordController::sendResetLink');
-$routes->get('password/reset/(:any)', 'PasswordController::resetPassword/$1');
-$routes->post('password/reset', 'PasswordController::updatePassword');
-
-// Unified login routes
+//---------------------------
+// Public / Authentication
+//---------------------------
 $routes->get('/', 'AuthController::login');
 $routes->get('login', 'AuthController::login');
 $routes->post('login/process', 'AuthController::processLogin');
 $routes->get('logout', 'AuthController::logout');
 
-// Client Routes
-$routes->group('client', function ($routes) {
-    // Dashboard
-    $routes->get('dashboard', 'ClientController::dashboard');
+//---------------------------
+// Dashboard
+//---------------------------
+// $routes->get('dashboard', 'DashboardController::dashboard');
 
-    // Profile
+//---------------------------
+// Client Routes
+// All client-related controllers are assumed to be in App\Controllers
+//---------------------------
+$routes->group('client', ['namespace' => 'App\Controllers'], function($routes) {
+    // Dashboard, Profile & Booking
+    $routes->get('dashboard', 'ClientController::dashboard');
     $routes->get('profile', 'ClientController::profile');
     $routes->post('updateProfile', 'ClientController::updateProfile');
     $routes->post('uploadProfilePicture', 'ClientController::uploadProfilePicture');
+    // In this example, editProfilePicture uses the same method as uploadProfilePicture
     $routes->post('editProfilePicture', 'ClientController::uploadProfilePicture');
-
-    // Geolocation
+    
+    // Geolocation & Reports
     $routes->get('geolocation', 'ClientController::geolocation');
-
-    // Report
     $routes->get('reports', 'ClientController::report');
-
-    // Logout
-    $routes->get('logout', 'ClientController::logout');
-
-    $routes->get('faq', 'ClientController::Faq');
-});
-
-// Client routes
-$routes->group('client', ['namespace' => 'App\Controllers'], function($routes) {
+    
+    // Bookings
     $routes->get('bookings', 'ClientController::bookings');
     $routes->post('store-booking', 'ClientController::storeBooking');
+    
+    // FAQ & Logout
+    $routes->get('faq', 'ClientController::Faq');
+    $routes->get('logout', 'ClientController::logout');
+
+    // Alternatively, if you want report routes with a “client/” prefix:
+    $routes->get('report', 'ClientController::report');
+    $routes->post('report/store', 'ClientController::storeReport');
 });
 
-$routes->get('client/report', 'ClientController::report');
-$routes->post('client/report/store', 'ClientController::storeReport');
+//---------------------------
+// Test Routes
+//---------------------------
+$routes->get('firebase-test', 'FirebaseTestController::index');
+$routes->get('firebase-test-read', 'FirebaseTestController::read');
 
-
-// Admin routes
-$routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
-    $routes->get('bookings', 'AdminController::bookings');
-    $routes->post('update-booking-status', 'AdminController::updateBookingStatus');
+//---------------------------
+// Registration & Password
+//---------------------------
+$routes->group('register', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('/', 'RegistrationController::createForm');
+    $routes->post('create', 'RegistrationController::createAccount');
+    $routes->get('verifyOTP', 'RegistrationController::showOTPForm');
+    $routes->post('verifyOTP', 'RegistrationController::verifyOTP');
+    $routes->get('resendOTP', 'RegistrationController::resendOTP');
 });
 
-// Operations Coordinator routes
-$routes->group('operations', ['namespace' => 'App\Controllers'], function($routes) {
-    $routes->get('bookings', 'StaffOcController::bookings');
-    $routes->post('update-booking-status', 'StaffOcController::updateBookingStatus');
+$routes->group('password', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('forgot', 'PasswordController::forgotPassword');
+    $routes->post('forgot', 'PasswordController::sendResetLink');
+    $routes->get('reset/(:any)', 'PasswordController::resetPassword/$1');
+    $routes->post('reset', 'PasswordController::updatePassword');
 });
 
-
+//---------------------------
 // Admin Routes
-
-$routes->group('admin', function ($routes) {
-    // Dashboard
+//---------------------------
+$routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
+    // Dashboard & Profile
     $routes->get('dashboard', 'AdminController::index');
-
-    // Profile Management
     $routes->get('profile', 'AdminController::profile');
     $routes->post('updateProfile', 'AdminController::updateProfile');
+    $routes->post('uploadProfilePicture', 'AdminController::uploadProfilePicture');
+    $routes->post('editProfilePicture', 'AdminController::uploadProfilePicture');
 
     // User Management
     $routes->get('users', 'AdminController::users');
@@ -121,8 +92,6 @@ $routes->group('admin', function ($routes) {
     $routes->post('users/(:segment)/edit', 'AdminController::edit/$1');
     $routes->get('users/(:segment)/delete', 'AdminController::delete/$1');
     $routes->post('users/(:segment)/delete', 'AdminController::delete/$1');
-    $routes->post('uploadProfilePicture', 'AdminController::uploadProfilePicture');
-    $routes->post('editProfilePicture', 'AdminController::uploadProfilePicture');
 
     // Truck Management
     $routes->get('trucks', 'AdminController::truck');
@@ -142,27 +111,27 @@ $routes->group('admin', function ($routes) {
     $routes->get('clients', 'AdminController::clientManagement');
     $routes->get('clientView/(:any)', 'AdminController::clientView/$1');
     $routes->match(['get', 'post'], 'clientEdit/(:any)', 'AdminController::clientEdit/$1');
-    
-    // Maintenance
-    $routes->get('maintenance', 'AdminController::Maintenance');
 
-    // Geolocation
+    // Maintenance & Geolocation
+    $routes->get('maintenance', 'AdminController::Maintenance');
     $routes->get('geolocation', 'AdminController::geolocation');
 
     // Report Management
     $routes->get('reports', 'AdminController::Report');
 
+    // Bookings Management
+    $routes->get('bookings', 'AdminController::bookings');
+    $routes->post('update-booking-status', 'AdminController::updateBookingStatus');
+
     // Logout
     $routes->get('logout', 'AdminController::logout');
 });
 
-
-
-
-// Operations Coordinator
-
-$routes->group('operations', function($routes) {
-    // Dashboard and profile routes
+//---------------------------
+// Operations Coordinator Routes
+//---------------------------
+$routes->group('operations', ['namespace' => 'App\Controllers'], function($routes) {
+    // Dashboard & Profile
     $routes->get('dashboard', 'StaffOcController::dashboard');
     $routes->get('dashboard/trucks-count', 'StaffOcController::trucksCount');
     $routes->get('profile', 'StaffOcController::profile');
@@ -170,56 +139,49 @@ $routes->group('operations', function($routes) {
     $routes->post('uploadProfilePicture', 'StaffOcController::uploadProfilePicture');
     $routes->post('editProfilePicture', 'StaffOcController::uploadProfilePicture');
 
-    // Truck management routes
+    // Truck Management
     $routes->get('trucks', 'StaffOcController::trucks');
     $routes->post('trucks/create', 'StaffOcController::createTruck');
     $routes->post('trucks/update/(:segment)', 'StaffOcController::updateTruck/$1');
     $routes->get('trucks/delete/(:segment)', 'StaffOcController::deleteTruck/$1');
     $routes->get('trucks/view/(:segment)', 'StaffOcController::viewTruck/$1');
 
-    // Geolocation routes
+    // Geolocation
     $routes->get('geolocation', 'StaffOcController::geolocation');
     
-    // Booking management routes
+    // Booking Management
     $routes->get('bookings', 'StaffOcController::bookings');
     $routes->get('bookings/view/(:segment)', 'StaffOcController::viewBooking/$1');
+    $routes->post('update-booking-status', 'StaffOcController::updateBookingStatus');
 
-
-    // Report management routes
+    // Report Management
     $routes->get('reports', 'StaffOcController::Report');
+    $routes->post('reports/saveRemark', 'StaffOcController::saveRemark');
 });
 
-// Resource Manager
-
-$routes->group('resource', function($routes) {
-    // Dashboard and user account routes
+//---------------------------
+// Resource Manager Routes
+//---------------------------
+$routes->group('resource', ['namespace' => 'App\Controllers'], function($routes) {
+    // Dashboard & Profile
     $routes->get('dashboard', 'StaffRmController::dashboard');
     $routes->get('profile', 'StaffRmController::profile');
     $routes->post('updateProfile', 'StaffRmController::updateProfile');
     $routes->post('uploadProfilePicture', 'StaffRmController::uploadProfilePicture');
     $routes->post('editProfilePicture', 'StaffRmController::uploadProfilePicture');
     
-    // Truck management routes
+    // Truck Management
     $routes->get('trucks', 'StaffRmController::trucks');
-    $routes->post('trucks/create', 'StaffRmController::createTruck');
+    $routes->post('trucks/create', 'StaffRmController::storeTruck');
     $routes->post('trucks/update/(:segment)', 'StaffRmController::updateTruck/$1');
     $routes->get('trucks/delete/(:segment)', 'StaffRmController::deleteTruck/$1');
     $routes->get('trucks/view/(:segment)', 'StaffRmController::viewTruck/$1');
 
-    // Maintenance management routes
+    // Maintenance & Geolocation
     $routes->get('maintenance', 'StaffRmController::maintenance');
-
-    // Geolocation routes
     $routes->get('geolocation', 'StaffRmController::geolocation');
 
-    // Report management routes
+    // Report Management
     $routes->get('reports', 'StaffRmController::Report');
+    $routes->post('reports/store', 'StaffRmController::storeReport');
 });
-
-
-
-
-
-
-
-

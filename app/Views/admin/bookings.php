@@ -15,7 +15,27 @@
         <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
     <?php endif; ?>
 
-    <table class="table table-bordered">
+    <!-- Search and Filter Controls -->
+    <div class="row mb-3">
+        <!-- Client Name Search -->
+        <div class="col-md-6 mb-2 mb-md-0">
+            <input type="text" class="form-control" id="searchClient" placeholder="Search by Client Name">
+        </div>
+        <!-- Status Filter -->
+        <div class="col-md-6">
+            <select class="form-select" id="filterStatus">
+                <option value="">All Statuses</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="pending">Pending</option>
+                <option value="in-transit">In-transit</option>
+                <option value="completed">Completed</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <table id="bookingsTable" class="table table-bordered">
       <thead>
         <tr>
           <th>Booking ID</th>
@@ -172,7 +192,6 @@
                           <select name="driver" class="form-select">
                             <option value="">-- No Change --</option>
                             <?php 
-                              // Loop through driversList and for each, try to find a matching conductor from conductorsList.
                               if (!empty($driversList) && is_array($driversList)):
                                 foreach ($driversList as $dKey => $dInfo):
                                   $dName = trim(($dInfo['first_name'] ?? '') . ' ' . ($dInfo['last_name'] ?? ''));
@@ -242,8 +261,8 @@
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtBOU_Ez6dNsAsgVXTxbhl_IC09meVzlw"></script>
 
 <script>
+// Initialize maps for each booking modal when shown
 document.addEventListener('DOMContentLoaded', function() {
-  // For each modal, initialize the map on shown
   var bookingModals = document.querySelectorAll('.booking-modal');
   bookingModals.forEach(function(modal) {
     modal.addEventListener('shown.bs.modal', function() {
@@ -255,7 +274,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /**
  * Initialize the map for a given booking modal.
- * Renders route from pickup to dropoff, stores distance in hidden field.
  */
 function initBookingMap(bookingId) {
   var modal = document.getElementById('bookingModal' + bookingId);
@@ -301,7 +319,6 @@ function initBookingMap(bookingId) {
       directionsRenderer.setDirections(result);
       var distanceMeters = result.routes[0].legs[0].distance.value;
       var distanceKm     = (distanceMeters / 1000).toFixed(2);
-      // Update hidden distance field
       var distanceField = document.getElementById('distance' + bookingId);
       if (distanceField) {
         distanceField.value = distanceKm;
@@ -311,5 +328,25 @@ function initBookingMap(bookingId) {
     }
   });
 }
+
+// Filter function for bookings table
+function filterBookings() {
+  var searchClient = document.getElementById('searchClient').value.toLowerCase().trim();
+  var filterStatus = document.getElementById('filterStatus').value.toLowerCase().trim();
+  var rows = document.querySelectorAll('#bookingsTable tbody tr');
+  
+  rows.forEach(function(row) {
+    var clientName = row.cells[2].textContent.toLowerCase().trim();
+    var status = row.cells[5].textContent.toLowerCase().trim();
+    var matchesClient = clientName.indexOf(searchClient) > -1;
+    var matchesStatus = filterStatus ? (status === filterStatus) : true;
+    
+    row.style.display = (matchesClient && matchesStatus) ? '' : 'none';
+  });
+}
+
+// Add event listeners for search and status filter
+document.getElementById('searchClient').addEventListener('keyup', filterBookings);
+document.getElementById('filterStatus').addEventListener('change', filterBookings);
 </script>
 <?= $this->endSection() ?>

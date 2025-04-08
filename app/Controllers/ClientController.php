@@ -339,8 +339,8 @@ class ClientController extends BaseController
         return view('client/geolocation', ['drivers' => $clientDrivers]);
     }
 
-
-   /**
+    // =================== REPORTS ===================
+    /**
      * Display the report form.
      * Also fetch the client's bookings from Firebase to populate the Booking ID dropdown.
      */
@@ -379,28 +379,60 @@ class ClientController extends BaseController
         $clientKey = $session->get('firebaseKey');
 
         // Retrieve form inputs
-        $bookingId  = $this->request->getPost('booking_id');
-        $reportType = $this->request->getPost('report_type'); // "Delivery Report" or "Discrepancy Report"
-        $file       = $this->request->getFile('report_image');
+        $bookingId    = $this->request->getPost('booking_id');
+        $reportType   = $this->request->getPost('report_type'); // e.g. "Trip Ticket"
+        $file         = $this->request->getFile('report_image');
 
-        // Validate inputs
+        // Retrieve additional fields
+        $tripDate     = $this->request->getPost('trip_date');
+        $tripTime     = $this->request->getPost('trip_time');
+        $cargoDetails = $this->request->getPost('cargo_details');
+
+        // Validate required inputs
         if (empty($bookingId) || empty($reportType) || !$file || !$file->isValid()) {
             $session->setFlashdata('error', 'All fields are required and a valid image must be uploaded.');
             return redirect()->to(base_url('client/report'));
         }
 
+        // Get Firebase Realtime Database instance to look up the booking record
+        $db = \Config\Services::firebase();
+        $bookingRef = $db->getReference('Bookings/' . $bookingId);
+        $bookingData = $bookingRef->getValue();
+
+        // If booking is not found, return error
+        if (!$bookingData) {
+            $session->setFlashdata('error', 'Booking not found.');
+            return redirect()->to(base_url('client/report'));
+        }
+
+        // Use booking record data for these fields
+        // Use license_plate for Plate Number, driver_name for Driver Name,
+        // pick_up_address for Origin, and drop_off_address for Destination.
+        $plateNumber  = $bookingData['license_plate'] ?? '';
+        $driverName   = $bookingData['driver_name'] ?? '';
+        $origin       = $bookingData['pick_up_address'] ?? '';
+        $destination  = $bookingData['drop_off_address'] ?? '';
+
         // Prepare initial report data (without img_url)
         $data = [
-            'report_type' => $reportType,
-            'booking_id'  => $bookingId,
-            'user_id'     => $clientKey,
+            'report_type'   => $reportType,
+            'booking_id'    => $bookingId,
+            'user_id'       => $clientKey,
+            // Fields from booking
+            'plate_number'  => $plateNumber,
+            'driver_name'   => $driverName,
+            'origin'        => $origin,
+            'destination'   => $destination,
+            // Additional fields from the form
+            'trip_date'     => $tripDate,
+            'trip_time'     => $tripTime,
+            'cargo_details' => $cargoDetails,
         ];
 
         // Insert the report record to generate a new report number and date
         $reportNumber = $this->reportModel->insertReport($data);
 
         // Build the file name using the report number and report type.
-        // Normalize report type (e.g., "Delivery Report" becomes "Delivery_Report")
         $extension = $file->getClientExtension();
         $normalizedType = str_replace(' ', '_', $reportType);
         $newName = $reportNumber . '_' . $normalizedType . '.' . $extension;
@@ -411,7 +443,7 @@ class ClientController extends BaseController
 
         // Get Firebase Storage instance and bucket
         $storage = \Config\Services::firebaseStorage();
-        $bucketName = env('FIREBASE_STORAGE_BUCKET'); // e.g., "gistikat.firebasestorage.app"
+        $bucketName = env('FIREBASE_STORAGE_BUCKET'); // e.g., "your-project-id.appspot.com"
         $bucket = $storage->getBucket($bucketName);
 
         // Upload the file to the "report_images" folder in Firebase Storage
@@ -436,6 +468,9 @@ class ClientController extends BaseController
         $session->setFlashdata('success', 'Report ' . $reportNumber . ' created successfully.');
         return redirect()->to(base_url('client/report'));
     }
+
+
+
 
     public function Faq()
     {

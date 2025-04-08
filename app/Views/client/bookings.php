@@ -30,13 +30,32 @@
       <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
     <?php endif; ?>
 
+    <!-- Search and Filter Controls -->
+    <div class="row mb-3">
+      <!-- Search by Booking ID -->
+      <div class="col-md-6 mb-2 mb-md-0">
+        <input type="text" class="form-control" id="searchBookingId" placeholder="Search by Booking ID">
+      </div>
+      <!-- Filter by Status -->
+      <div class="col-md-6">
+        <select class="form-select" id="filterStatus">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="in-transit">In-transit</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+    </div>
+
     <!-- Button to trigger create booking modal -->
     <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createBookingModal">
       Create Booking
     </button>
 
     <!-- Table of existing bookings -->
-    <table class="table table-bordered">
+    <table id="bookingsTable" class="table table-bordered">
       <thead>
         <tr>
           <th>Booking ID</th>
@@ -238,7 +257,6 @@
   <script>
   // For the Create Booking modal, we initialize the maps immediately.
   let pickupMap, pickupMarker, dropoffMap, dropoffMarker;
-  let pickupLongPressTimer, dropoffLongPressTimer;
 
   function initMap() {
     const defaultCenter = { lat: 14.5995, lng: 120.9842 };
@@ -393,6 +411,27 @@
       }
     });
   }
+
+  // Search and filter functionality for the bookings table
+  function filterBookings() {
+    const searchBookingId = document.getElementById('searchBookingId').value.toLowerCase().trim();
+    const filterStatus = document.getElementById('filterStatus').value.toLowerCase().trim();
+    const rows = document.querySelectorAll('#bookingsTable tbody tr');
+    
+    rows.forEach(function(row) {
+      const bookingId = row.cells[0].textContent.toLowerCase().trim();
+      const status = row.cells[5].textContent.toLowerCase().trim();
+      
+      const matchesBookingId = bookingId.indexOf(searchBookingId) > -1;
+      const matchesStatus = filterStatus ? (status === filterStatus) : true;
+      
+      row.style.display = (matchesBookingId && matchesStatus) ? '' : 'none';
+    });
+  }
+
+  // Add event listeners for search and filter
+  document.getElementById('searchBookingId').addEventListener('keyup', filterBookings);
+  document.getElementById('filterStatus').addEventListener('change', filterBookings);
   </script>
 
 </body>
