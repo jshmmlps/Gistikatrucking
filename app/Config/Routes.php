@@ -49,6 +49,9 @@ $routes->group('client', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->post('report/store', 'ClientController::storeReport');
 });
 
+$routes->get('client/notifications/dismiss/(:any)', 'ClientController::dismissNotification/$1');
+
+
 //---------------------------
 // Test Routes
 //---------------------------

@@ -37,6 +37,12 @@ class ClientController extends BaseController
     
         // 1) Fetch all of this client's bookings from Firebase
         $allBookings = $this->bookingModel->getBookingsByClient($clientId) ?? [];
+
+        // Retrieve notifications from Firebase for this client.
+        $firebase = service('firebase');
+        $notificationsRef = $firebase->getReference("Notifications/{$clientId}");
+        $notificationsSnapshot = $notificationsRef->getSnapshot();
+        $notifications = $notificationsSnapshot->getValue() ?? [];
     
         // 2) Prepare counters
         $pendingCount   = 0;
@@ -107,11 +113,28 @@ class ClientController extends BaseController
             'monthlyBookings' => $monthlyBookings,
             'historyBookings' => $historyBookings,
             'currentYearMonth'=> $currentYearMonth, // for display in the view
+            'notifications'   => $notifications, 
         ];
     
         return view('client/dashboard', $data);
     }
     
+
+    public function dismissNotification($notificationId)
+    {
+        $clientId = session()->get('user_id');
+        $firebase = service('firebase');
+        $notifRef = $firebase->getReference("Notifications/{$clientId}/{$notificationId}");
+        // Either remove the notification or update the "read" flag.
+        // Remove notification:
+        $notifRef->remove();
+        // Alternatively, mark it as read:
+        // $notifRef->update(['read' => true]);
+
+        session()->setFlashdata('success', 'Notification dismissed.');
+        return redirect()->to(base_url('client/dashboard'));
+    }
+
 
     
     // =================== PROFILE =================== 
