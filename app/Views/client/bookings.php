@@ -22,12 +22,24 @@
   <h1>Bookings</h1>
 
   <div class="container-fluid mt-4">
-    <!-- Flash messages -->
-    <?php if(session()->getFlashdata('success')): ?>
-      <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+    <!-- Show an error or success alert at the top, depending on driver availability -->
+    <?php if (isset($driverAvailable) && $driverAvailable === false): ?>
+      <div class="alert alert-warning">
+        Currently, no driver is available. You may attempt to create a booking, but it will be pending until a driver is free.
+      </div>
+    <?php else: ?>
+      <div class="alert alert-success">
+        Good news! A driver is currently available.
+      </div>
     <?php endif; ?>
+
+    <!-- Existing flash messages (errors, success) -->
     <?php if(session()->getFlashdata('error')): ?>
       <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+    <?php endif; ?>
+
+    <?php if(session()->getFlashdata('success')): ?>
+      <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
     <?php endif; ?>
 
     <!-- Search and Filter Controls -->

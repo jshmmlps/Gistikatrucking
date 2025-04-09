@@ -5,16 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= base_url('/assets/css/style.css') ?>">
     <link href="<?= base_url('/public/assets/css/bootstrap.min.css');?>" rel="stylesheet">
-
+    <link href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css" rel="stylesheet">
     <style>
+        /* Highlight active nav-links */
         .sidebar .nav-link.active {
             background-color: #003366;
             color: #fff;
         }
+        /* Icon container must be relative to allow positioning of the red badge */
+        .icon {
+            position: relative;
+        }
+        /* Notification badge style; displays a count number inside a red badge */
+        .notification-dot {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: #fff;
+            font-size: 10px;
+            line-height: 1;
+            padding: 2px 4px;
+            border-radius: 50%;
+        }
     </style>
-
 </head>
 <body>
+    <?php 
+        // Ensure these variables are defined; they should be passed from your controller.
+        $maintenanceAlertsCount = isset($maintenanceAlertsCount) ? $maintenanceAlertsCount : 0;
+        // $pendingReportsCount    = isset($pendingReportsCount) ? $pendingReportsCount : 0;
+    ?>
+    
     <div class="sidebar">
         <nav class="nav flex-column">
             <span>
@@ -36,13 +58,16 @@
             <?php
                 $currentUrl = current_url();
                 $active = (strpos($currentUrl, base_url('resource/trucks')) !== false ||
-                        strpos($currentUrl, base_url('resource/maintenance')) !== false ||
-                        strpos($currentUrl, base_url('resource/geolocation')) !== false)
-                        ? 'active' : '';
+                           strpos($currentUrl, base_url('resource/maintenance')) !== false ||
+                           strpos($currentUrl, base_url('resource/geolocation')) !== false)
+                           ? 'active' : '';
             ?>
             <a href="<?= base_url('resource/trucks') ?>" class="nav-link <?= $active ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/truck.png') ?>" alt="">
+                    <?php if($maintenanceAlertsCount > 0): ?>
+                        <span class="notification-dot"><?= $maintenanceAlertsCount ?></span>
+                    <?php endif; ?>
                 </span>
                 <span class="description">Truck Record and Monitoring Maintenance</span>
             </a>

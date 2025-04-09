@@ -12,9 +12,31 @@
             background-color: #003366;
             color: #fff;
         }
+        /* Position the icon container relatively */
+        .icon {
+            position: relative;
+        }
+        /* Notification dot style; here it shows a number inside a red badge */
+        .notification-dot {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: #fff;
+            font-size: 10px;
+            line-height: 1;
+            padding: 2px 4px;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
+    <?php 
+        // Ensure these variables are defined. They should be passed from your controller.
+        $pendingBookingsCount   = isset($pendingBookingsCount) ? $pendingBookingsCount : 0;
+        $maintenanceAlertsCount = isset($maintenanceAlertsCount) ? $maintenanceAlertsCount : 0;
+        $pendingReportsCount    = isset($pendingReportsCount) ? $pendingReportsCount : 0;
+    ?>
     <div class="sidebar">
         <nav class="nav flex-column">
             <span>
@@ -36,15 +58,17 @@
             <a href="<?= base_url('operations/bookings') ?>" class="nav-link <?= (current_url() == base_url('operations/bookings')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/booking.png') ?>" alt="">
+                    <?php if(isset($pendingBookingsCount) && $pendingBookingsCount > 0): ?>
+                        <span class="notification-dot"><?= $pendingBookingsCount ?></span>
+                    <?php endif; ?>
                 </span>
                 <span class="description">Booking Management</span>
             </a>
             <?php
                 $currentUrl = current_url();
                 $active = (strpos($currentUrl, base_url('operations/trucks')) !== false ||
-                        // strpos($currentUrl, base_url('operations/maintenance')) !== false ||
-                        strpos($currentUrl, base_url('operations/geolocation')) !== false)
-                        ? 'active' : '';
+                           strpos($currentUrl, base_url('operations/geolocation')) !== false)
+                           ? 'active' : '';
             ?>
             <a href="<?= base_url('operations/trucks') ?>" class="nav-link <?= $active ?>">
                 <span class="icon">
@@ -55,6 +79,9 @@
             <a href="<?= base_url('operations/reports') ?>" class="nav-link <?= (current_url() == base_url('operations/reports')) ? 'active' : '' ?>">
                 <span class="icon">
                     <img src="<?= base_url('public/images/icons/sidebar/report.png') ?>" alt="">
+                    <?php if(isset($pendingReportsCount) && $pendingReportsCount > 0): ?>
+                        <span class="notification-dot"><?= $pendingReportsCount ?></span>
+                    <?php endif; ?>
                 </span>
                 <span class="description">Report Management</span>
             </a>

@@ -31,7 +31,130 @@ class AdminController extends Controller
         $this->driverModel = new DriverModel();
         // Initialize the model
         $this->clientManagementModel = new ClientManagementModel();
+
     }
+
+     /**
+     * Get counts for pending notifications in:
+     * - Bookings: where status === 'pending'
+     * - Maintenance: trucks that need inspection (one or more components are due)
+     * - Reports: where remark_status is missing or equals 'Pending'
+     *
+     * @return array
+     */
+    private function getNotificationCounts()
+    {
+        // Initialize firebase locally.
+        $firebase = service('firebase');
+
+        $counts = [
+            'pendingBookingsCount'   => 0,
+            'maintenanceAlertsCount' => 0,
+            'pendingReportsCount'    => 0,
+        ];
+
+        // --- Bookings Notification Count ---
+        $bookingsSnapshot = $firebase->getReference('Bookings')->getSnapshot();
+        if ($bookingsSnapshot->exists()) {
+            $bookingsData = $bookingsSnapshot->getValue();
+            foreach ($bookingsData as $booking) {
+                if (isset($booking['status']) && strtolower(trim($booking['status'])) === 'pending') {
+                    $counts['pendingBookingsCount']++;
+                }
+            }
+        }
+
+        // --- Maintenance Notification Count ---
+        $trucksSnapshot = $firebase->getReference('Trucks')->getSnapshot();
+        if ($trucksSnapshot->exists()) {
+            $trucksData = $trucksSnapshot->getValue();
+            uksort($trucksData, 'strnatcmp');
+
+            // Define maintenance components and interval thresholds.
+            $allComponents = [
+                'engine_system'               => 'Engine System',
+                'transmission_drivetrain'     => 'Transmission & Drivetrain',
+                'brake_system'                => 'Brake System',
+                'suspension_chassis'          => 'Suspension & Chassis',
+                'fuel_cooling_system'         => 'Fuel & Cooling System',
+                'steering_system'             => 'Steering System',
+                'electrical_auxiliary_system' => 'Electrical & Auxiliary System',
+            ];
+
+            $intervals = [
+                'engine_system'               => ['new' => 5000,  'old' => 4000],
+                'transmission_drivetrain'     => ['new' => 20000, 'old' => 15000],
+                'brake_system'                => ['new' => 10000, 'old' => 4000],
+                'suspension_chassis'          => ['new' => 5000,  'old' => 4000],
+                'fuel_cooling_system'         => ['new' => 20000, 'old' => 15000],
+                'steering_system'             => ['new' => 20000, 'old' => 10000],
+                'electrical_auxiliary_system' => ['new' => 10000, 'old' => 7000],
+            ];
+
+            $dueTrucksCount = 0;
+            foreach ($trucksData as $truckId => $truck) {
+                // Determine if truck is New or Old based on manufacturing date and current mileage.
+                $manufacturingDate = $truck['manufacturing_date'] ?? '';
+                $yearsOld = !empty($manufacturingDate) ? date('Y') - date('Y', strtotime($manufacturingDate)) : 0;
+                $currentMileage = $truck['current_mileage'] ?? 0;
+                $isNew = ($yearsOld <= 5 && $currentMileage < 100000);
+
+                // Gather overdue components for this truck.
+                $dueComponents = [];
+                foreach ($allComponents as $componentKey => $label) {
+                    $lastServiceMileage = isset($truck['maintenance_items'][$componentKey]['last_service_mileage'])
+                        ? $truck['maintenance_items'][$componentKey]['last_service_mileage']
+                        : 0;
+
+                    // Choose the correct interval based on new/old truck.
+                    $mileageInterval = $isNew ? $intervals[$componentKey]['new'] : $intervals[$componentKey]['old'];
+                    // Check mileage condition.
+                    $mileageDue = (($currentMileage - $lastServiceMileage) >= $mileageInterval);
+
+                    // Check date condition (if available).
+                    $dateDue = false;
+                    if (isset($truck['maintenance_items'][$componentKey]['last_service_date'])) {
+                        try {
+                            $lastServiceDate = new \DateTime($truck['maintenance_items'][$componentKey]['last_service_date']);
+                            // Define a 6-month service interval.
+                            $lastServiceDate->add(new \DateInterval('P6M'));
+                            $now = new \DateTime();
+                            if ($now >= $lastServiceDate) {
+                                $dateDue = true;
+                            }
+                        } catch (\Exception $e) {
+                            // Handle date parsing errors if necessary.
+                        }
+                    }
+
+                    // Consider the component due if either condition is met.
+                    if ($mileageDue || $dateDue) {
+                        $dueComponents[] = $componentKey;
+                    }
+                }
+                if (!empty($dueComponents)) {
+                    $dueTrucksCount++;
+                }
+            }
+            $counts['maintenanceAlertsCount'] = $dueTrucksCount;
+        }
+
+        // --- Reports Notification Count ---
+        $reportsSnapshot = $firebase->getReference('Reports')->getSnapshot();
+        if ($reportsSnapshot->exists()) {
+            $reportsData = $reportsSnapshot->getValue();
+            foreach ($reportsData as $report) {
+                // Count as pending if remark_status exists and equals "pending" (ignoring case and extra spaces).
+                if (isset($report['remark_status']) && strtolower(trim($report['remark_status'])) === 'pending') {
+                    $counts['pendingReportsCount']++;
+                }
+            }
+        }
+
+        return $counts;
+    }
+
+
 
     /**
      * Display the admin dashboard.
@@ -40,92 +163,135 @@ class AdminController extends Controller
     {
         // Initialize Firebase
         $db = Services::firebase();
-
+    
         // ---------------------
         // A) BOOKING DATA
         // ---------------------
         $bookingsRef = $db->getReference('Bookings');
         $bookingsSnapshot = $bookingsRef->getSnapshot();
         $allBookings = $bookingsSnapshot->getValue() ?? [];
-
+    
         $totalBookings = 0;
         $pendingBookings = 0;
         $numRequests = 0; // Number of "pending" bookings
-        
+    
         if (is_array($allBookings)) {
             $totalBookings = count($allBookings);
             foreach ($allBookings as $bk) {
                 if (is_array($bk) && isset($bk['status'])) {
-                    if (strtolower($bk['status']) === 'pending') {
+                    if (strtolower(trim($bk['status'])) === 'pending') {
                         $pendingBookings++;
                     }
-                    $numRequests = $pendingBookings; 
+                    $numRequests = $pendingBookings;
                 }
             }
         }
-
+    
         // ---------------------
         // B) USERS DATA (to count number of users)
         // ---------------------
         $usersRef = $db->getReference('Users');
         $usersSnapshot = $usersRef->getSnapshot();
         $allUsers = $usersSnapshot->getValue() ?? [];
-
-        // Count the number of users
         $numUsers = is_array($allUsers) ? count($allUsers) : 0;
-
+    
         // ---------------------
-        // C) TRUCKS DATA
+        // C) TRUCKS DATA (Maintenance Calculation using per-component logic)
         // ---------------------
         $trucksRef = $db->getReference('Trucks');
         $trucksSnapshot = $trucksRef->getSnapshot();
         $allTrucks = $trucksSnapshot->getValue() ?? [];
-
+    
         $goodConditionCount = 0;
         $needsMaintenanceCount = 0;
+        $totalTrucks = 0;  // Ensure this counter is initialized
         $trucksList = $allTrucks;
-
+        
+        // Define the 7 major components and their labels.
+        $allComponents = [
+            'engine_system'               => 'Engine System',
+            'transmission_drivetrain'     => 'Transmission & Drivetrain',
+            'brake_system'                => 'Brake System',
+            'suspension_chassis'          => 'Suspension & Chassis',
+            'fuel_cooling_system'         => 'Fuel & Cooling System',
+            'steering_system'             => 'Steering System',
+            'electrical_auxiliary_system' => 'Electrical & Auxiliary System',
+        ];
+    
+        // Define intervals for New vs. Old trucks.
+        // These intervals apply per-component.
+        $intervals = [
+            'engine_system'               => ['new' => 5000,  'old' => 4000],
+            'transmission_drivetrain'     => ['new' => 20000, 'old' => 15000],
+            'brake_system'                => ['new' => 10000, 'old' => 4000],
+            'suspension_chassis'          => ['new' => 5000,  'old' => 4000],
+            'fuel_cooling_system'         => ['new' => 20000, 'old' => 15000],
+            'steering_system'             => ['new' => 20000, 'old' => 10000],
+            'electrical_auxiliary_system' => ['new' => 10000, 'old' => 7000],
+        ];
+    
         if (is_array($allTrucks)) {
             foreach ($allTrucks as $tId => $truck) {
-                $lastInspectionDate    = $truck['last_inspection_date']    ?? null;
-                $lastInspectionMileage = $truck['last_inspection_mileage'] ?? 0;
-                $currentMileage        = $truck['current_mileage']         ?? 0;
-
-                $timeOverdue = false;
-                if (!empty($lastInspectionDate)) {
-                    try {
-                        $dateNow  = new \DateTime();
-                        $dateLast = new \DateTime($lastInspectionDate);
-                        $dateLast->add(new \DateInterval('P6M'));
-                        if ($dateNow > $dateLast) {
-                            $timeOverdue = true;
+                $totalTrucks++;
+    
+                // Determine truck age based on manufacturing_date.
+                $manufacturingDate = $truck['manufacturing_date'] ?? '';
+                $yearsOld = !empty($manufacturingDate) ? date('Y') - date('Y', strtotime($manufacturingDate)) : 0;
+                $currentMileage = $truck['current_mileage'] ?? 0;
+                
+                // Classify truck as "New" if 5 years or younger and below 100,000 km.
+                $isNew = ($yearsOld <= 5 && $currentMileage < 100000);
+                
+                // Gather due components for this truck.
+                $dueComponents = [];
+                foreach ($allComponents as $componentKey => $label) {
+                    // Get last service mileage (if available).
+                    $lastServiceMileage = isset($truck['maintenance_items'][$componentKey]['last_service_mileage']) 
+                        ? $truck['maintenance_items'][$componentKey]['last_service_mileage'] 
+                        : 0;
+                    // Choose the correct mileage interval based on new/old status.
+                    $mileageInterval = $isNew ? $intervals[$componentKey]['new'] : $intervals[$componentKey]['old'];
+                    // Check if mileage condition is met.
+                    $mileageDue = (($currentMileage - $lastServiceMileage) >= $mileageInterval);
+    
+                    // Check if time condition is met (6 months overdue).
+                    $dateDue = false;
+                    if (isset($truck['maintenance_items'][$componentKey]['last_service_date'])) {
+                        try {
+                            $lastServiceDate = new \DateTime($truck['maintenance_items'][$componentKey]['last_service_date']);
+                            $lastServiceDate->add(new \DateInterval('P6M'));
+                            $now = new \DateTime();
+                            if ($now >= $lastServiceDate) {
+                                $dateDue = true;
+                            }
+                        } catch (\Exception $e) {
+                            // Optionally handle date parsing errors.
                         }
-                    } catch (\Exception $e) {}
+                    }
+                    // If either mileage or date condition is met, mark this component as due.
+                    if ($mileageDue || $dateDue) {
+                        $dueComponents[] = $componentKey;
+                    }
                 }
-
-                $mileageOverdue = false;
-                if (($currentMileage - $lastInspectionMileage) >= 20000) {
-                    $mileageOverdue = true;
-                }
-
-                if ($timeOverdue || $mileageOverdue) {
+                // If any component is due, count this truck as needing maintenance.
+                if (!empty($dueComponents)) {
                     $needsMaintenanceCount++;
                 } else {
                     $goodConditionCount++;
                 }
             }
         }
-
+    
         // ---------------------
         // D) DRIVERS DATA
         // ---------------------
         $driversRef = $db->getReference('Drivers');
         $driversSnapshot = $driversRef->getSnapshot();
         $allDrivers = $driversSnapshot->getValue() ?? [];
-
+    
         $driverLocations = [];
         $assignedTruckIds = [];
-
+    
         if (is_array($allDrivers)) {
             foreach ($allDrivers as $driverId => $driver) {
                 if (!empty($driver['last_lat']) && !empty($driver['last_lng'])) {
@@ -140,29 +306,38 @@ class AdminController extends Controller
                 }
             }
         }
-
-        // Filter trucks with assigned drivers
+    
+        // Filter trucks with assigned drivers.
         $trucksWithDrivers = [];
         foreach ($trucksList as $tid => $truck) {
             if (isset($assignedTruckIds[$tid])) {
                 $trucksWithDrivers[$tid] = $truck;
             }
         }
-
-        // Prepare data for the view
+    
+        // ---------------------
+        // Prepare Data for the View
+        // ---------------------
         $data = [
-            'totalBookings'       => $totalBookings,
-            'numRequests'         => $numUsers,  // Updated: Use the number of users
-            'pendingBookings'     => $pendingBookings,
-            'goodConditionCount'  => $goodConditionCount,
+            'totalBookings'         => $totalBookings,
+            'numRequests'           => $numUsers,  // Using number of users as numRequests
+            'pendingBookings'       => $pendingBookings,
+            'goodConditionCount'    => $goodConditionCount,
             'needsMaintenanceCount' => $needsMaintenanceCount,
-            'trucksWithDrivers'   => $trucksWithDrivers,
-            'driverLocations'     => $driverLocations,
-            'numUsers'            => $numUsers  // The number of users
+            'trucksWithDrivers'     => $trucksWithDrivers,
+            'driverLocations'       => $driverLocations,
+            'numUsers'              => $numUsers,
         ];
-
+    
+        // Retrieve and merge notification counts.
+        $notificationCounts = $this->getNotificationCounts();
+        $data = array_merge($data, $notificationCounts);
+    
         return view('admin/dashboard', $data);
     }
+    
+    
+    
     
     public function logout()
     {
@@ -171,33 +346,38 @@ class AdminController extends Controller
     }
 
 
-    /**
+   /**
      * Display the admin profile page.
      */
     public function profile()
     {
         $session = session();
         $firebaseKey = $session->get('firebaseKey');
-    
+
         // Fetch user data from the UserModel (including the profile_picture field)
         $userData = $this->userModel->getUser($firebaseKey);
-    
+
         // If the user exists, pass the data to the view
         if ($userData) {
             // Check if profile_picture exists or use default
             if (empty($userData['profile_picture'])) {
                 $userData['profile_picture'] = base_url('public/images/default.jpg');
             }
-    
-            return view('admin/users/profile', ['user' => $userData]);
+
+            // Retrieve notification counts (bookings, maintenance, reports)
+            $notificationCounts = $this->getNotificationCounts();
+
+            // Merge user data with notification counts
+            $data = array_merge(['user' => $userData], $notificationCounts);
+
+            return view('admin/users/profile', $data);
         }
-    
+
         // Optionally handle the case where no user is found (e.g. redirect or show error)
         $session->setFlashdata('error', 'User not found');
         return redirect()->to('/admin');
     }
-    
-    
+
     
     /**
      * Process the update of profile details.
@@ -290,14 +470,23 @@ class AdminController extends Controller
      */
     public function users()
     {
+        // Retrieve all users.
         $users = $this->userModel->getAllUsers();
-        
-        // $users is an associative array: [ 'User1' => [...], 'User2' => [...], ... ]
-        // We'll pass it to the view
-        return view('admin/users/manage', [
+
+        // Retrieve notification counts.
+        $notificationCounts = $this->getNotificationCounts();
+
+        // Build a separate data array that includes both sections.
+        $data = [
             'users' => $users,
-        ]);
+        ];
+
+        // Merge notification counts into the data array.
+        $data = array_merge($data, $notificationCounts);
+
+        return view('admin/users/manage', $data);
     }
+
 
     /**
      * Create user (Process the POST request from the modal).
@@ -509,6 +698,12 @@ class AdminController extends Controller
         });
 
         $data['trucks'] = $trucks;
+
+        // Retrieve and merge notification counts.
+        $notificationCounts = $this->getNotificationCounts();
+        $data = array_merge($data, $notificationCounts);
+
+        
         return view('admin/truck_management', $data);
     }
 
@@ -834,6 +1029,11 @@ class AdminController extends Controller
         $data['availableTrucksForDriver'] = $availableTrucksForDriver;
         $data['availableTrucksForConductor'] = $availableTrucksForConductor;
 
+        // Retrieve and merge notification counts.
+        $notificationCounts = $this->getNotificationCounts();
+        $data = array_merge($data, $notificationCounts);
+
+
         return view('admin/driver_management', $data);
     }
 
@@ -1017,18 +1217,23 @@ class AdminController extends Controller
         $data['driversList']    = $driversList;
         $data['conductorsList'] = $conductorsList;
 
+        // Retrieve and merge notification counts.
+        $notificationCounts = $this->getNotificationCounts();
+        $data = array_merge($data, $notificationCounts);
+        
         return view('admin/bookings', $data);
     }
 
     // Update booking status (approval/rejection, etc.), or reassign driver/conductor
+    // Update booking status (approval/rejection, etc.), or reassign driver/conductor
     public function updateBookingStatus()
     {
         $bookingId   = $this->request->getPost('booking_id');
-        $status      = $this->request->getPost('status');     // e.g., "approved", "rejected", etc.
-        $distance    = $this->request->getPost('distance');     // new distance value
-        $driverId    = $this->request->getPost('driver');       // selected driver key
-        $conductorId = $this->request->getPost('conductor');    // (if provided, but now we are using driver-only selection)
-        $truckId     = $this->request->getPost('truck_id');     // hidden field in the form
+        $status      = $this->request->getPost('status');  // e.g., "approved", "rejected", "in-transit", etc.
+        $distance    = $this->request->getPost('distance');
+        $driverId    = $this->request->getPost('driver');
+        $conductorId = $this->request->getPost('conductor'); // Currently not used for conflict, but can be extended
+        $truckId     = $this->request->getPost('truck_id');
 
         // Initialize update data with status and distance.
         $updateData = [
@@ -1051,24 +1256,47 @@ class AdminController extends Controller
         $allBookings  = $bookingModel->getAllBookings(); // to detect conflicts
         $driversRef   = $firebase->getReference('Drivers');
 
-        // 1) If a new driver is selected, check for conflict.
-        if (!empty($driverId)) {
-            if ($allBookings && is_array($allBookings)) {
-                foreach ($allBookings as $b) {
-                    if (!is_array($b)) continue; // skip invalid
-                    // Only flag conflict if the booking is active (approved or in-transit)
-                    if (
-                        isset($b['driver_id']) &&
-                        $b['driver_id'] === $driverId &&
-                        in_array($b['status'], ['approved', 'in-transit'])
-                    ) {
-                        session()->setFlashdata('error', 'Driver is currently assigned to an ongoing booking (#'.$b['booking_id'].').');
-                        return redirect()->to(base_url('admin/bookings'));
+        // ─────────────────────────────────────────────────────────────────────────────
+        // 1) CONFLICT CHECK: If we are trying to change the booking's status to an
+        //    "active" status (approved/in-transit) and a driver is selected, ensure
+        //    the same driver is not actively assigned elsewhere.
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Here, "active" can be extended to include whatever statuses you consider
+        // to conflict. For example, let's treat "approved" and "in-transit" as active.
+        $activeStatuses = ['approved', 'in-transit'];
+
+        // If the new status is active...
+        if (in_array($status, $activeStatuses)) {
+            // And a new driver is selected (or remains the same driver)...
+            if (!empty($driverId)) {
+                if ($allBookings && is_array($allBookings)) {
+                    foreach ($allBookings as $b) {
+                        if (!is_array($b)) continue; // skip invalid
+                        // If same driver is found in a different booking that is active,
+                        // we block the status update for this booking.
+                        if (
+                            isset($b['driver_id']) &&
+                            $b['driver_id'] === $driverId &&
+                            in_array($b['status'], $activeStatuses) &&
+                            ($b['booking_id'] != $bookingId) // skip the same booking
+                        ) {
+                            session()->setFlashdata('error', 'Driver is currently assigned to an ongoing booking (#'.$b['booking_id'].').');
+                            return redirect()->to(base_url('admin/bookings'));
+                        }
                     }
                 }
+            } else {
+                // If no driver is selected at all, you may choose to block or allow that.
+                // For example:
+                session()->setFlashdata('error', 'Driver is currently taking another booking.');
+                return redirect()->to(base_url('admin/bookings'));
             }
+        }
 
-            // If no conflict, fetch driver data.
+        // ─────────────────────────────────────────────────────────────────────────────
+        // 2) If a new driver is selected, fetch the driver data and reassign
+        // ─────────────────────────────────────────────────────────────────────────────
+        if (!empty($driverId)) {
             $driverData = $driversRef->getChild($driverId)->getValue();
             if ($driverData) {
                 $fullName = trim(($driverData['first_name'] ?? '') . ' ' . ($driverData['last_name'] ?? ''));
@@ -1105,7 +1333,9 @@ class AdminController extends Controller
             }
         }
 
-        // 2) If the admin changed the truck manually (and no driver update occurred), update truck details.
+        // ─────────────────────────────────────────────────────────────────────────────
+        // 3) If admin changed the truck manually (no driver update occurred)
+        // ─────────────────────────────────────────────────────────────────────────────
         if (!empty($truckId) && !isset($updateData['truck_id'])) {
             $truckData = $firebase->getReference('Trucks/' . $truckId)->getValue();
             if ($truckData) {
@@ -1116,10 +1346,12 @@ class AdminController extends Controller
             }
         }
 
-        // Update the booking with the final data.
+        // ─────────────────────────────────────────────────────────────────────────────
+        // 4) Update the booking with final data
+        // ─────────────────────────────────────────────────────────────────────────────
         $bookingModel->updateBooking($bookingId, $updateData);
 
-        // 3) If the booking is being marked as "completed", update the truck's current mileage.
+        // If booking is being marked as "completed", update the truck's current mileage.
         if ($status === 'completed' && isset($updateData['truck_id'])) {
             $truckRef = $firebase->getReference('Trucks/' . $updateData['truck_id']);
             $truckData = $truckRef->getValue();
@@ -1134,6 +1366,7 @@ class AdminController extends Controller
         session()->setFlashdata('success', 'Booking #'.$bookingId.' updated successfully!');
         return redirect()->to(base_url('admin/bookings'));
     }
+
 
 
 
@@ -1171,6 +1404,11 @@ class AdminController extends Controller
             'clients'       => $dataClients,
             'clientDetails' => $clientDetails
         ];
+
+        // Retrieve and merge notification counts.
+        $notificationCounts = $this->getNotificationCounts();
+        $data = array_merge($data, $notificationCounts);
+ 
         return view('admin/client_management', $data);
     }
 
@@ -1196,25 +1434,35 @@ class AdminController extends Controller
     
     public function Report()
     {
-        // 1) Call the StorageScan logic
+        // 1) Call the StorageScan logic.
         $storageScan = new \App\Controllers\StorageScan();
-        $storageScan->index(); 
-        // That will create any missing "Reports" records in Realtime DB
+        $storageScan->index();
+        // This will create any missing "Reports" records in Realtime DB.
 
-        // 2) Now fetch all "Reports" to display
+        // 2) Now fetch all "Reports" to display.
         $db = Services::firebase();
         $reportsRef = $db->getReference('Reports');
         $snapshot = $reportsRef->getSnapshot();
         $reports = $snapshot->getValue() ?? [];
 
-        // Optionally sort them by their "R000001" style keys
+        // Optionally sort them by their "R000001" style keys.
         uksort($reports, function($a, $b) {
             return strnatcmp($a, $b);
         });
 
-        // 3) Pass them to your view
-        return view('admin/reports_management', ['reports' => $reports]);
+        // Build the initial data array.
+        $data = [
+            'reports' => $reports,
+        ];
+
+        // Retrieve and merge notification counts.
+        $notificationCounts = $this->getNotificationCounts();
+        $data = array_merge($data, $notificationCounts);
+
+        // 3) Pass everything to your view.
+        return view('admin/reports_management', $data);
     }
+
 
     // ================== GEOLOCATION MODULE ===================  //
 
@@ -1223,9 +1471,16 @@ class AdminController extends Controller
         // Get only drivers with valid geolocation fields
         $drivers = $this->driverModel->getDriversWithLocation();
 
-        return view('admin/geolocation', [
+        // Build the initial data array
+        $data = [
             'drivers' => $drivers
-        ]);
+        ];
+
+        // Retrieve and merge notification counts
+        $notificationCounts = $this->getNotificationCounts();
+        $data = array_merge($data, $notificationCounts);
+
+        return view('admin/geolocation', $data);
     }
 
     // ================== MAINTENANCE MODULE ===================  //
@@ -1387,14 +1642,22 @@ class AdminController extends Controller
             ]]
         ];
 
-        // Pass everything to the view
-        return view('admin/maintenance', [
+        // Build the data array for the view
+        $data = [
             'totalTrucks'     => $totalTrucks,
             'dueTrucks'       => $dueTrucks,
             'chartData'       => $chartData,
             'componentTrucks' => $componentTrucks,
             'allComponents'   => $allComponents,
-        ]);
+        ];
+
+        // Retrieve and merge notification counts.
+        $notificationCounts = $this->getNotificationCounts();
+        $data = array_merge($data, $notificationCounts);
+
+        // Pass everything to the view.
+        return view('admin/maintenance', $data);
+
     }
 
     

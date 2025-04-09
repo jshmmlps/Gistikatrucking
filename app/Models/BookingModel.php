@@ -334,4 +334,56 @@ class BookingModel extends Model
         $ref->update($data);
         return true;
     }
+
+    /**
+     * Checks if there is at least one free truck that has a driver or conductor assigned.
+     * Returns true if at least one driver is available, false otherwise.
+     */
+    public function isAnyDriverAvailable(): bool
+    {
+        // 1) Get the list of trucks
+        $trucksRef = $this->db->getReference('Trucks');
+        $trucks = $trucksRef->getValue();
+
+        // 2) Get all bookings to figure out which trucks are in active use
+        $bookingsRef = $this->db->getReference('Bookings');
+        $bookings = $bookingsRef->getValue();
+
+        // 3) Determine which trucks are in use (not completed or rejected)
+        $inUseTruckIds = [];
+        if ($bookings && is_array($bookings)) {
+            foreach ($bookings as $booking) {
+                if (
+                    isset($booking['truck_id']) &&
+                    !in_array($booking['status'], ['rejected', 'completed']) 
+                ) {
+                    $inUseTruckIds[] = $booking['truck_id'];
+                }
+            }
+        }
+
+        // 4) Check among the *free* trucks if at least one has a driver
+        if ($trucks && is_array($trucks)) {
+            foreach ($trucks as $truck) {
+                if (!isset($truck['truck_id'])) {
+                    continue;  // skip invalid entries
+                }
+
+                // if truck is not in use, see if it has at least a driver
+                if (!in_array($truck['truck_id'], $inUseTruckIds)) {
+                    // Reuse your existing helper to find an assigned driver
+                    $driverInfo = $this->getDriverAndConductor($truck['truck_id']);
+
+                    // if we have a driver name or ID, that means there's a driver available
+                    if (!empty($driverInfo['driver_name'])) {
+                        return true;  // found a free truck with a driver
+                    }
+                }
+            }
+        }
+
+        // If we never found a free truck that has a driver, return false
+        return false;
+    }
+
 }

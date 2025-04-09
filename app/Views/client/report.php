@@ -25,52 +25,72 @@
                 <?= csrf_field() ?>
 
                 <!-- Booking ID Dropdown -->
-                <div class="mb-3">
-                    <label for="booking_id" class="form-label">Booking ID</label>
-                    <select name="booking_id" id="booking_id" class="form-select" required>
-                        <option value="">Select Booking</option>
-                        <?php if(!empty($bookings) && is_array($bookings)): ?>
-                            <?php foreach($bookings as $booking): ?>
-                                <option value="<?= esc($booking['booking_id']) ?>">
-                                    <?= esc($booking['booking_id']) ?> - 
-                                    <?= esc($booking['pick_up_address'] ?? 'N/A') ?> to 
-                                    <?= esc($booking['drop_off_address'] ?? 'N/A') ?>
-                                </option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
+                <div class="row mb-3">
+                    <label for="booking_id" class="col-sm-3 col-form-label">Booking ID</label>
+                    <div class="col-sm-9">
+                        <select name="booking_id" id="booking_id" class="form-select" required>
+                            <option value="">Select Booking</option>
+                            <?php if(!empty($bookings) && is_array($bookings)): ?>
+                                <?php foreach($bookings as $booking): ?>
+                                    <option value="<?= esc($booking['booking_id']) ?>">
+                                        <?= esc($booking['booking_id']) ?> - 
+                                        <?= esc($booking['pick_up_address'] ?? 'N/A') ?> to 
+                                        <?= esc($booking['drop_off_address'] ?? 'N/A') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Report Type (fixed as "Trip Ticket") -->
-                <div class="mb-3">
-                    <label class="form-label">Report Type</label>
-                    <p class="form-control-plaintext">Trip Ticket</p>
-                    <input type="hidden" name="report_type" value="Trip Ticket">
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">Report Type</label>
+                    <div class="col-sm-9">
+                        <p class="form-control-plaintext">Trip Ticket</p>
+                        <input type="hidden" name="report_type" value="Trip Ticket">
+                    </div>
                 </div>
 
-                <!-- Additional Fields for Trip Ticket -->
-                <div class="mb-3">
-                    <label for="trip_date" class="form-label">Trip Date</label>
-                    <input type="date" name="trip_date" id="trip_date" class="form-control" required>
+                <!-- Trip Date -->
+                <div class="row mb-3">
+                    <label for="trip_date" class="col-sm-3 col-form-label">Trip Date</label>
+                    <div class="col-sm-9">
+                        <input type="date" name="trip_date" id="trip_date" class="form-control" required>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="trip_time" class="form-label">Trip Time</label>
-                    <input type="time" name="trip_time" id="trip_time" class="form-control" required>
+                <!-- Trip Time -->
+                <div class="row mb-3">
+                    <label for="trip_time" class="col-sm-3 col-form-label">Trip Time</label>
+                    <div class="col-sm-9">
+                        <input type="time" name="trip_time" id="trip_time" class="form-control" required>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="cargo_details" class="form-label">Cargo Details</label>
-                    <textarea name="cargo_details" id="cargo_details" class="form-control" rows="3" placeholder="Enter cargo details here"></textarea>
+                <!-- Cargo Details -->
+                <div class="row mb-3">
+                    <label for="cargo_details" class="col-sm-3 col-form-label">Cargo Details</label>
+                    <div class="col-sm-9">
+                        <textarea name="cargo_details" id="cargo_details" class="form-control" rows="3" placeholder="Enter cargo details here"></textarea>
+                    </div>
                 </div>
 
                 <!-- File Upload -->
-                <div class="mb-3">
-                    <label for="report_image" class="form-label">Upload Trip Ticket Image</label>
-                    <input type="file" name="report_image" id="report_image" class="form-control" required>
+                <div class="row mb-3">
+                    <label for="report_image" class="col-sm-3 col-form-label">Upload Trip Ticket Image</label>
+                    <div class="col-sm-9">
+                        <input type="file" name="report_image" id="report_image" class="form-control" required>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Submit Report</button>
+                <!-- Submit Button (aligned with input fields) -->
+                <div class="row">
+                    <div class="col-sm-9 offset-sm-3">
+                        <button type="submit" class="btn btn-primary">Submit Report</button>
+                    </div>
+                </div>
+
             </form>
         </div>
     </div>

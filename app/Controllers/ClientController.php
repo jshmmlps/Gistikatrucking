@@ -227,47 +227,55 @@ class ClientController extends BaseController
         }
     }
 
+    // =================== BOOKINGS  =================== 
+
     public function bookings()
     {
         $session  = session();
-        $clientId = $session->get('user_id');    // Must match what was stored when user logged in
+        $clientId = $session->get('user_id');
 
         $bookingModel = new BookingModel();
+        
+        // 1) Get the client's bookings
         $data['bookings'] = $bookingModel->getBookingsByClient($clientId);
 
+        // 2) Check if any driver is currently free
+        $data['driverAvailable'] = $bookingModel->isAnyDriverAvailable();
+
+        // 3) Load the view with both booking data and availability info
         return view('client/bookings', $data);
     }
 
-    // =================== BOOKINGS  =================== 
-
-    // Show the create booking form
-    public function createBooking()
-    {
-        return view('client/create_booking');
-    }
 
     public function storeBooking()
     {
         $session  = session();
         $clientId = $session->get('user_id');
-
+    
         // Grab all POST data, including pick_up_lat, pick_up_lng, drop_off_lat, drop_off_lng
         $data = $this->request->getPost();
-
+    
         // Tag your booking with the client ID
         $data['client_id'] = $clientId;
-
+    
+        // 1) OPTIONAL: Check driver availability before attempting to create the booking
+        if (!$this->bookingModel->isAnyDriverAvailable()) {
+            $session->setFlashdata('error', 'Currently, no driver is available.');
+            return redirect()->back();
+        }
+    
+        // 2) If a driver is available, proceed with booking creation
         try {
-            // Pass data to the model and attempt to create a booking.
             $bookingId = $this->bookingModel->createBooking($data);
             $session->setFlashdata('success', 'Booking created with ID: ' . $bookingId);
             return redirect()->to(base_url('client/bookings'));
         } catch (\RuntimeException $e) {
-            // If no available driver or conductor, show an error message.
+            // If no available driver or any other issue arises in createBooking(), catch & display the error
             $session->setFlashdata('error', $e->getMessage());
             return redirect()->back();
         }
     }
+    
 
 
    /**
