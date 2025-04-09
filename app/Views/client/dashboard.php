@@ -8,7 +8,7 @@
     /* Notification pop-up container styles */
     .notification-popup {
         position: fixed;
-        top: 70%;
+        top: 1%;
         right: 2%;
         width: 300px;
         max-height: 80%;

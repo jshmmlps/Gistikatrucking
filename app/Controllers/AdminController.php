@@ -1259,27 +1259,30 @@ class AdminController extends Controller
         // Define active statuses for conflict checking.
         $activeStatuses = ['approved', 'in-transit'];
 
-        // 1) Conflict Check: If the new status is active...
+        // If the new status is active...
         if (in_array($status, $activeStatuses)) {
+            // And a new driver is selected (or remains the same driver)...
             if (!empty($driverId)) {
                 if ($allBookings && is_array($allBookings)) {
                     foreach ($allBookings as $b) {
-                        if (!is_array($b)) continue; // skip invalid entries
-                        // Block update if another booking (different booking_id)
-                        // already has the same driver in an active status.
+                        if (!is_array($b)) continue; // skip invalid
+                        // If same driver is found in a different booking that is active,
+                        // we block the status update for this booking.
                         if (
                             isset($b['driver_id']) &&
                             $b['driver_id'] === $driverId &&
                             in_array($b['status'], $activeStatuses) &&
-                            ($b['booking_id'] != $bookingId)
+                            ($b['booking_id'] != $bookingId) // skip the same booking
                         ) {
-                            session()->setFlashdata('error', 'Driver is currently assigned to an ongoing booking (#' . $b['booking_id'] . ').');
+                            session()->setFlashdata('error', 'Driver is currently assigned to an ongoing booking (#'.$b['booking_id'].').');
                             return redirect()->to(base_url('admin/bookings'));
                         }
                     }
                 }
             } else {
-                session()->setFlashdata('error', 'No driver selected for an active booking.');
+                // If no driver is selected at all, you may choose to block or allow that.
+                // For example:
+                session()->setFlashdata('error', 'Driver is currently taking another booking.');
                 return redirect()->to(base_url('admin/bookings'));
             }
         }

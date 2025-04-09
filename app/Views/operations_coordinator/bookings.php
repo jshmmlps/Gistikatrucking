@@ -190,30 +190,27 @@
                         <div class="mb-3">
                           <label class="form-label fw-bold">Select Driver (and Partner Conductor):</label>
                           <select name="driver" class="form-select">
-                            <option value="">-- No Change --</option>
                             <?php 
                               if (!empty($driversList) && is_array($driversList)):
                                 foreach ($driversList as $dKey => $dInfo):
+                                  // For each driver, build the driver label.
                                   $dName = trim(($dInfo['first_name'] ?? '') . ' ' . ($dInfo['last_name'] ?? ''));
                                   $dEmp  = $dInfo['employee_id'] ?? '';
                                   $partnerConductor = null;
                                   if (!empty($conductorsList) && is_array($conductorsList)) {
-                                      foreach ($conductorsList as $cKey => $cInfo) {
-                                          if (isset($cInfo['truck_assigned']) && $cInfo['truck_assigned'] === ($dInfo['truck_assigned'] ?? '')) {
-                                              $partnerConductor = $cInfo;
-                                              break;
-                                          }
-                                      }
+                                    foreach ($conductorsList as $cKey => $cInfo) {
+                                        if (isset($cInfo['truck_assigned']) && $cInfo['truck_assigned'] === ($dInfo['truck_assigned'] ?? '')) {
+                                            $partnerConductor = $cInfo;
+                                            break;
+                                        }
+                                    }
                                   }
-                                  if ($partnerConductor) {
-                                      $cName = trim(($partnerConductor['first_name'] ?? '') . ' ' . ($partnerConductor['last_name'] ?? ''));
-                                      $cEmp  = $partnerConductor['employee_id'] ?? '';
-                                  } else {
-                                      $cName = 'No Conductor';
-                                      $cEmp  = '';
-                                  }
+                                  $cName = $partnerConductor 
+                                          ? trim(($partnerConductor['first_name'] ?? '') . ' ' . ($partnerConductor['last_name'] ?? ''))
+                                          : 'No Conductor';
+                                  $cEmp  = $partnerConductor ? $partnerConductor['employee_id'] ?? '' : '';
                             ?>
-                              <option value="<?= esc($dKey) ?>">
+                              <option value="<?= esc($dKey) ?>" <?= (isset($currentDriverId) && $currentDriverId === $dKey) ? 'selected' : '' ?>>
                                 Driver <?= esc($dName) ?> (<?= esc($dEmp) ?>) - D / <?= esc($cName) ?> <?= $cEmp ? '(' . esc($cEmp) . ')' : '' ?> - C
                               </option>
                             <?php 

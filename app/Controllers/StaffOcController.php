@@ -920,6 +920,22 @@ class StaffOcController extends Controller
            }
        }
 
+        // 6) Persistent Notification:
+        // Instead of using FCM, store a notification record in Firebase that the client can view upon login.
+        // Assume the booking contains a "client_id" field.
+        if (!empty($existingBooking['client_id'])) {
+            $clientId = $existingBooking['client_id'];
+            $notificationData = [
+                'message'    => "Your booking #{$bookingId} status has been updated to " . ucfirst($status) . ".",
+                'booking_id' => $bookingId,
+                'status'     => $status,
+                'timestamp'  => date('c'),
+                'read'       => false  // This flag indicates whether the user has dismissed the notification.
+            ];
+            // Save the notification in Firebase under Notifications/{clientId}
+            $firebase->getReference("Notifications/{$clientId}")->push($notificationData);
+        }
+
        session()->setFlashdata('success', 'Booking #'.$bookingId.' updated successfully!');
        return redirect()->to(base_url('operations/bookings'));
    }
