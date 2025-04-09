@@ -372,8 +372,8 @@
     pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, {
       fields: ["formatted_address", "geometry"],
       // You can narrow down to specific countries, or types, etc.:
-      // componentRestrictions: { country: "ph" },
-      // types: ["geocode"] // or "address", etc.
+      componentRestrictions: { country: "ph" },
+      types: ["geocode"] // or "address", etc.
     });
 
     pickupAutocomplete.addListener("place_changed", function() {
@@ -395,6 +395,8 @@
     let dropoffInput = document.getElementById('drop_off_address');
     dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, {
       fields: ["formatted_address", "geometry"],
+      componentRestrictions: { country: "ph" },
+      types: ["geocode"] // or "address", et
     });
 
     dropoffAutocomplete.addListener("place_changed", function() {
