@@ -2,6 +2,41 @@
 
 <?= $this->section('content') ?>
 <link href="<?= base_url('public/assets/css/style.css'); ?>" rel="stylesheet">
+<style>
+    .role-badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.375rem;
+}
+
+/* Custom badge colors */
+    .badge-pending {
+    background-color: #ff6d01 !important;
+    color: white;
+}
+    .badge-approved {
+    background-color: #674ea7 !important;
+    color: white;
+}
+    .badge-intransit {
+    background-color: #4285f4 !important;
+    color: white;
+}
+    .badge-rejected {
+    background-color: #34a853 !important;
+    color: white;
+}
+    .badge-completed {
+    background-color: #ea4335 !important;
+    color: white;
+}
+</style>
 <title>Bookings</title>
 
 <h1>Bookings</h1>
@@ -66,7 +101,10 @@
               <td><?= esc($booking['name'] ?? '') ?></td>
               <td><?= esc($booking['dispatch_date'] ?? '') ?></td>
               <td><?= esc($booking['cargo_type'] ?? '') ?></td>
-              <td><?= esc($booking['status'] ?? '') ?></td>
+              <td>
+                <span class="role-badge" data-role="<?= esc($booking['status'] ?? '') ?>">
+                <?= esc($booking['status'] ?? '') ?>
+              </td>
               <td>
                 <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#bookingModal<?= esc($bId) ?>">
                   View/Update
@@ -345,5 +383,35 @@ function filterBookings() {
 // Add event listeners for search and status filter
 document.getElementById('searchClient').addEventListener('keyup', filterBookings);
 document.getElementById('filterStatus').addEventListener('change', filterBookings);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const badges = document.querySelectorAll('.role-badge');
+
+    badges.forEach(badge => {
+        const role = badge.getAttribute('data-role');
+
+        badge.classList.remove('badge-pending', 'badge-approved', 'badge-intransit', 'badge-rejected', 'badge-completed');
+
+        switch (role) {
+            case 'pending':
+                badge.classList.add('badge-pending');
+                break;
+            case 'approved':
+                badge.classList.add('badge-approved');
+                break;
+            case 'in-transit':
+                badge.classList.add('badge-intransit');
+                break;
+            case 'rejected':
+                badge.classList.add('badge-rejected');
+                break;
+            case 'completed':
+                badge.classList.add('badge-completed');
+                break;
+            default:
+                break;
+        }
+    });
+});
 </script>
 <?= $this->endSection() ?>

@@ -102,7 +102,7 @@
               <td><?= esc($booking['dispatch_date'] ?? '') ?></td>
               <td><?= esc($booking['cargo_type'] ?? '') ?></td>
               <td>
-                            <span class="role-badge" data-role="<?= esc($booking['status'] ?? '') ?>">
+                <span class="role-badge" data-role="<?= esc($booking['status'] ?? '') ?>">
                 <?= esc($booking['status'] ?? '') ?>
               </td>
               <td>
