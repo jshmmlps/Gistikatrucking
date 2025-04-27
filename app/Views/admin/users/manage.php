@@ -5,19 +5,23 @@
 <style>
     /* Define custom badge colors */
     .badge-admin {
-        background-color: red !important;
+        background-color: #ea4335 !important;
         color: white;
     }
     .badge-resource {
-        background-color: #fd7e14 !important;
+        background-color: #fbbc04 !important;
         color: white;
     }
     .badge-operation {
-        background-color: #ffc107 !important;
+        background-color: #ff6d01 !important;
         color: white;
     }
-    .badge-driver, .badge-conductor {
-        background-color: #4AA15D !important;
+    .badge-driver {
+        background-color: #34a853 !important;
+        color: white;
+    }
+    .badge-conductor {
+        background-color: #674ea7 !important;
         color: white;
     }
 </style>
@@ -536,6 +540,41 @@
             const userKey = this.getAttribute('data-user-key');
             const form = document.getElementById('deleteUserForm');
             form.action = `<?= base_url('admin/users') ?>/${userKey}/delete`;
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Get all user cards
+        const userCards = document.querySelectorAll('.userCard');
+
+        userCards.forEach(card => {
+            const role = card.getAttribute('data-role'); // Read the role from data attribute
+            const badge = card.querySelector('#roleBadge');
+
+            // Remove any existing badge class
+            badge.classList.remove('badge-admin', 'badge-resource', 'badge-operation', 'badge-driver', 'badge-conductor');
+
+            // Apply the correct badge color based on the role
+            switch (role) {
+                case 'admin':
+                    badge.classList.add('badge-admin');
+                    break;
+                case 'resource manager':
+                    badge.classList.add('badge-resource');
+                    break;
+                case 'operation manager':
+                    badge.classList.add('badge-operation');
+                    break;
+                case 'driver':
+                    badge.classList.add('badge-driver');
+                    break;
+                case 'conductor':
+                    badge.classList.add('badge-conductor');
+                    break;
+                default:
+                    // Keep the default badge color
+                    break;
+            }
         });
     });
 </script>
