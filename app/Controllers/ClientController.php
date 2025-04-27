@@ -282,10 +282,10 @@ class ClientController extends BaseController
         $data['client_id'] = $clientId;
     
         // 1) OPTIONAL: Check driver availability before attempting to create the booking
-        if (!$this->bookingModel->isAnyDriverAvailable()) {
-            $session->setFlashdata('error', 'Currently, no driver is available.');
-            return redirect()->back();
-        }
+        // if (!$this->bookingModel->isAnyDriverAvailable()) {
+        //     $session->setFlashdata('error', 'Currently, no driver is available.');
+        //     return redirect()->back();
+        // }
     
         // 2) If a driver is available, proceed with booking creation
         try {

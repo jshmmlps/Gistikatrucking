@@ -18,7 +18,7 @@ class StaffOcController extends Controller
     {
         // Load session and check operations coordinator authorization
         $session = session();
-        if (!$session->get('loggedIn') || $session->get('user_level') !== 'operations coordinator') {
+        if (!$session->get('loggedIn') || $session->get('user_level') !== 'operation manager') {
             $session->setFlashdata('error', 'No authorization.');
             redirect()->to(base_url('login'))->send();
             exit; // Stop further execution

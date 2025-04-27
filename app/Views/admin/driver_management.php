@@ -240,7 +240,7 @@
 <div class="modal fade" id="createDriverModal" tabindex="-1" aria-labelledby="createDriverModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-md">
     <div class="modal-content">
-      <form action="<?= base_url('admin/driver/create') ?>" method="post">
+      <form action="<?= base_url('admin/driver/create') ?>" method="POST">
         <?= csrf_field() ?>
         <div class="modal-header">
           <h5 class="modal-title" id="createDriverModalLabel">Assign Truck to Driver/Conductor</h5>

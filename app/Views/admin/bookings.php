@@ -249,7 +249,7 @@
                                   $cEmp  = $partnerConductor ? $partnerConductor['employee_id'] ?? '' : '';
                             ?>
                               <option value="<?= esc($dKey) ?>" <?= (isset($currentDriverId) && $currentDriverId === $dKey) ? 'selected' : '' ?>>
-                                Driver <?= esc($dName) ?> (<?= esc($dEmp) ?>) - D / <?= esc($cName) ?> <?= $cEmp ? '(' . esc($cEmp) . ')' : '' ?> - C
+                                <?= esc($dName) ?> (<?= esc($dEmp) ?>) - D / <?= esc($cName) ?> <?= $cEmp ? '(' . esc($cEmp) . ')' : '' ?> - C
                               </option>
                             <?php 
                                 endforeach;

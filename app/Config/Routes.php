@@ -106,8 +106,10 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
     // Driver/Conductor Management
     $routes->get('driver', 'AdminController::driverManagement');
     $routes->post('driver/create', 'AdminController::createDriver');
+    $routes->get('driver/update/(:segment)', 'AdminController::updateDriver/$1');
     $routes->post('driver/update/(:segment)', 'AdminController::updateDriver/$1');
     $routes->get('driver/delete/(:segment)', 'AdminController::deleteDriver/$1');
+    $routes->post('driver/delete/(:segment)', 'AdminController::deleteDriver/$1');
     $routes->get('driver/view/(:segment)', 'AdminController::viewDriver/$1');
 
     // Client Management
