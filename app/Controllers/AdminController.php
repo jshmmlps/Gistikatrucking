@@ -154,6 +154,35 @@ class AdminController extends Controller
         return $counts;
     }
 
+    // Add this function to get booking counts (requires Firebase access)
+    private function getTruckBookingCount($truckId, $db) {
+        try {
+            // Access the Bookings node
+            $bookingsRef = $db->getReference('Bookings');
+            
+            // Get all bookings data
+            $allBookings = $bookingsRef->getValue();
+    
+            // Initialize count
+            $count = 0;
+    
+            // Loop through all bookings and count matches
+            if (!empty($allBookings)) {
+                foreach ($allBookings as $booking) {
+                    if (isset($booking['truck_id']) && $booking['truck_id'] === $truckId) {
+                        $count++;
+                    }
+                }
+            }
+    
+            return $count;
+        } catch (\Throwable $e) {
+            log_message('error', 'Firebase Booking Count Error for truck ' . $truckId . ': ' . $e->getMessage());
+            return 0;
+        }
+    }
+    
+
 
 
     /**
@@ -1649,6 +1678,248 @@ class AdminController extends Controller
     }
 
     // ================== MAINTENANCE MODULE ===================  //
+    // public function Maintenance()
+    // {
+    //     // 1) Get Firebase Realtime Database instance
+    //     $db = service('firebase');
+
+    //     // 2) Fetch all trucks from your "Trucks" node
+    //     $trucksRef = $db->getReference('Trucks');
+    //     $snapshot = $trucksRef->getSnapshot();
+
+    //     if (!$snapshot->exists()) {
+    //         // If no data in 'Trucks' node, pass empty arrays
+    //         return view('admin/maintenance', [
+    //             'totalTrucks'      => 0,
+    //             'dueTrucks'        => [],
+    //             'chartData'        => [],
+    //             'componentTrucks'  => [],
+    //             'allComponents'    => [],
+    //         ]);
+    //     }
+
+    //     // Convert the snapshot into an associative array and natural sort by truck ID
+    //     $trucksData = $snapshot->getValue();
+    //     uksort($trucksData, 'strnatcmp');
+
+    //     // ----------------------------------
+    //     // 7 major components and their labels
+    //     // ----------------------------------
+    //     $allComponents = [
+    //         'engine_system'               => 'Engine System',
+    //         'transmission_drivetrain'     => 'Transmission & Drivetrain',
+    //         'brake_system'                => 'Brake System',
+    //         'suspension_chassis'          => 'Suspension & Chassis',
+    //         'fuel_cooling_system'         => 'Fuel & Cooling System',
+    //         'steering_system'             => 'Steering System',
+    //         'electrical_auxiliary_system' => 'Electrical & Auxiliary System',
+    //     ];
+
+    //     // --------------------------------------
+    //     // Define intervals for New vs. Old Trucks
+    //     // (Feel free to adjust as needed)
+    //     // --------------------------------------
+    //     $intervals = [
+    //         'engine_system' => [
+    //             'new' => 5000, // e.g. every 5,000 km
+    //             'old' => 4000, // e.g. every 4,000 km
+    //         ],
+    //         'transmission_drivetrain' => [
+    //             'new' => 20000, 
+    //             'old' => 15000,
+    //         ],
+    //         'brake_system' => [
+    //             'new' => 10000,
+    //             'old' => 4000,
+    //         ],
+    //         'suspension_chassis' => [
+    //             'new' => 5000,
+    //             'old' => 4000,
+    //         ],
+    //         'fuel_cooling_system' => [
+    //             'new' => 20000,
+    //             'old' => 15000,
+    //         ],
+    //         'steering_system' => [
+    //             'new' => 20000,
+    //             'old' => 10000,
+    //         ],
+    //         'electrical_auxiliary_system' => [
+    //             'new' => 10000,
+    //             'old' => 7000,
+    //         ],
+    //     ];
+
+    //     // We'll count how many trucks are overdue for each component
+    //     $componentCounts = array_fill_keys(array_keys($allComponents), 0);
+
+    //     // We'll also track which trucks need each component (for the chart modal)
+    //     $componentTrucks = array_fill_keys(array_keys($allComponents), []);
+
+    //     // Array for final output
+    //     $dueTrucks = [];
+    //     $totalTrucks = 0;
+
+    //     foreach ($trucksData as $truckId => $truck) {
+    //         $totalTrucks++;
+
+    //         // 1) Determine if the truck is Old or New
+    //         $manufacturingDate = $truck['manufacturing_date'] ?? '';
+    //         $yearsOld = 0;
+    //         if (!empty($manufacturingDate)) {
+    //             try {
+    //                 // Ensure the date is valid before calculating
+    //                 $mfgTimestamp = strtotime($manufacturingDate);
+    //                 if ($mfgTimestamp !== false) {
+    //                     $yearsOld = date('Y') - date('Y', $mfgTimestamp);
+    //                 }
+    //             } catch (\Exception $e) {
+    //                 $yearsOld = 0; // Handle potential date format issues
+    //                 log_message('error', 'Invalid manufacturing date format for truck ' . $truckId . ': ' . $manufacturingDate);
+    //             }
+    //         }
+
+    //         $currentMileage = (int)($truck['current_mileage'] ?? 0);
+    //         $isNew = ($yearsOld <= 5 && $currentMileage < 100000);
+    //         $condition = $isNew ? 'New' : 'Old';
+
+    //         $dueComponents = [];
+    //         $truckComponentDetails = []; // Store details for *all* components for this truck
+
+    //         // 2) Check each of the major maintenance items
+    //         foreach ($allComponents as $componentKey => $label) {
+    //             $lastServiceMileage = 0;
+    //             $lastServiceDate = 'N/A';
+    //             $isDefective = false;
+    //             $componentData = $truck['maintenance_items'][$componentKey] ?? []; // Get component data or empty array
+
+    //             $lastServiceMileage = (int)($componentData['last_service_mileage'] ?? 0);
+    //             $lastServiceDate = $componentData['last_service_date'] ?? 'N/A'; // Get last service date
+    //             $isDefective = !empty($componentData['is_defective']); // Check if defective flag is set and not empty/false
+
+    //             // Choose the correct interval
+    //             $mileageInterval = $isNew ? $intervals[$componentKey]['new'] : $intervals[$componentKey]['old'];
+
+    //             // Determine if component is currently due
+    //             $isDueByMileage = ($currentMileage - $lastServiceMileage) >= $mileageInterval;
+    //             $isCurrentlyDue = $isDefective || $isDueByMileage;
+
+    //              // Store details for this component regardless of due status
+    //              $truckComponentDetails[$componentKey] = [
+    //                  'label' => $label,
+    //                  'last_service_mileage' => $lastServiceMileage,
+    //                  'last_service_date' => $lastServiceDate,
+    //                  'is_defective' => $isDefective,
+    //                  'is_due_by_mileage' => $isDueByMileage,
+    //                  'is_currently_due' => $isCurrentlyDue,
+    //                  'required_interval' => $mileageInterval // Store the interval used
+    //                  // 'historical_due_count' => $componentData['historical_due_count'] ?? 0 // Placeholder: Requires data structure change
+    //              ];
+
+
+    //             if ($isCurrentlyDue) {
+    //                 $dueComponents[] = $componentKey;
+    //                 $componentCounts[$componentKey]++;
+    //                 $componentTrucks[$componentKey][] = [
+    //                     'truck_id'    => $truckId,
+    //                     'truck_model' => $truck['truck_model'] ?? 'N/A',
+    //                 ];
+    //             }
+    //         }
+
+    //          // Fetch booking count for this truck
+    //          $bookingCount = $this->getTruckBookingCount($truckId, $db);
+
+
+    //          // Store all necessary data for the JS Modal
+    //         $condition = $isNew ? 'New' : 'Old';
+    //         $allTrucksDataForJs[$truckId] = [
+    //             'truckId'             => $truckId,
+    //             'truckModel'          => $truck['truck_model'] ?? 'N/A',
+    //             'manufacturingDate'   => $manufacturingDate,
+    //             'currentMileage'      => $currentMileage,
+    //             'lastInspectionDate'  => $truck['last_inspection_date'] ?? 'N/A', // Assuming this is overall inspection
+    //             'lastInspectionMileage' => $truck['last_inspection_mileage'] ?? 'N/A', // Assuming this is overall inspection
+    //             'condition'           => $condition,
+    //             'yearsOld'            => $yearsOld,
+    //             'componentDetails'    => $truckComponentDetails, // Pass details for ALL components
+    //             'bookingCount'        => $bookingCount,
+    //              //'rawTruckData'       => $truck // Optionally pass all raw data if needed
+    //         ];
+
+    //         // If truck has any due components, add it to $dueTrucks
+    //         if (!empty($dueComponents)) {
+    //             $condition = $isNew ? 'New' : 'Old';
+    //             $dueTrucks[] = [
+    //                 'truckId'          => $truckId,
+    //                 'truckModel'       => $truck['truck_model'] ?? '',
+    //                 'manufacturingDate'=> $manufacturingDate,
+    //                 'details'          => $truck,
+    //                 'dueComponents'    => $dueComponents,
+    //                 'yearsOld'         => $yearsOld,
+    //                 'lastServiceMileage'=> $truck['last_inspection_mileage'] ?? 'N/A',
+    //                 'lastInspectionDate'  => $truck['last_inspection_date'] ?? 'N/A',
+    //                 'currentMileage'      => $currentMileage,
+    //                 'condition'        => $condition,
+    //             ];
+    //         }
+    //     }
+
+    //     // Build chart data for Chart.js
+    //     $labels     = array_values($allComponents);
+    //     $dataValues = [];
+    //     foreach ($allComponents as $key => $label) {
+    //         $dataValues[] = $componentCounts[$key];
+    //     }
+
+    //     $chartData = [
+    //         'labels'   => $labels,
+    //         'datasets' => [[
+    //             'label' => 'Components Due for Inspection',
+    //             'data'  => $dataValues,
+    //         ]]
+    //     ];
+
+    //     // Build the data array for the view
+    //     $data = [
+    //         'totalTrucks'     => $totalTrucks,
+    //         'dueTrucks'       => $dueTrucks,
+    //         'chartData'       => $chartData,
+    //         'componentTrucks' => $componentTrucks,
+    //         'allComponents'   => $allComponents,
+    //         'allTrucksDataForJs' => $allTrucksDataForJs,
+    //     ];
+
+    //     // Retrieve and merge notification counts.
+    //     $notificationCounts = $this->getNotificationCounts();
+    //     $data = array_merge($data, $notificationCounts);
+
+    //     // Pass everything to the view.
+    //     return view('admin/maintenance', $data);
+
+    // }
+
+    // ============================================================
+    // ADD THIS HELPER METHOD INSIDE THE AdminController CLASS
+    // ============================================================
+    private function getTruckBookingData($db)
+    {
+        // IMPORTANT: Adjust 'Bookings' if your Firebase node has a different name!
+        $bookingsRef = $db->getReference('Bookings');
+        try {
+            $snapshot = $bookingsRef->getSnapshot();
+            if ($snapshot->exists()) {
+                return $snapshot->getValue();
+            }
+        } catch (\Exception $e) {
+            // Log the error or handle it appropriately
+            log_message('error', 'Firebase Error fetching Bookings: ' . $e->getMessage());
+            return []; // Return empty on error
+        }
+        return []; // Return empty if node doesn't exist
+    }
+    // ============================================================
+
     public function Maintenance()
     {
         // 1) Get Firebase Realtime Database instance
@@ -1658,23 +1929,35 @@ class AdminController extends Controller
         $trucksRef = $db->getReference('Trucks');
         $snapshot = $trucksRef->getSnapshot();
 
+        // --- Default empty data for view in case of no trucks ---
+        $emptyData = [
+            'totalTrucks'           => 0,
+            'dueTrucks'             => [],
+            'componentChartData'    => ['labels' => [], 'datasets' => []], // Renamed
+            'distanceChartData'     => ['labels' => [], 'datasets' => []], // New
+            'componentTrucks'       => [],
+            'allComponents'         => [],
+            'allTrucksDataForJs'    => [],
+            'trucksWithBookings'    => [], // List of trucks that actually have bookings
+        ];
+        // Merge default notification counts
+        $notificationCounts = $this->getNotificationCounts();
+        $emptyData = array_merge($emptyData, $notificationCounts);
+
         if (!$snapshot->exists()) {
-            // If no data in 'Trucks' node, pass empty arrays
-            return view('admin/maintenance', [
-                'totalTrucks'      => 0,
-                'dueTrucks'        => [],
-                'chartData'        => [],
-                'componentTrucks'  => [],
-                'allComponents'    => [],
-            ]);
+            // If no data in 'Trucks' node, pass empty arrays/defaults
+            return view('admin/maintenance', $emptyData);
         }
 
         // Convert the snapshot into an associative array and natural sort by truck ID
         $trucksData = $snapshot->getValue();
         uksort($trucksData, 'strnatcmp');
 
+        // Fetch all booking data once
+        $allBookings = $this->getTruckBookingData($db);
+
         // ----------------------------------
-        // 7 major components and their labels
+        // Component definitions (Keep as is)
         // ----------------------------------
         $allComponents = [
             'engine_system'               => 'Engine System',
@@ -1685,154 +1968,217 @@ class AdminController extends Controller
             'steering_system'             => 'Steering System',
             'electrical_auxiliary_system' => 'Electrical & Auxiliary System',
         ];
-
-        // --------------------------------------
-        // Define intervals for New vs. Old Trucks
-        // (Feel free to adjust as needed)
-        // --------------------------------------
         $intervals = [
-            'engine_system' => [
-                'new' => 5000, // e.g. every 5,000 km
-                'old' => 4000, // e.g. every 4,000 km
-            ],
-            'transmission_drivetrain' => [
-                'new' => 20000, 
-                'old' => 15000,
-            ],
-            'brake_system' => [
-                'new' => 10000,
-                'old' => 4000,
-            ],
-            'suspension_chassis' => [
-                'new' => 5000,
-                'old' => 4000,
-            ],
-            'fuel_cooling_system' => [
-                'new' => 20000,
-                'old' => 15000,
-            ],
-            'steering_system' => [
-                'new' => 20000,
-                'old' => 10000,
-            ],
-            'electrical_auxiliary_system' => [
-                'new' => 10000,
-                'old' => 7000,
-            ],
+            'engine_system'               => ['new' => 5000,  'old' => 4000],
+            'transmission_drivetrain'     => ['new' => 20000, 'old' => 15000],
+            'brake_system'                => ['new' => 10000, 'old' => 4000],
+            'suspension_chassis'          => ['new' => 5000,  'old' => 4000],
+            'fuel_cooling_system'         => ['new' => 20000, 'old' => 15000],
+            'steering_system'             => ['new' => 20000, 'old' => 10000],
+            'electrical_auxiliary_system' => ['new' => 10000, 'old' => 7000],
         ];
 
-        // We'll count how many trucks are overdue for each component
+        // --- Initialize data structures ---
         $componentCounts = array_fill_keys(array_keys($allComponents), 0);
-
-        // We'll also track which trucks need each component (for the chart modal)
         $componentTrucks = array_fill_keys(array_keys($allComponents), []);
-
-        // Array for final output
         $dueTrucks = [];
         $totalTrucks = 0;
+        $allTrucksDataForJs = []; // For the truck detail modal
 
+        // --- Initialize structures for Distance Chart ---
+        $truckDistanceCounts = []; // Structure: ['truckId' => ['short' => 0, 'medium' => 0, 'long' => 0]]
+
+        // --- Process Bookings FIRST to get distance counts per truck ---
+        foreach ($allBookings as $bookingId => $booking) {
+            if (isset($booking['truck_id']) && isset($booking['distance'])) {
+                $truckId = $booking['truck_id'];
+                $distance = (float) $booking['distance']; // Ensure numeric
+
+                // Initialize truck if not seen before
+                if (!isset($truckDistanceCounts[$truckId])) {
+                    $truckDistanceCounts[$truckId] = ['short' => 0, 'medium' => 0, 'long' => 0];
+                }
+
+                // Categorize distance
+                if ($distance < 40) {
+                    $truckDistanceCounts[$truckId]['short']++;
+                } elseif ($distance <= 200) {
+                    $truckDistanceCounts[$truckId]['medium']++;
+                } else { // > 200
+                    $truckDistanceCounts[$truckId]['long']++;
+                }
+            }
+        }
+        // Optional: Sort trucks with bookings by Truck ID (natural sort)
+        uksort($truckDistanceCounts, 'strnatcmp');
+        $trucksWithBookings = array_keys($truckDistanceCounts); // Get the naturally sorted list
+
+
+        // --- Process Each Truck for Maintenance AND Modal Data ---
         foreach ($trucksData as $truckId => $truck) {
             $totalTrucks++;
 
-            // 1) Determine if the truck is Old or New
+            // 1) Determine if the truck is Old or New (Keep as is)
             $manufacturingDate = $truck['manufacturing_date'] ?? '';
             $yearsOld = 0;
-            if (!empty($manufacturingDate)) {
-                $yearsOld = date('Y') - date('Y', strtotime($manufacturingDate));
-            }
-
-            $currentMileage = $truck['current_mileage'] ?? 0;
-            // "New" if ≤5 years AND mileage < 100k, else "Old"
+            if (!empty($manufacturingDate)) { /* ... keep date calculation logic ... */ }
+            $currentMileage = (int)($truck['current_mileage'] ?? 0);
             $isNew = ($yearsOld <= 5 && $currentMileage < 100000);
+            $condition = $isNew ? 'New' : 'Old';
 
-            // We'll gather which components are due for this truck
             $dueComponents = [];
+            $truckComponentDetails = [];
 
-            // 2) Check each of the major maintenance items
-            //    Override the recommended_interval_km with logic for old/new
+            // 2) Check each major maintenance item (Keep as is)
             foreach ($allComponents as $componentKey => $label) {
-                // If the DB has a "maintenance_items" structure, we can still track last_service_mileage
-                // $lastServiceMileage = 0;
-                // if (isset($truck['maintenance_items'][$componentKey]['last_service_mileage'])) {
-                //     $lastServiceMileage = $truck['maintenance_items'][$componentKey]['last_service_mileage'];
-                // }
                 $lastServiceMileage = 0;
+                $lastServiceDate = 'N/A';
                 $isDefective = false;
-                if (isset($truck['maintenance_items'][$componentKey])) {
-                    $lastServiceMileage = (int)($truck['maintenance_items'][$componentKey]['last_service_mileage'] ?? 0);
-                    $isDefective = !empty($truck['maintenance_items'][$componentKey]['is_defective']);
-                }
+                $componentData = $truck['maintenance_items'][$componentKey] ?? [];
 
+                $lastServiceMileage = (int)($componentData['last_service_mileage'] ?? 0);
+                $lastServiceDate = $componentData['last_service_date'] ?? 'N/A';
+                $isDefective = !empty($componentData['is_defective']);
 
-                // Choose the correct interval based on isNew
-                $mileageInterval = $isNew
-                    ? $intervals[$componentKey]['new']
-                    : $intervals[$componentKey]['old'];
+                $mileageInterval = $isNew ? $intervals[$componentKey]['new'] : $intervals[$componentKey]['old'];
+                $isDueByMileage = ($currentMileage - $lastServiceMileage) >= $mileageInterval;
+                $isCurrentlyDue = $isDefective || $isDueByMileage;
 
-                // Overdue check
-                // if (($currentMileage - $lastServiceMileage) >= $mileageInterval) {
-                // Overdue if mileage OR marked defective
-                if ($isDefective || ($currentMileage - $lastServiceMileage) >= $mileageInterval) {
+                // Store details for this component regardless of due status (Keep as is)
+                $truckComponentDetails[$componentKey] = [
+                    'label'                => $label,
+                    'last_service_mileage' => $lastServiceMileage,
+                    'last_service_date'    => $lastServiceDate,
+                    'is_defective'         => $isDefective,
+                    'is_due_by_mileage'    => $isDueByMileage,
+                    'is_currently_due'     => $isCurrentlyDue,
+                    'required_interval'    => $mileageInterval
+                ];
 
+                if ($isCurrentlyDue) {
                     $dueComponents[] = $componentKey;
-
-                    // Increment the global count
                     $componentCounts[$componentKey]++;
-
-                    // Add this truck to the componentTrucks list
                     $componentTrucks[$componentKey][] = [
-                        'truck_id'     => $truckId,
-                        'truck_model'  => $truck['truck_model'] ?? '',
+                        'truck_id'    => $truckId,
+                        'truck_model' => $truck['truck_model'] ?? 'N/A',
                     ];
                 }
             }
 
-            // If truck has any due components, add it to $dueTrucks
+            // Fetch booking count (individual truck) - Reuse existing if needed, or get from processed data
+            // If getTruckBookingCount queries DB again, it's less efficient. Better to use $truckDistanceCounts
+            $bookingCount = 0;
+            if(isset($truckDistanceCounts[$truckId])) {
+                $bookingCount = array_sum($truckDistanceCounts[$truckId]);
+            }
+            // $bookingCount = $this->getTruckBookingCount($truckId, $db); // Less efficient if it queries again
+
+
+            // Store all necessary data for the JS Modal (Keep structure, update booking count source)
+            $allTrucksDataForJs[$truckId] = [
+                'truckId'               => $truckId,
+                'truckModel'            => $truck['truck_model'] ?? 'N/A',
+                'manufacturingDate'     => $manufacturingDate,
+                'currentMileage'        => $currentMileage,
+                'lastInspectionDate'    => $truck['last_inspection_date'] ?? 'N/A',
+                'lastInspectionMileage' => $truck['last_inspection_mileage'] ?? 'N/A',
+                'condition'             => $condition,
+                'yearsOld'              => $yearsOld,
+                'componentDetails'      => $truckComponentDetails,
+                'bookingCount'          => $bookingCount, // Use calculated count
+            ];
+
+            // If truck has any due components, add it to $dueTrucks (Keep as is)
             if (!empty($dueComponents)) {
-                $condition = $isNew ? 'New' : 'Old';
                 $dueTrucks[] = [
-                    'truckId'          => $truckId,
-                    'truckModel'       => $truck['truck_model'] ?? '',
-                    'manufacturingDate'=> $manufacturingDate,
-                    'details'          => $truck,
-                    'dueComponents'    => $dueComponents,
-                    'yearsOld'         => $yearsOld,
-                    'condition'        => $condition,
+                    'truckId'            => $truckId,
+                    'truckModel'         => $truck['truck_model'] ?? '',
+                    'manufacturingDate'  => $manufacturingDate,
+                    'details'            => $truck, // Be mindful of passing too much data if not needed
+                    'dueComponents'      => $dueComponents,
+                    'yearsOld'           => $yearsOld,
+                    'lastServiceMileage' => $truck['last_inspection_mileage'] ?? 'N/A',
+                    'lastInspectionDate' => $truck['last_inspection_date'] ?? 'N/A',
+                    'currentMileage'     => $currentMileage,
+                    'condition'          => $condition,
                 ];
             }
-        }
+        } // End foreach ($trucksData)
 
-        // Build chart data for Chart.js
-        $labels     = array_values($allComponents);
-        $dataValues = [];
+        // --- Build Component Chart data ---
+        $componentLabels = array_values($allComponents);
+        $componentDataValues = [];
         foreach ($allComponents as $key => $label) {
-            $dataValues[] = $componentCounts[$key];
+            $componentDataValues[] = $componentCounts[$key];
         }
-
-        $chartData = [
-            'labels'   => $labels,
+        $componentChartData = [ // Renamed variable
+            'labels'   => $componentLabels,
             'datasets' => [[
                 'label' => 'Components Due for Inspection',
-                'data'  => $dataValues,
+                'data'  => $componentDataValues,
+                // Colors will be added in JS
             ]]
         ];
 
-        // Build the data array for the view
+
+        // --- Build Distance Chart data ---
+        $distanceLabels = $trucksWithBookings; // Use the sorted list of trucks with bookings
+        $shortDistanceData = [];
+        $mediumDistanceData = [];
+        $longDistanceData = [];
+
+        foreach($distanceLabels as $truckId) {
+            $counts = $truckDistanceCounts[$truckId];
+            $shortDistanceData[] = $counts['short'];
+            $mediumDistanceData[] = $counts['medium'];
+            $longDistanceData[] = $counts['long'];
+        }
+
+        $distanceChartData = [ // New variable
+            'labels' => $distanceLabels, // Truck IDs
+            'datasets' => [
+                [
+                    'label' => 'Short Distance (< 40km)',
+                    'data' => $shortDistanceData,
+                    'backgroundColor' => 'rgba(54, 162, 235, 0.7)', // Blue
+                    'borderColor' => 'rgba(54, 162, 235, 1)',
+                    'borderWidth' => 1
+                ],
+                [
+                    'label' => 'Medium Distance (40-200km)',
+                    'data' => $mediumDistanceData,
+                    'backgroundColor' => 'rgba(255, 206, 86, 0.7)', // Yellow
+                    'borderColor' => 'rgba(255, 206, 86, 1)',
+                    'borderWidth' => 1
+                ],
+                [
+                    'label' => 'Long Distance (> 200km)',
+                    'data' => $longDistanceData,
+                    'backgroundColor' => 'rgba(255, 99, 132, 0.7)', // Red
+                    'borderColor' => 'rgba(255, 99, 132, 1)',
+                    'borderWidth' => 1
+                ]
+            ]
+        ];
+
+        // --- Build the final data array for the view ---
         $data = [
-            'totalTrucks'     => $totalTrucks,
-            'dueTrucks'       => $dueTrucks,
-            'chartData'       => $chartData,
-            'componentTrucks' => $componentTrucks,
-            'allComponents'   => $allComponents,
+            'totalTrucks'           => $totalTrucks,
+            'dueTrucks'             => $dueTrucks,
+            'componentChartData'    => $componentChartData,    // Pass component chart data
+            'distanceChartData'     => $distanceChartData,     // Pass distance chart data
+            'componentTrucks'       => $componentTrucks,     // For component modal (chart click)
+            'allComponents'         => $allComponents,
+            'allTrucksDataForJs'    => $allTrucksDataForJs,  // For truck detail modal
+            'trucksWithBookings'    => $trucksWithBookings,  // Pass list of trucks with bookings
         ];
 
         // Retrieve and merge notification counts.
-        $notificationCounts = $this->getNotificationCounts();
+        // $notificationCounts = $this->getNotificationCounts(); // Already done at the beginning
         $data = array_merge($data, $notificationCounts);
 
         // Pass everything to the view.
         return view('admin/maintenance', $data);
-
     }
 
     
