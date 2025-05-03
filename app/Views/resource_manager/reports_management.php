@@ -87,6 +87,7 @@
               <option value="preventive">Preventive</option>
               <option value="corrective">Corrective</option>
               <option value="replacement">Replacement</option>
+              <option value="defective">Defective</option>
             </select>
           </div>
         </div>
@@ -111,7 +112,7 @@
         <div class="mb-3 row">
           <label for="estimate_next_service_mileage" class="col-sm-3 col-form-label">Estimate Next Service (Mileage)</label>
           <div class="col-sm-9">
-            <input type="number" class="form-control" name="estimate_next_service_mileage" id="estimate_next_service_mileage" required>
+            <input type="number" class="form-control custom-readonly" name="estimate_next_service_mileage" id="estimate_next_service_mileage" readonly>
           </div>
         </div>
 
@@ -231,6 +232,70 @@
       document.getElementById('manufacturing_date').value = '';
     }
   });
+
+  const componentIntervals = {
+    'engine_system':     { new: 5000, old: 4000, time: '6 months' },
+    'transmission':      { new: 20000, old: 15000, time: '24 months' },
+    'brake_system':      { new: 10000, old: 4000, time: 'N/A' },
+    'suspension':        { new: 5000, old: 4000, time: 'N/A' },
+    'fuel_cooling':      { new: 20000, old: 15000, time: 'N/A' },
+    'steering':          { new: 20000, old: 10000, time: 'N/A' },
+    'electrical_aux':    { new: 10000, old: 7000, time: 'N/A' }
+  };
+
+  // Utility: calculate truck age in years
+  function calculateTruckAge(mfgDateStr) {
+    if (!mfgDateStr) return 0;
+    const today = new Date();
+    const mfgDate = new Date(mfgDateStr);
+    return today.getFullYear() - mfgDate.getFullYear();
+  }
+
+  function updateEstimatedServiceFields() {
+    const truckId = truckSelect.value;
+    const component = document.getElementById('component').value;
+    const mileageAfter = parseInt(document.getElementById('mileage_after_inspection').value || 0);
+    
+    if (!truckId || !component || !mileageAfter) return;
+
+    const truck = trucksData[truckId];
+    const truckAge = calculateTruckAge(truck.manufacturing_date);
+    const currentMileage = parseInt(truck.current_mileage || 0);
+    const isOld = truckAge > 5 || currentMileage > 100000;
+
+    const intervalInfo = componentIntervals[component];
+    if (!intervalInfo) return;
+
+    const interval = isOld ? intervalInfo.old : intervalInfo.new;
+    const timeDue = intervalInfo.time !== 'N/A' ? intervalInfo.time : 'N/A';
+
+    const nextMileage = mileageAfter + interval;
+
+    document.getElementById('estimate_next_service_mileage').value = nextMileage;
+    document.getElementById('expected_next_service_time').value = timeDue;
+  }
+
+  // Trigger on any relevant input
+  document.getElementById('component').addEventListener('change', updateEstimatedServiceFields);
+  document.getElementById('mileage_after_inspection').addEventListener('input', updateEstimatedServiceFields);
+  truckSelect.addEventListener('change', function () {
+    const selectedTruckId = this.value;
+    if (selectedTruckId && trucksData[selectedTruckId]) {
+      const truck = trucksData[selectedTruckId];
+      document.getElementById('current_mileage').value = truck.current_mileage || '';
+      document.getElementById('last_service_date').value = truck.last_inspection_date || '';
+      document.getElementById('last_service_mileage').value = truck.last_inspection_mileage || '';
+      document.getElementById('manufacturing_date').value = truck.manufacturing_date || '';
+    } else {
+      document.getElementById('current_mileage').value = '';
+      document.getElementById('last_service_date').value = '';
+      document.getElementById('last_service_mileage').value = '';
+      document.getElementById('manufacturing_date').value = '';
+    }
+
+    updateEstimatedServiceFields(); // Re-evaluate after truck change
+  });
+
 </script>
 
 <?= $this->endSection() ?>

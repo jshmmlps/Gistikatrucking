@@ -1023,18 +1023,48 @@ class StaffRmController extends Controller
             'last_inspection_mileage' => (string)$newMileage,
         ];
 
+        // // Check if maintenance_items exist for the chosen component
+        // if (isset($truckData['maintenance_items'][$component])) {
+        //     $updates["maintenance_items/$component/last_service_date"]    = $inspectionDate;
+        //     $updates["maintenance_items/$component/last_service_mileage"] = (string)$newMileage;
+        // } else {
+        //     // create new sub-array if not existing
+        //     $updates["maintenance_items/$component"] = [
+        //         'last_service_date'      => $inspectionDate,
+        //         'last_service_mileage'   => (string)$newMileage,
+        //         'recommended_interval_km'=> 0
+        //     ];
+        // }
+
+        // Determine defect status
+        $normalizedServiceType = strtolower(trim($serviceType));
+        $isDefective = $normalizedServiceType === 'defective';
+
         // Check if maintenance_items exist for the chosen component
         if (isset($truckData['maintenance_items'][$component])) {
             $updates["maintenance_items/$component/last_service_date"]    = $inspectionDate;
             $updates["maintenance_items/$component/last_service_mileage"] = (string)$newMileage;
+
+            // Step 3: Set or remove 'is_defective'
+            if ($isDefective) {
+                $updates["maintenance_items/$component/is_defective"] = true;
+            } elseif (in_array($normalizedServiceType, ['preventive', 'corrective', 'replacement'])) {
+                $updates["maintenance_items/$component/is_defective"] = null; // or false if you prefer
+            }
         } else {
-            // create new sub-array if not existing
+            // Create new component if not existing
             $updates["maintenance_items/$component"] = [
-                'last_service_date'      => $inspectionDate,
-                'last_service_mileage'   => (string)$newMileage,
-                'recommended_interval_km'=> 0
+                'last_service_date'       => $inspectionDate,
+                'last_service_mileage'    => (string)$newMileage,
+                'recommended_interval_km' => 0,
             ];
+
+            // Step 3: Add is_defective if applicable
+            if ($isDefective) {
+                $updates["maintenance_items/$component/is_defective"] = true;
+            }
         }
+
 
         // Update the truck record
         $truckRef->update($updates);

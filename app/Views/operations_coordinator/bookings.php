@@ -295,6 +295,40 @@
 <!-- Load Google Maps API -->
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtBOU_Ez6dNsAsgVXTxbhl_IC09meVzlw"></script>
 
+<?php if (!empty($maintenanceAlerts)): ?>
+  <div id="maintenance-alert" style="
+    position: fixed;
+    top: 20px;
+    right:20px;
+    background-color: #ffdddd;
+    color: #a94442;
+    border: 1px solid #ebccd1;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    z-index: 9999;
+  ">
+    <strong>⚠️ Maintenance Alert:</strong><br>
+    <ul style="margin: 0; padding-left: 20px;">
+      <?php foreach ($maintenanceAlerts as $alert): ?>
+        <li><?= esc($alert) ?></li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+
+  <script>
+    // Auto-hide after 10 seconds
+    setTimeout(function() {
+      const alertBox = document.getElementById('maintenance-alert');
+      if (alertBox) {
+        alertBox.style.transition = "opacity 1s ease";
+        alertBox.style.opacity = 0;
+        setTimeout(() => alertBox.remove(), 1000);
+      }
+    }, 10000);
+  </script>
+<?php endif; ?>
+
 <script>
 // Initialize maps for each booking modal when shown
 document.addEventListener('DOMContentLoaded', function() {

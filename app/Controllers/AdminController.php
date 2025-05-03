@@ -1192,6 +1192,38 @@ class AdminController extends Controller
     // ============== BOOKING MODULE ===================  //
 
     // List all bookings for admin review
+    // public function bookings()
+    // {
+    //     $bookingModel = new BookingModel();
+    //     $data['bookings'] = $bookingModel->getAllBookings() ?? [];
+
+    //     // Load all drivers from Firebase
+    //     $firebase       = service('firebase');
+    //     $driversRef     = $firebase->getReference('Drivers');
+    //     $allDriversData = $driversRef->getValue() ?? [];
+
+    //     // We'll separate them into "drivers" and "conductors"
+    //     $driversList = [];
+    //     $conductorsList = [];
+    //     foreach ($allDriversData as $driverKey => $driverInfo) {
+    //         $pos = strtolower($driverInfo['position'] ?? '');
+    //         if ($pos === 'driver') {
+    //             $driversList[$driverKey] = $driverInfo;
+    //         } elseif ($pos === 'conductor') {
+    //             $conductorsList[$driverKey] = $driverInfo;
+    //         }
+    //     }
+
+    //     $data['driversList']    = $driversList;
+    //     $data['conductorsList'] = $conductorsList;
+
+    //     // Retrieve and merge notification counts.
+    //     $notificationCounts = $this->getNotificationCounts();
+    //     $data = array_merge($data, $notificationCounts);
+        
+    //     return view('admin/bookings', $data);
+    // }
+
     public function bookings()
     {
         $bookingModel = new BookingModel();
@@ -1217,10 +1249,140 @@ class AdminController extends Controller
         $data['driversList']    = $driversList;
         $data['conductorsList'] = $conductorsList;
 
-        // Retrieve and merge notification counts.
+        // --- Logic copied/adapted from the Maintenance function ---
+
+        // 1) Define the 7 major components and their labels
+        $allComponents = [
+            'engine_system'             => 'Engine System',
+            'transmission_drivetrain'   => 'Transmission & Drivetrain',
+            'brake_system'              => 'Brake System',
+            'suspension_chassis'        => 'Suspension & Chassis',
+            'fuel_cooling_system'       => 'Fuel & Cooling System',
+            'steering_system'           => 'Steering System',
+            'electrical_auxiliary_system' => 'Electrical & Auxiliary System',
+        ];
+
+        // 2) Define intervals for New vs. Old Trucks
+        $intervals = [
+            'engine_system' => [
+                'new' => 5000,
+                'old' => 4000,
+            ],
+            'transmission_drivetrain' => [
+                'new' => 20000,
+                'old' => 15000,
+            ],
+            'brake_system' => [
+                'new' => 10000,
+                'old' => 4000, 
+            ],
+            'suspension_chassis' => [
+                'new' => 5000,
+                'old' => 4000, 
+            ],
+            'fuel_cooling_system' => [
+                'new' => 20000,
+                'old' => 15000, 
+            ],
+            'steering_system' => [
+                'new' => 20000,
+                'old' => 10000, 
+            ],
+            'electrical_auxiliary_system' => [
+                'new' => 10000,
+                'old' => 7000,
+            ],
+        ];
+
+        // ========= Maintenance Alert Logic ========== //
+        $firebase = service('firebase');
+        $truckRef = $firebase->getReference('Trucks');
+        $trucks = $truckRef->getValue() ?? [];
+        // var_dump($trucks); // <- TEMPORARY DEBUGGING
+        // die();
+
+        $maintenanceAlerts = [];
+
+        // Assuming $trucksData is available and populated correctly
+        if (!empty($trucks)) {
+            foreach ($trucks as $truckId => $truck) {        
+                // Use the array key as the Truck ID if 'id' field isn't present/reliable
+                $truckIdDisplay = $truck['id'] ?? $truckId; // Prefer 'id' field if exists, else use key
+
+                // 1) Determine if the truck is New or Old
+                $manufacturingDate = $truck['manufacturing_date'] ?? '';
+                $yearsOld = 0;
+                if (!empty($manufacturingDate)) {
+                    try {
+                        // Use date_diff for potentially more accurate year difference calculation
+                        $today = new \DateTimeImmutable(); // More efficient than date_create('today') inside loop
+                        $manuDate = new \DateTimeImmutable($manufacturingDate);
+                        $yearsOld = $today->diff($manuDate)->y;
+                    } catch (\Exception $e) {
+                        // Handle invalid date format if necessary
+                        $yearsOld = 0; // Default to 0 if date is invalid
+                        // Optionally log the error: error_log("Invalid date format for truck {$truckIdDisplay}: {$manufacturingDate}");
+                    }
+                }
+
+                $currentMileage = (int)($truck['current_mileage'] ?? 0);
+
+                // "New" if ≤5 years AND mileage < 100k, else "Old"
+                // Matches the logic in the Maintenance function
+                $isNew = ($yearsOld <= 5 && $currentMileage < 100000);
+
+                // Flag to track if *any* component needs maintenance for the current truck
+                $isAnyComponentDue = false;
+
+                // 2) Check each major component for this truck
+                foreach ($allComponents as $componentKey => $label) {
+                    // Skip if interval data is missing for this component
+                    if (!isset($intervals[$componentKey])) {
+                        continue;
+                    }
+
+                    // Get last service mileage and defect status for *this component*
+                    $lastServiceMileage = 0;
+                    $isDefective = false;
+                    if (isset($truck['maintenance_items'][$componentKey])) {
+                        $lastServiceMileage = (int)($truck['maintenance_items'][$componentKey]['last_service_mileage'] ?? 0);
+                        $isDefective = !empty($truck['maintenance_items'][$componentKey]['is_defective']);
+                    }
+
+                    // Choose the correct mileage interval based on whether the truck is new or old
+                    $mileageInterval = $isNew
+                        ? $intervals[$componentKey]['new']
+                        : $intervals[$componentKey]['old'];
+
+                    // Check if maintenance is due for THIS component:
+                    // Either the component is marked as defective OR the mileage since last service exceeds the interval
+                    if ($isDefective || (($currentMileage - $lastServiceMileage) >= $mileageInterval)) {
+                        // If any component requires maintenance, set the flag...
+                        $isAnyComponentDue = true;
+                        // ...and we can stop checking other components for this truck (optimization)
+                        break; // Exit the inner foreach loop for components
+                    }
+                } // --- End of the inner loop checking components for the current truck ---
+
+                // After checking all components (or breaking early), add ONE generic alert if the flag was set
+                if ($isAnyComponentDue) {
+                    // Add a single alert for the truck without listing specific components
+                    $maintenanceAlerts[] = "$truckIdDisplay needs maintenance before booking.";
+                }
+            }
+        }
+
+        // Assign the generated alerts to the $data array (if used in a controller context)
+        $data['maintenanceAlerts'] = $maintenanceAlerts;
+        
+        // echo '<pre>';
+        // var_dump($maintenanceAlerts);
+        // echo '</pre>';
+        // die();
+
+        // Retrieve and merge notification counts
         $notificationCounts = $this->getNotificationCounts();
         $data = array_merge($data, $notificationCounts);
-        
         return view('admin/bookings', $data);
     }
 
@@ -1590,10 +1752,17 @@ class AdminController extends Controller
             //    Override the recommended_interval_km with logic for old/new
             foreach ($allComponents as $componentKey => $label) {
                 // If the DB has a "maintenance_items" structure, we can still track last_service_mileage
+                // $lastServiceMileage = 0;
+                // if (isset($truck['maintenance_items'][$componentKey]['last_service_mileage'])) {
+                //     $lastServiceMileage = $truck['maintenance_items'][$componentKey]['last_service_mileage'];
+                // }
                 $lastServiceMileage = 0;
-                if (isset($truck['maintenance_items'][$componentKey]['last_service_mileage'])) {
-                    $lastServiceMileage = $truck['maintenance_items'][$componentKey]['last_service_mileage'];
+                $isDefective = false;
+                if (isset($truck['maintenance_items'][$componentKey])) {
+                    $lastServiceMileage = (int)($truck['maintenance_items'][$componentKey]['last_service_mileage'] ?? 0);
+                    $isDefective = !empty($truck['maintenance_items'][$componentKey]['is_defective']);
                 }
+
 
                 // Choose the correct interval based on isNew
                 $mileageInterval = $isNew
@@ -1601,7 +1770,10 @@ class AdminController extends Controller
                     : $intervals[$componentKey]['old'];
 
                 // Overdue check
-                if (($currentMileage - $lastServiceMileage) >= $mileageInterval) {
+                // if (($currentMileage - $lastServiceMileage) >= $mileageInterval) {
+                // Overdue if mileage OR marked defective
+                if ($isDefective || ($currentMileage - $lastServiceMileage) >= $mileageInterval) {
+
                     $dueComponents[] = $componentKey;
 
                     // Increment the global count
