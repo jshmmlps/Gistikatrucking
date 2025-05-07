@@ -4,8 +4,8 @@
 <link href="<?= base_url('public/assets/css/style.css'); ?>" rel="stylesheet">
 <!-- DataTables Bootstrap 5 CSS -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"/>
-
 <body>
+
 <title>Client Management</title>
 <h1>Client Management</h1>
 

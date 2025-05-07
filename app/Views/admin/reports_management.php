@@ -29,11 +29,11 @@
     color: white;
 }
     .badge-rejected {
-    background-color: #34a853 !important;
+    background-color: #ea4335 !important;
     color: white;
 }
     .badge-completed {
-    background-color: #ea4335 !important;
+    background-color: #34a853 !important;
     color: white;
 }
 </style>
