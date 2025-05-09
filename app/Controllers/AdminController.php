@@ -2021,7 +2021,7 @@ class AdminController extends Controller
             // 1) Determine if the truck is Old or New (Keep as is)
             $manufacturingDate = $truck['manufacturing_date'] ?? '';
             $yearsOld = 0;
-            if (!empty($manufacturingDate)) { /* ... keep date calculation logic ... */ }
+            if (!empty($manufacturingDate)) {  $yearsOld = date('Y') - date('Y', strtotime($manufacturingDate));}
             $currentMileage = (int)($truck['current_mileage'] ?? 0);
             $isNew = ($yearsOld <= 5 && $currentMileage < 100000);
             $condition = $isNew ? 'New' : 'Old';

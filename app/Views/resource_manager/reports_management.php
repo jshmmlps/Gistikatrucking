@@ -235,12 +235,12 @@
 
   const componentIntervals = {
     'engine_system':     { new: 5000, old: 4000, time: '6 months' },
-    'transmission':      { new: 20000, old: 15000, time: '24 months' },
+    'transmission_drivetrain':      { new: 20000, old: 15000, time: '24 months' },
     'brake_system':      { new: 10000, old: 4000, time: 'N/A' },
-    'suspension':        { new: 5000, old: 4000, time: 'N/A' },
-    'fuel_cooling':      { new: 20000, old: 15000, time: 'N/A' },
-    'steering':          { new: 20000, old: 10000, time: 'N/A' },
-    'electrical_aux':    { new: 10000, old: 7000, time: 'N/A' }
+    'suspension_chassis':        { new: 5000, old: 4000, time: 'N/A' },
+    'fuel_cooling_system':      { new: 20000, old: 15000, time: 'N/A' },
+    'steering_system':          { new: 20000, old: 10000, time: 'N/A' },
+    'electrical_auxiliary_system':    { new: 10000, old: 7000, time: 'N/A' }
   };
 
   // Utility: calculate truck age in years
