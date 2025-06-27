@@ -252,7 +252,7 @@ class ClientController extends BaseController
 
     // =================== BOOKINGS  =================== 
 
-    public function bookings()
+   public function bookings()
     {
         $session  = session();
         $clientId = $session->get('user_id');
@@ -262,13 +262,13 @@ class ClientController extends BaseController
         // 1) Get the client's bookings
         $data['bookings'] = $bookingModel->getBookingsByClient($clientId);
 
-        // 2) Check if any driver is currently free
-        $data['driverAvailable'] = $bookingModel->isAnyDriverAvailable();
+        // 2) Check driver availability (now returns true/false/null)
+        $data['driverAvailability'] = $bookingModel->isAnyDriverAvailable();
+         $data['availableDrivers'] = $bookingModel->getAvailableDrivers();
 
         // 3) Load the view with both booking data and availability info
         return view('client/bookings', $data);
     }
-
 
     public function storeBooking()
     {

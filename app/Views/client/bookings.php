@@ -60,16 +60,39 @@
   <h1>Bookings</h1>
 
   <div class="container-fluid mt-4">
-    <!-- Show an error or success alert at the top, depending on driver availability -->
-    <?php if (isset($driverAvailable) && $driverAvailable === false): ?>
-      <div class="alert alert-warning">
-        Currently, no driver is available. You may attempt to create a booking, but it will be pending until a driver is free.
-      </div>
+    <!-- Show an alert based on driver availability -->
+    <?php if ($driverAvailability === null): ?>
+        <div class="alert alert-danger">
+            No drivers available. Please contact support.
+        </div>
+    <?php elseif ($driverAvailability === false): ?>
+        <div class="alert alert-warning">
+            All drivers are currently busy. You can book but please wait and check regularly for booking updates.
+        </div>
     <?php else: ?>
-      <div class="alert alert-success">
-        Good news! A driver is currently available.
-      </div>
+        <div class="alert alert-success">
+            Good news! A driver is currently available for new bookings.
+        </div>
     <?php endif; ?>
+
+    <!-- Show available driver and conductors - for checking -->
+    <!-- <?php if (empty($availableDrivers)): ?>
+        <div class="alert alert-warning">
+            No drivers are currently available. Please check back later.
+        </div>
+    <?php else: ?>
+        <div class="alert alert-success">
+            <strong>Available Drivers (<?= count($availableDrivers) ?>)</strong>
+            <ul class="mt-2">
+                <?php foreach ($availableDrivers as $driver): ?>
+                    <li>
+                        <?= esc($driver['first_name'] . ' ' . $driver['last_name']) ?> 
+                        (Assigned to Truck: <?= esc($driver['truck_assigned']) ?>)
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?> -->
 
     <!-- Existing flash messages (errors, success) -->
     <?php if(session()->getFlashdata('error')): ?>
@@ -233,8 +256,21 @@
 
             <div class="mb-3">
               <label for="contact_number" class="form-label">Contact Number *</label>
-              <input type="text" name="contact_number" id="contact_number" class="form-control" required>
+              <input
+                type="text"
+                name="contact_number"
+                id="contact_number"
+                class="form-control"
+                placeholder="Enter up 7 to 11 digit number only"
+                pattern="\d{5,11}"
+                maxlength="11"
+                required
+              >
+              <div class="invalid-feedback">
+                Please enter a valid contact number (7 to 11 digits only).
+              </div>
             </div>
+
 
             <div class="mb-3">
               <label for="person_of_contact" class="form-label">Person of Contact *</label>
@@ -296,8 +332,16 @@
             </div>
 
             <div class="mb-3">
-              <label for="cargo_weight" class="form-label">Cargo Weight *</label>
-              <input type="number" name="cargo_weight" id="cargo_weight" class="form-control" required>
+              <label for="cargo_weight" class="form-label">Cargo Weight (kg) *</label>
+              <select name="cargo_weight" id="cargo_weight" class="form-control" required>
+                <option value="">Select Weight Range</option>
+                <option value="0-500">0 - 500 kg (Small parcel)</option>
+                <option value="500-1000">500 - 1,000 kg (Light pallets)</option>
+                <option value="1000-5000">1,000 - 5,000 kg (Partial load)</option>
+                <option value="5000-10000">5,000 - 10,000 kg (Medium truckload)</option>
+                <option value="10000-20000">10,000 - 20,000 kg (Standard truckload)</option>
+                <option value="20000+">20,000+ kg (Heavy truckload)</option>
+              </select>
             </div>
 
             <div class="mb-3">

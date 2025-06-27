@@ -5,119 +5,133 @@ namespace App\Controllers;
 use CodeIgniter\Controller;
 use Config\Services;
 
-/**
- * A controller purely for scanning "report_images/" in Firebase Storage.
- * 
- * You typically won't visit this in a browser; you'll call it
- * from AdminController or via Cron if desired.
- */
 class StorageScan extends Controller
 {
-    /**
-     * Main method to scan the Firebase Storage "report_images" folder
-     * and insert new "Reports" in the Realtime Database if not already present.
-     */
     public function index()
     {
-        // 1) Get Firebase Storage bucket
-        $storage     = Services::firebaseStorage();  // from your services.php
-        $bucketName  = env('FIREBASE_STORAGE_BUCKET'); // e.g. "your-app.appspot.com"
-        $bucket      = $storage->getBucket($bucketName);
+        // 1) Get Firebase services
+        $storage = Services::firebaseStorage();
+        $db = Services::firebase();
+        $bucketName = env('FIREBASE_STORAGE_BUCKET');
+        $bucket = $storage->getBucket($bucketName);
 
-        // 2) List all objects under "report_images/"
-        $objects = $bucket->objects([
-            'prefix' => 'report_images/', 
-        ]);
+        // 2) Calculate cutoff time (3 months ago in milliseconds)
+        $threeMonthsAgo = strtotime('-3 months') * 1000;
 
-        // We'll need our ReportModel to insert new reports
+        // 3) First, clean up old reports from database
+        $this->deleteOldReports($threeMonthsAgo);
+
+        // 4) Process new reports
+        $objects = $bucket->objects(['prefix' => 'report_images/']);
         $reportModel = new \App\Models\ReportModel();
 
-        // 3) Loop through all found objects
         foreach ($objects as $object) {
-            $fullPath = $object->name(); 
-            // e.g. "report_images/Delivery/Driver1_1742938527362.jpg"
-
-            // Skip if it’s a "folder placeholder" (some buckets store an empty directory object)
-            if (substr($fullPath, -1) === '/') {
+            $fullPath = $object->name();
+            
+            // Skip folders and invalid paths
+            if (substr($fullPath, -1) === '/' || count(explode('/', $fullPath)) < 3) {
                 continue;
             }
 
-            // We expect the path structure: report_images/<folder>/<filename>
-            // e.g. "report_images/Delivery/Driver1_1742938527362.jpg"
+            // Parse filename
             $pathParts = explode('/', $fullPath);
-            // pathParts[0] = "report_images"
-            // pathParts[1] = "Delivery" (folder)
-            // pathParts[2] = "Driver1_1742938527362.jpg"
-            if (count($pathParts) < 3) {
-                // Not a valid path structure
-                continue;
-            }
-
-            // The subfolder: "Delivery" or "Discrepancy"
-            $folder   = $pathParts[1]; 
-            $fileName = $pathParts[2]; // e.g. "Driver1_1742938527362.jpg"
-
-            // Parse the filename by underscore: "Driver1_1742938527362.jpg" => ["Driver1", "1742938527362.jpg"]
+            $fileName = $pathParts[2];
+            
             if (!strpos($fileName, '_')) {
                 continue;
             }
 
             [$driverId, $timestampPart] = explode('_', $fileName);
-            if (empty($driverId) || empty($timestampPart)) {
-                continue;
-            }
-
-            // Remove file extension from the timestamp (e.g. "1742938527362.jpg" => "1742938527362")
             $timestampOnly = explode('.', $timestampPart)[0];
-            if (!ctype_digit($timestampOnly)) {
-                // If it's not numeric, skip
+            
+            if (empty($driverId) || empty($timestampOnly) || !ctype_digit($timestampOnly)) {
                 continue;
             }
 
-            // Convert the timestamp (assuming milliseconds):
             $ts = (int)$timestampOnly;
-            $dateStr = date('Y-m-d H:i:s', $ts / 1000);
+            
+            // Skip if older than 3 months
+            if ($ts < $threeMonthsAgo) {
+                continue;
+            }
 
-            // Build a public download URL
+            // Generate image URL
             $encodedPath = urlencode($fullPath);
             $imgUrl = "https://firebasestorage.googleapis.com/v0/b/{$bucketName}/o/{$encodedPath}?alt=media";
 
-            // 4) Check if we already have a report with this exact img_url
+            // Skip if already exists
             if ($this->reportExistsByImage($imgUrl)) {
-                // Skip it, already processed
                 continue;
             }
 
-            // 5) Find the booking for this driver (using the structure you provided in Bookings).
-            //    If you want to pick the first booking that matches driver_id, do so:
+            // Process new report
+            $folder = $pathParts[1];
             $bookingId = $this->findBookingForDriver($driverId);
-
-            // 6) Determine the "report_type" from the folder
-            $reportType = ($folder === 'Delivery') 
-                ? 'Delivery Report'
-                : 'Discrepancy Report';
-
-            // 7) Insert the report using our existing model
-            //    insertReport() will auto-generate the next "R000001", set the date automatically, etc.
-            //    But we can override the date with the actual $dateStr by updating it after.
+            $dateStr = date('Y-m-d H:i:s', $ts / 1000);
+            
+            $reportType = ($folder === 'Delivery') ? 'Delivery Report' : 'Discrepancy Report';
+            
             $data = [
                 'report_type' => $reportType,
-                'booking_id'  => $bookingId,
-                'user_id'     => '',  // blank if it comes from driver (per your requirement)
-            ];
-            $reportNumber = $reportModel->insertReport($data);
-
-            // 8) Update the newly created report with our actual image URL and date
-            $reportModel->updateReport($reportNumber, [
+                'booking_id' => $bookingId,
+                'user_id' => '',
                 'img_url' => $imgUrl,
-                'date'    => $dateStr,
-            ]);
+                'date' => $dateStr,
+                'timestamp' => $ts // Store timestamp for future cleanup
+            ];
+            
+            $reportModel->insertReport($data);
         }
     }
 
     /**
-     * Check if a "Reports" entry already has this img_url.
+     * Delete reports older than the specified timestamp
      */
+   private function deleteOldReports($cutoffTimestamp)
+    {
+        $db = Services::firebase();
+        $reportsRef = $db->getReference('Reports');
+        $reports = $reportsRef->getValue() ?? [];
+
+        foreach ($reports as $reportKey => $report) {
+            if (isset($report['date'])) {
+                // Convert report date to timestamp (in seconds)
+                $reportTimestamp = strtotime($report['date']);
+                
+                // Compare in seconds (remove *1000 if your cutoff is in seconds)
+                if ($reportTimestamp < ($cutoffTimestamp / 1000)) {
+                    $reportsRef->getChild($reportKey)->remove();
+                    
+                    // Optional: Uncomment to delete from storage too
+                    // if (isset($report['img_url'])) {
+                    //     $this->deleteStorageFile($report['img_url']);
+                    // }
+                }
+            }
+        }
+    }
+
+    /**
+     * Optional: Delete the actual file from Firebase Storage
+     */
+    private function deleteStorageFile($imgUrl)
+    {
+        $storage = Services::firebaseStorage();
+        $bucket = $storage->getBucket(env('FIREBASE_STORAGE_BUCKET'));
+        
+        // Extract path from URL
+        $pattern = '/o\/(report_images\/.*?)\?alt=media/';
+        preg_match($pattern, $imgUrl, $matches);
+        
+        if (isset($matches[1])) {
+            $filePath = urldecode($matches[1]);
+            $object = $bucket->object($filePath);
+            if ($object->exists()) {
+                $object->delete();
+            }
+        }
+    }
+
     private function reportExistsByImage($imgUrl): bool
     {
         $db = Services::firebase();
@@ -125,34 +139,14 @@ class StorageScan extends Controller
         $snapshot = $reportsRef->getSnapshot();
         $reports = $snapshot->getValue() ?? [];
 
-        if (!is_array($reports)) {
-            return false;
-        }
-
         foreach ($reports as $report) {
             if (isset($report['img_url']) && $report['img_url'] === $imgUrl) {
                 return true;
             }
         }
-
         return false;
     }
 
-    /**
-     * Given the driverId (e.g. "Driver2"), find the first booking in "Bookings"
-     * that has bookingData['driver_id'] == driverId.
-     * 
-     * You mentioned you store them like:
-     * 
-     * Bookings
-     *   3:
-     *     booking_id: 3
-     *     driver_id: "Driver2"
-     *     ...
-     * 
-     * We'll return whatever is stored in bookingData['booking_id'] (the numeric ID).
-     * If no booking is found for this driver, return ''.
-     */
     private function findBookingForDriver($driverId)
     {
         $db = Services::firebase();
@@ -160,21 +154,11 @@ class StorageScan extends Controller
         $snapshot = $bookingsRef->getSnapshot();
         $allBookings = $snapshot->getValue() ?? [];
 
-        if (!is_array($allBookings)) {
-            return '';
-        }
-
-        foreach ($allBookings as $bookingKey => $bookingData) {
-            if (
-                isset($bookingData['driver_id']) && 
-                $bookingData['driver_id'] === $driverId
-            ) {
-                // Return the booking_id field inside this booking
-                // e.g. if bookingData['booking_id'] = 3
+        foreach ($allBookings as $bookingData) {
+            if (isset($bookingData['driver_id']) && $bookingData['driver_id'] === $driverId) {
                 return $bookingData['booking_id'] ?? '';
             }
         }
-
         return '';
     }
 }

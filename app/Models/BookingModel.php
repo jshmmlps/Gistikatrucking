@@ -62,7 +62,7 @@ class BookingModel extends Model
             $assignment = $this->assignTruckAndDriver($data['cargo_weight']);
             if (empty($assignment)) {
                 // Throw an exception if no truck/driver match is found
-                throw new \RuntimeException('No available driver or conductors');
+                throw new \RuntimeException('No available trucks can handle the specified cargo weight.');
             }
             // Merge assignment data while preserving existing keys (e.g., client_id)
             $data = $data + $assignment;
@@ -76,92 +76,190 @@ class BookingModel extends Model
 
     /**
      * Auto-assign a truck and its driver/conductor based on cargo weight.
-     * Excludes trucks in current active (non-completed/rejected) bookings on the first pass.
-     * If none is found, it re-tries ignoring the concurrency restriction
-     * so the same truck can be used again.
-     *
-     * @param float|int $cargoWeight  The weight of the cargo to be transported.
-     * @return array                  An associative array of assignment data, or empty if none found.
+     * Now handles both numeric weight values and weight range selections.
      */
     public function assignTruckAndDriver($cargoWeight)
     {
-        // Get all trucks
-        $trucksRef = $this->db->getReference('Trucks');
-        $trucks    = $trucksRef->getValue();
+        $maxWeight = $this->convertWeightRangeToMax($cargoWeight);
+        
+        // Get all data
+        $trucks = $this->db->getReference('Trucks')->getValue() ?? [];
+        $bookings = $this->db->getReference('Bookings')->getValue() ?? [];
+        $drivers = $this->db->getReference('Drivers')->getValue() ?? [];
 
-        // Get current bookings to figure out which trucks are in active use
-        $bookingsRef = $this->db->getReference('Bookings');
-        $bookings    = $bookingsRef->getValue();
+        // 1. Count active bookings per truck
+        $truckUsageCount = [];
+        $activeTruckIds = [];
+        
+        foreach ($bookings as $booking) {
+            if (!in_array($booking['status'] ?? null, ['rejected', 'completed']) && isset($booking['truck_id'])) {
+                $truckId = $booking['truck_id'];
+                $activeTruckIds[$truckId] = true;
+                $truckUsageCount[$truckId] = ($truckUsageCount[$truckId] ?? 0) + 1;
+            }
+        }
 
-        // Collect IDs of trucks that are "in use" (not completed/rejected)
-        $assignedTruckIds = [];
-        if ($bookings && is_array($bookings)) {
-            foreach ($bookings as $booking) {
-                if (
-                    isset($booking['truck_id']) 
-                    && !in_array($booking['status'], ['rejected', 'completed'])
-                ) {
-                    $assignedTruckIds[] = $booking['truck_id'];
+        // 2. Find all qualified trucks (regardless of availability)
+        $qualifiedTrucks = [];
+        foreach ($trucks as $truck) {
+            if (isset($truck['truck_id'], $truck['load_capacity'])) {
+                $truckCapacity = (float)$truck['load_capacity'];
+                if ($truckCapacity >= $maxWeight) {
+                    // Store the capacity difference for sorting
+                    $truck['capacity_diff'] = $truckCapacity - $maxWeight;
+                    $qualifiedTrucks[$truck['truck_id']] = $truck;
                 }
             }
         }
 
-        // ------ First Pass: exclude trucks that are currently "in use" ------
-        $firstPass = $this->tryAssign($trucks, $assignedTruckIds, $cargoWeight, $excludeInUse = true);
-        if (!empty($firstPass)) {
-            return $firstPass;
-        }
-
-        // ------ Second Pass (Fallback): ignore the concurrency rule ------
-        // Let the same truck (already in use) be used again, if necessary
-        $secondPass = $this->tryAssign($trucks, $assignedTruckIds, $cargoWeight, $excludeInUse = false);
-        if (!empty($secondPass)) {
-            return $secondPass;
-        }
-
-        // Return empty if no suitable truck found even after fallback
-        return [];
+        // 3. Prioritize assignment - first try available trucks, then busy ones
+        $assignment = $this->findBestAssignment($qualifiedTrucks, $activeTruckIds, $truckUsageCount, $drivers, $maxWeight);
+        
+        return $assignment ?? [];
     }
 
-    /**
-     * Internal helper that loops through the trucks array, applying an optional "excludeInUse" filter,
-     * to see if we can find a truck that can handle the cargo weight and has at least one assigned driver or conductor.
-     */
-    protected function tryAssign($trucks, $assignedTruckIds, $cargoWeight, $excludeInUse)
+    protected function findBestAssignment($qualifiedTrucks, $activeTruckIds, $truckUsageCount, $drivers, $maxWeight)
     {
-        if ($trucks && is_array($trucks)) {
-            foreach ($trucks as $truck) {
-                if (!isset($truck['truck_id'], $truck['load_capacity'])) {
-                    continue; // skip invalid truck
-                }
+        // Group trucks by availability
+        $availableTrucks = [];
+        $busyTrucks = [];
+        
+        foreach ($qualifiedTrucks as $truckId => $truck) {
+            if (!isset($activeTruckIds[$truckId])) {
+                $availableTrucks[$truckId] = $truck;
+            } else {
+                $busyTrucks[$truckId] = $truck;
+            }
+        }
 
-                // If excluding in-use trucks, skip if truck is in assignedTruckIds
-                if ($excludeInUse && in_array($truck['truck_id'], $assignedTruckIds)) {
-                    continue;
-                }
+        // Sort available trucks by how close they are to the required capacity (smallest diff first)
+        uasort($availableTrucks, function($a, $b) {
+            return $a['capacity_diff'] <=> $b['capacity_diff'];
+        });
 
-                // Check capacity
-                if ($truck['load_capacity'] >= $cargoWeight) {
-                    // Get assigned driver info
-                    $driverInfo = $this->getDriverAndConductor($truck['truck_id']);
+        // 1. First try available trucks, starting with the one closest to required capacity
+        foreach ($availableTrucks as $truckId => $truck) {
+            if ($assignment = $this->buildAssignment($truck, $drivers)) {
+                return $assignment;
+            }
+        }
 
-                    // If we have at least a driver or conductor
-                    if (!empty($driverInfo['driver_name']) || !empty($driverInfo['conductor_name'])) {
+        // Sort busy trucks by usage count (least used first) and then by capacity diff
+        uasort($busyTrucks, function($a, $b) use ($truckUsageCount) {
+            // First sort by usage count
+            $usageCompare = ($truckUsageCount[$a['truck_id']] ?? 0) <=> ($truckUsageCount[$b['truck_id']] ?? 0);
+            if ($usageCompare !== 0) {
+                return $usageCompare;
+            }
+            // If usage is equal, sort by capacity difference
+            return $a['capacity_diff'] <=> $b['capacity_diff'];
+        });
+
+        // 2. If none available, try busy trucks sorted by least used and closest capacity
+        foreach ($busyTrucks as $truckId => $truck) {
+            if ($assignment = $this->buildAssignment($truck, $drivers)) {
+                return $assignment;
+            }
+        }
+
+        return null;
+    }
+
+    protected function buildAssignment($truck, $drivers)
+    {
+        // Find drivers assigned to this truck
+        $assignedDrivers = array_filter($drivers, function($driver) use ($truck) {
+            return ($driver['truck_assigned'] ?? null) === $truck['truck_id'];
+        });
+
+        // Find first available driver-conductor pair
+        foreach ($assignedDrivers as $driver) {
+            if ($driver['position'] === 'driver') {
+                $driverInfo = [
+                    'driver_id' => $driver['driver_id'],
+                    'driver_name' => ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '')
+                ];
+                
+                // Try to find conductor for this driver
+                foreach ($assignedDrivers as $conductor) {
+                    if ($conductor['position'] === 'conductor') {
                         return [
-                            'truck_id'        => $truck['truck_id'],
-                            'truck_model'     => $truck['truck_model']    ?? '',
-                            'license_plate'   => $truck['plate_number']   ?? '',
-                            'type_of_truck'   => $truck['truck_type']     ?? '',
-                            'driver_id'       => $driverInfo['driver_id']       ?? '',
-                            'driver_name'     => $driverInfo['driver_name']     ?? '',
-                            'conductor_id'    => $driverInfo['conductor_id']    ?? '',
-                            'conductor_name'  => $driverInfo['conductor_name']  ?? ''
+                            'truck_id' => $truck['truck_id'],
+                            'truck_model' => $truck['truck_model'] ?? '',
+                            'license_plate' => $truck['plate_number'] ?? '',
+                            'type_of_truck' => $truck['truck_type'] ?? '',
+                            'driver_id' => $driverInfo['driver_id'],
+                            'driver_name' => $driverInfo['driver_name'],
+                            'conductor_id' => $conductor['driver_id'],
+                            'conductor_name' => ($conductor['first_name'] ?? '') . ' ' . ($conductor['last_name'] ?? '')
                         ];
                     }
                 }
             }
         }
-        // If no match found, return empty
+
+        return null;
+    }
+
+    /**
+     * Converts weight range selection to maximum weight value
+     */
+    protected function convertWeightRangeToMax($weightInput)
+    {
+        if (is_numeric($weightInput)) {
+            return (float)$weightInput;
+        }
+
+        $ranges = [
+            '0-500' => 500,
+            '500-1000' => 1000,
+            '1000-5000' => 5000,
+            '5000-10000' => 10000,
+            '10000-20000' => 20000,
+            '20000+' => PHP_FLOAT_MAX // Handle very large loads
+        ];
+
+        return $ranges[$weightInput] ?? 0;
+    }
+
+    /**
+     * Internal helper to find suitable truck assignments
+     */
+    protected function tryAssign($trucks, $assignedTruckIds, $maxWeight, $excludeInUse)
+    {
+        if ($trucks && is_array($trucks)) {
+            foreach ($trucks as $truck) {
+                if (!isset($truck['truck_id'], $truck['load_capacity'])) {
+                    continue;
+                }
+
+                // Skip if excluding in-use trucks and this truck is busy
+                if ($excludeInUse && in_array($truck['truck_id'], $assignedTruckIds)) {
+                    continue;
+                }
+
+                // Convert truck's load capacity to float (in case it's stored as string)
+                $truckCapacity = (float)$truck['load_capacity'];
+
+                // Check if truck can handle the weight
+                if ($truckCapacity >= $maxWeight) {
+                    $driverInfo = $this->getDriverAndConductor($truck['truck_id']);
+
+                    if (!empty($driverInfo['driver_name']) || !empty($driverInfo['conductor_name'])) {
+                        return [
+                            'truck_id' => $truck['truck_id'],
+                            'truck_model' => $truck['truck_model'] ?? '',
+                            'license_plate' => $truck['plate_number'] ?? '',
+                            'type_of_truck' => $truck['truck_type'] ?? '',
+                            'driver_id' => $driverInfo['driver_id'] ?? '',
+                            'driver_name' => $driverInfo['driver_name'] ?? '',
+                            'conductor_id' => $driverInfo['conductor_id'] ?? '',
+                            'conductor_name' => $driverInfo['conductor_name'] ?? ''
+                        ];
+                    }
+                }
+            }
+        }
         return [];
     }
 
@@ -339,51 +437,182 @@ class BookingModel extends Model
      * Checks if there is at least one free truck that has a driver or conductor assigned.
      * Returns true if at least one driver is available, false otherwise.
      */
-    public function isAnyDriverAvailable(): bool
-    {
-        // 1) Get the list of trucks
-        $trucksRef = $this->db->getReference('Trucks');
-        $trucks = $trucksRef->getValue();
+    // public function isAnyDriverAvailable(): bool
+    // {
+    //     // 1) Get the list of trucks
+    //     $trucksRef = $this->db->getReference('Trucks');
+    //     $trucks = $trucksRef->getValue();
 
-        // 2) Get all bookings to figure out which trucks are in active use
+    //     // 2) Get all bookings to figure out which trucks are in active use
+    //     $bookingsRef = $this->db->getReference('Bookings');
+    //     $bookings = $bookingsRef->getValue();
+
+    //     // 3) Determine which trucks are in use (not completed or rejected)
+    //     $inUseTruckIds = [];
+    //     if ($bookings && is_array($bookings)) {
+    //         foreach ($bookings as $booking) {
+    //             if (
+    //                 isset($booking['truck_id']) &&
+    //                 !in_array($booking['status'], ['rejected', 'completed']) 
+    //             ) {
+    //                 $inUseTruckIds[] = $booking['truck_id'];
+    //             }
+    //         }
+    //     }
+
+    //     // 4) Check among the *free* trucks if at least one has a driver
+    //     if ($trucks && is_array($trucks)) {
+    //         foreach ($trucks as $truck) {
+    //             if (!isset($truck['truck_id'])) {
+    //                 continue;  // skip invalid entries
+    //             }
+
+    //             // if truck is not in use, see if it has at least a driver
+    //             if (!in_array($truck['truck_id'], $inUseTruckIds)) {
+    //                 // Reuse your existing helper to find an assigned driver
+    //                 $driverInfo = $this->getDriverAndConductor($truck['truck_id']);
+
+    //                 // if we have a driver name or ID, that means there's a driver available
+    //                 if (!empty($driverInfo['driver_name'])) {
+    //                     return true;  // found a free truck with a driver
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     // If we never found a free truck that has a driver, return false
+    //     return false;
+    // }
+
+    public function isAnyDriverAvailable(): ?bool
+    {
+        // 1) Get all drivers and their assigned trucks
+        $driversRef = $this->db->getReference('Drivers');
+        $drivers = $driversRef->getValue();
+
+        // 2) Check if there are any drivers with assigned trucks at all
+        $hasDriversWithTrucks = false;
+        if ($drivers && is_array($drivers)) {
+            foreach ($drivers as $driver) {
+                if (is_array($driver) && !empty($driver['truck_assigned'])) {
+                    $hasDriversWithTrucks = true;
+                    break;
+                }
+            }
+        }
+
+        // If no drivers have assigned trucks, return null (special case)
+        if (!$hasDriversWithTrucks) {
+            return null;
+        }
+
+        // 3) Get all bookings to check active (non-completed/rejected) bookings
         $bookingsRef = $this->db->getReference('Bookings');
         $bookings = $bookingsRef->getValue();
 
-        // 3) Determine which trucks are in use (not completed or rejected)
-        $inUseTruckIds = [];
+        // 4) Determine which drivers are busy (either as driver OR conductor)
+        $busyDriverIds = [];
         if ($bookings && is_array($bookings)) {
             foreach ($bookings as $booking) {
-                if (
-                    isset($booking['truck_id']) &&
-                    !in_array($booking['status'], ['rejected', 'completed']) 
-                ) {
-                    $inUseTruckIds[] = $booking['truck_id'];
+                // Skip if booking is not an array or has no status
+                if (!is_array($booking) || !isset($booking['status'])) {
+                    continue;
+                }
+
+                // Skip completed/rejected bookings
+                if (in_array($booking['status'], ['rejected', 'completed'])) {
+                    continue;
+                }
+
+                // Mark driver as busy if assigned (either as driver or conductor)
+                if (isset($booking['driver_id'])) {
+                    $busyDriverIds[] = $booking['driver_id'];
+                }
+                if (isset($booking['conductor_id'])) {
+                    $busyDriverIds[] = $booking['conductor_id'];
                 }
             }
         }
 
-        // 4) Check among the *free* trucks if at least one has a driver
-        if ($trucks && is_array($trucks)) {
-            foreach ($trucks as $truck) {
-                if (!isset($truck['truck_id'])) {
-                    continue;  // skip invalid entries
+        // 5) Check all drivers to find at least one who:
+        //    - Has a truck assigned
+        //    - Is NOT busy with an active booking (as driver or conductor)
+        if ($drivers && is_array($drivers)) {
+            foreach ($drivers as $driver) {
+                // Skip if driver data is invalid
+                if (!is_array($driver) || !isset($driver['driver_id'])) {
+                    continue;
                 }
 
-                // if truck is not in use, see if it has at least a driver
-                if (!in_array($truck['truck_id'], $inUseTruckIds)) {
-                    // Reuse your existing helper to find an assigned driver
-                    $driverInfo = $this->getDriverAndConductor($truck['truck_id']);
-
-                    // if we have a driver name or ID, that means there's a driver available
-                    if (!empty($driverInfo['driver_name'])) {
-                        return true;  // found a free truck with a driver
-                    }
+                // Driver must:
+                // - Have a truck assigned
+                // - Not be in the busy list (either as driver or conductor)
+                if (!empty($driver['truck_assigned']) && 
+                    !in_array($driver['driver_id'], $busyDriverIds)) {
+                    return true;  // found an available driver
                 }
             }
         }
 
-        // If we never found a free truck that has a driver, return false
+        // If we never found an available driver but some have trucks assigned, return false (busy)
         return false;
     }
+
+    public function getAvailableDrivers(): array
+    {
+        // 1) Get all drivers and their assigned trucks
+        $driversRef = $this->db->getReference('Drivers');
+        $drivers = $driversRef->getValue();
+
+        // 2) Get all bookings to check active (non-completed/rejected) bookings
+        $bookingsRef = $this->db->getReference('Bookings');
+        $bookings = $bookingsRef->getValue();
+
+        // 3) Determine which drivers are busy (either as driver OR conductor)
+        $busyDriverIds = [];
+        if ($bookings && is_array($bookings)) {
+            foreach ($bookings as $booking) {
+                // Skip if booking is not an array or has no status
+                if (!is_array($booking) || !isset($booking['status'])) {
+                    continue;
+                }
+
+                // Skip completed/rejected bookings
+                if (in_array($booking['status'], ['rejected', 'completed'])) {
+                    continue;
+                }
+
+                // Mark driver as busy if assigned (either as driver or conductor)
+                if (isset($booking['driver_id'])) {
+                    $busyDriverIds[] = $booking['driver_id'];
+                }
+                if (isset($booking['conductor_id'])) {
+                    $busyDriverIds[] = $booking['conductor_id'];
+                }
+            }
+        }
+
+        // 4) Check which drivers are free (have a truck assigned and no active booking)
+        $availableDrivers = [];
+        if ($drivers && is_array($drivers)) {
+            foreach ($drivers as $driver) {
+                // Skip if driver data is invalid
+                if (!is_array($driver) || !isset($driver['driver_id'])) {
+                    continue;
+                }
+
+                // Driver must:
+                // - Have a truck assigned
+                // - Not be in the busy list (either as driver or conductor)
+                if (!empty($driver['truck_assigned']) && 
+                    !in_array($driver['driver_id'], $busyDriverIds)) {
+                    $availableDrivers[] = $driver;
+                }
+            }
+        }
+
+        return $availableDrivers;
+    }
+    
 
 }
