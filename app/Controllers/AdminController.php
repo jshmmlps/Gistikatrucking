@@ -1417,53 +1417,212 @@ class AdminController extends Controller
 
     // Update booking status (approval/rejection, etc.), or reassign driver/conductor
     // Update booking status (approval/rejection, etc.), or reassign driver/conductor
+    // public function updateBookingStatus()
+    // {
+    //     $bookingId   = $this->request->getPost('booking_id');
+    //     $status      = $this->request->getPost('status');  // e.g., "approved", "rejected", "in-transit", etc.
+    //     $distance    = $this->request->getPost('distance');
+    //     $driverId    = $this->request->getPost('driver');
+    //     $conductorId = $this->request->getPost('conductor'); // Currently not used for conflict, but can be extended
+    //     $truckId     = $this->request->getPost('truck_id');
+
+    //     // Initialize update data with status and distance.
+    //     $updateData = [
+    //         'status'   => $status,
+    //         'distance' => $distance,
+    //     ];
+
+    //     // Get Firebase service instance
+    //     $firebase = service('firebase');
+    //     $bookingRef = $firebase->getReference('Bookings/' . $bookingId);
+    //     $existingBooking = $bookingRef->getValue();
+
+    //     // Prevent changes if booking is already completed or rejected.
+    //     if ($existingBooking && in_array($existingBooking['status'], ['completed', 'rejected'])) {
+    //         session()->setFlashdata('error', 'Cannot update a booking that is already completed or rejected.');
+    //         return redirect()->to(base_url('admin/bookings'));
+    //     }
+
+    //     $bookingModel = new BookingModel();
+    //     $allBookings  = $bookingModel->getAllBookings(); // to detect conflicts
+    //     $driversRef   = $firebase->getReference('Drivers');
+
+    //     // Define active statuses for conflict checking.
+    //     $activeStatuses = ['approved', 'in-transit'];
+
+    //     // If the new status is active...
+    //     if (in_array($status, $activeStatuses)) {
+    //         // And a new driver is selected (or remains the same driver)...
+    //         if (!empty($driverId)) {
+    //             if ($allBookings && is_array($allBookings)) {
+    //                 foreach ($allBookings as $b) {
+    //                     if (!is_array($b)) continue; // skip invalid
+    //                     // If same driver is found in a different booking that is active,
+    //                     // we block the status update for this booking.
+    //                     if (
+    //                         isset($b['driver_id']) &&
+    //                         $b['driver_id'] === $driverId &&
+    //                         in_array($b['status'], $activeStatuses) &&
+    //                         ($b['booking_id'] != $bookingId) // skip the same booking
+    //                     ) {
+    //                         session()->setFlashdata('error', 'Driver is currently assigned to an ongoing booking (#'.$b['booking_id'].').');
+    //                         return redirect()->to(base_url('admin/bookings'));
+    //                     }
+    //                 }
+    //             }
+    //         } else {
+    //             // If no driver is selected at all, you may choose to block or allow that.
+    //             // For example:
+    //             session()->setFlashdata('error', 'Driver is currently taking another booking.');
+    //             return redirect()->to(base_url('admin/bookings'));
+    //         }
+    //     }
+
+    //     // 2) If a new driver is selected, fetch the driver data and reassign details.
+    //     if (!empty($driverId)) {
+    //         $driverData = $driversRef->getChild($driverId)->getValue();
+    //         if ($driverData) {
+    //             $fullName = trim(($driverData['first_name'] ?? '') . ' ' . ($driverData['last_name'] ?? ''));
+    //             $updateData['driver_name'] = $fullName;
+    //             $updateData['driver_id']   = $driverId;
+
+    //             // Automatically assign a conductor partner based on the driver's truck assignment.
+    //             $allDrivers = $driversRef->getValue() ?? [];
+    //             foreach ($allDrivers as $key => $info) {
+    //                 if (
+    //                     strtolower(trim($info['position'] ?? '')) === 'conductor' &&
+    //                     !empty($info['truck_assigned']) &&
+    //                     $info['truck_assigned'] === ($driverData['truck_assigned'] ?? '')
+    //                 ) {
+    //                     $updateData['conductor_id']   = $key;
+    //                     $updateData['conductor_name'] = trim(($info['first_name'] ?? '') . ' ' . ($info['last_name'] ?? ''));
+    //                     break;
+    //                 }
+    //             }
+
+    //             // Update truck details based on the driver's assigned truck.
+    //             if (!empty($driverData['truck_assigned'])) {
+    //                 $newTruckId = $driverData['truck_assigned'];
+    //                 $truckData  = $firebase->getReference('Trucks/'.$newTruckId)->getValue();
+    //                 if ($truckData) {
+    //                     $updateData['truck_id']      = $truckData['truck_id'] ?? $newTruckId;
+    //                     $updateData['truck_model']   = $truckData['truck_model'] ?? '';
+    //                     $updateData['license_plate'] = $truckData['plate_number'] ?? '';
+    //                     $updateData['type_of_truck'] = $truckData['truck_type'] ?? '';
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     // 3) If admin changed the truck manually (and no driver update occurred), update truck details.
+    //     if (!empty($truckId) && !isset($updateData['truck_id'])) {
+    //         $truckData = $firebase->getReference('Trucks/' . $truckId)->getValue();
+    //         if ($truckData) {
+    //             $updateData['truck_id']      = $truckData['truck_id'] ?? $truckId;
+    //             $updateData['truck_model']   = $truckData['truck_model'] ?? '';
+    //             $updateData['license_plate'] = $truckData['plate_number'] ?? '';
+    //             $updateData['type_of_truck'] = $truckData['truck_type'] ?? '';
+    //         }
+    //     }
+
+    //     // 4) Update the booking with the final data.
+    //     $bookingModel->updateBooking($bookingId, $updateData);
+
+    //     // 5) If the booking is marked as "completed", update the truck's current mileage.
+    //     if ($status === 'completed' && isset($updateData['truck_id'])) {
+    //         $truckRef = $firebase->getReference('Trucks/' . $updateData['truck_id']);
+    //         $truckData = $truckRef->getValue();
+    //         if ($truckData) {
+    //             $currentMileage = isset($truckData['current_mileage']) ? floatval($truckData['current_mileage']) : 0;
+    //             $newMileage = $currentMileage + floatval($distance);
+    //             // Update the truck's current mileage.
+    //             $truckRef->update(['current_mileage' => $newMileage]);
+    //         }
+    //     }
+
+    //     // 6) Persistent Notification:
+    //     // Instead of using FCM, store a notification record in Firebase that the client can view upon login.
+    //     // Assume the booking contains a "client_id" field.
+    //     if (!empty($existingBooking['client_id'])) {
+    //         $clientId = $existingBooking['client_id'];
+    //         $notificationData = [
+    //             'message'    => "Your booking #{$bookingId} status has been updated to " . ucfirst($status) . ".",
+    //             'booking_id' => $bookingId,
+    //             'status'     => $status,
+    //             'timestamp'  => date('c'),
+    //             'read'       => false  // This flag indicates whether the user has dismissed the notification.
+    //         ];
+    //         // Save the notification in Firebase under Notifications/{clientId}
+    //         $firebase->getReference("Notifications/{$clientId}")->push($notificationData);
+    //     }
+
+    //     session()->setFlashdata('success', 'Booking #' . $bookingId . ' updated successfully!');
+    //     return redirect()->to(base_url('admin/bookings'));
+    // }
+
     public function updateBookingStatus()
     {
-        $bookingId   = $this->request->getPost('booking_id');
-        $status      = $this->request->getPost('status');  // e.g., "approved", "rejected", "in-transit", etc.
-        $distance    = $this->request->getPost('distance');
-        $driverId    = $this->request->getPost('driver');
-        $conductorId = $this->request->getPost('conductor'); // Currently not used for conflict, but can be extended
-        $truckId     = $this->request->getPost('truck_id');
+        // Get all POST data
+        $postData = $this->request->getPost();
+        
+        // Required fields
+        $bookingId   = $postData['booking_id'] ?? null;
+        $status      = $postData['status'] ?? null;
+        $distance    = $postData['distance'] ?? 0;
+        $driverId    = $postData['driver'] ?? null;
+        $truckId     = $postData['truck_id'] ?? null;
+        $remarks     = $postData['remarks'] ?? '';
+        
+        // Validate required fields
+        if (empty($bookingId)) {
+            session()->setFlashdata('error', 'Booking ID is required.');
+            return redirect()->to(base_url('admin/bookings'));
+        }
 
-        // Initialize update data with status and distance.
-        $updateData = [
-            'status'   => $status,
-            'distance' => $distance,
-        ];
-
-        // Get Firebase service instance
+        // Initialize Firebase
         $firebase = service('firebase');
         $bookingRef = $firebase->getReference('Bookings/' . $bookingId);
         $existingBooking = $bookingRef->getValue();
 
-        // Prevent changes if booking is already completed or rejected.
-        if ($existingBooking && in_array($existingBooking['status'], ['completed', 'rejected'])) {
+        // Check if booking exists
+        if (!$existingBooking) {
+            session()->setFlashdata('error', 'Booking not found.');
+            return redirect()->to(base_url('admin/bookings'));
+        }
+
+        // Prevent changes if booking is already completed or rejected
+        if (in_array($existingBooking['status'] ?? '', ['completed', 'rejected'])) {
             session()->setFlashdata('error', 'Cannot update a booking that is already completed or rejected.');
             return redirect()->to(base_url('admin/bookings'));
         }
 
+        // Initialize update data
+        $updateData = [
+            'status'   => $status,
+            'distance' => (float)$distance,
+            'remarks'  => $remarks,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        // Initialize models
         $bookingModel = new BookingModel();
-        $allBookings  = $bookingModel->getAllBookings(); // to detect conflicts
+        $allBookings  = $bookingModel->getAllBookings();
         $driversRef   = $firebase->getReference('Drivers');
 
-        // Define active statuses for conflict checking.
+                // Define active statuses for conflict checking
         $activeStatuses = ['approved', 'in-transit'];
 
-        // If the new status is active...
+        // Check for driver conflicts if status is active
         if (in_array($status, $activeStatuses)) {
-            // And a new driver is selected (or remains the same driver)...
             if (!empty($driverId)) {
                 if ($allBookings && is_array($allBookings)) {
                     foreach ($allBookings as $b) {
-                        if (!is_array($b)) continue; // skip invalid
-                        // If same driver is found in a different booking that is active,
-                        // we block the status update for this booking.
-                        if (
-                            isset($b['driver_id']) &&
+                        if (!is_array($b)) continue;
+                        
+                        if (isset($b['driver_id']) &&
                             $b['driver_id'] === $driverId &&
                             in_array($b['status'], $activeStatuses) &&
-                            ($b['booking_id'] != $bookingId) // skip the same booking
+                            ($b['booking_id'] != $bookingId)
                         ) {
                             session()->setFlashdata('error', 'Driver is currently assigned to an ongoing booking (#'.$b['booking_id'].').');
                             return redirect()->to(base_url('admin/bookings'));
@@ -1471,22 +1630,21 @@ class AdminController extends Controller
                     }
                 }
             } else {
-                // If no driver is selected at all, you may choose to block or allow that.
-                // For example:
-                session()->setFlashdata('error', 'Driver is currently taking another booking.');
+                session()->setFlashdata('error', 'No driver selected for this booking.');
                 return redirect()->to(base_url('admin/bookings'));
             }
         }
 
-        // 2) If a new driver is selected, fetch the driver data and reassign details.
+        // Handle driver reassignment
         if (!empty($driverId)) {
             $driverData = $driversRef->getChild($driverId)->getValue();
             if ($driverData) {
+                // Update driver info
                 $fullName = trim(($driverData['first_name'] ?? '') . ' ' . ($driverData['last_name'] ?? ''));
                 $updateData['driver_name'] = $fullName;
                 $updateData['driver_id']   = $driverId;
 
-                // Automatically assign a conductor partner based on the driver's truck assignment.
+                // Find and assign conductor partner
                 $allDrivers = $driversRef->getValue() ?? [];
                 foreach ($allDrivers as $key => $info) {
                     if (
@@ -1500,7 +1658,7 @@ class AdminController extends Controller
                     }
                 }
 
-                // Update truck details based on the driver's assigned truck.
+                // Update truck details based on driver's assignment
                 if (!empty($driverData['truck_assigned'])) {
                     $newTruckId = $driverData['truck_assigned'];
                     $truckData  = $firebase->getReference('Trucks/'.$newTruckId)->getValue();
@@ -1514,7 +1672,7 @@ class AdminController extends Controller
             }
         }
 
-        // 3) If admin changed the truck manually (and no driver update occurred), update truck details.
+        // Handle manual truck assignment
         if (!empty($truckId) && !isset($updateData['truck_id'])) {
             $truckData = $firebase->getReference('Trucks/' . $truckId)->getValue();
             if ($truckData) {
@@ -1525,24 +1683,40 @@ class AdminController extends Controller
             }
         }
 
-        // 4) Update the booking with the final data.
+        // Initialize remarks history
+        if (!isset($existingBooking['remarks_history'])) {
+            $existingBooking['remarks_history'] = [];
+        }
+
+        // Add to remarks history if remarks changed
+        if (!empty($remarks) && $remarks !== ($existingBooking['remarks'] ?? '')) {
+            $updateData['remarks_history'] = array_merge(
+                $existingBooking['remarks_history'],
+                [
+                    [
+                        'remarks' => $remarks,
+                        'updated_by' => session()->get('username') ?? 'Admin',
+                        'timestamp' => date('Y-m-d H:i:s')
+                    ]
+                ]
+            );
+        }
+
+        // Update the booking
         $bookingModel->updateBooking($bookingId, $updateData);
 
-        // 5) If the booking is marked as "completed", update the truck's current mileage.
+        // Update truck mileage if completed
         if ($status === 'completed' && isset($updateData['truck_id'])) {
             $truckRef = $firebase->getReference('Trucks/' . $updateData['truck_id']);
             $truckData = $truckRef->getValue();
             if ($truckData) {
                 $currentMileage = isset($truckData['current_mileage']) ? floatval($truckData['current_mileage']) : 0;
                 $newMileage = $currentMileage + floatval($distance);
-                // Update the truck's current mileage.
                 $truckRef->update(['current_mileage' => $newMileage]);
             }
         }
 
-        // 6) Persistent Notification:
-        // Instead of using FCM, store a notification record in Firebase that the client can view upon login.
-        // Assume the booking contains a "client_id" field.
+        // Create notification for client
         if (!empty($existingBooking['client_id'])) {
             $clientId = $existingBooking['client_id'];
             $notificationData = [
@@ -1550,9 +1724,8 @@ class AdminController extends Controller
                 'booking_id' => $bookingId,
                 'status'     => $status,
                 'timestamp'  => date('c'),
-                'read'       => false  // This flag indicates whether the user has dismissed the notification.
+                'read'       => false
             ];
-            // Save the notification in Firebase under Notifications/{clientId}
             $firebase->getReference("Notifications/{$clientId}")->push($notificationData);
         }
 

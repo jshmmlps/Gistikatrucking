@@ -54,6 +54,31 @@
       z-index: 2000 !important; /* or higher than the modal’s z-index */
     }
 
+    .position-relative {
+      position: relative;
+      display: inline-block;
+    }
+
+    .position-absolute {
+      position: absolute;
+    }
+
+    .translate-middle {
+      transform: translate(-50%, -50%);
+    }
+
+    .top-0 {
+      top: 0;
+    }
+
+    .start-100 {
+      left: 100%;
+    }
+
+    .remarks-section {
+      border-left: 3px solid #0d6efd;
+    }
+
   </style>
 </head>
 <body>
@@ -67,7 +92,7 @@
         </div>
     <?php elseif ($driverAvailability === false): ?>
         <div class="alert alert-warning">
-            All drivers are currently busy. You can book but please wait and check regularly for booking updates.
+            All drivers are currently busy. You can book but please wait for approval and check regularly for booking updates.
         </div>
     <?php else: ?>
         <div class="alert alert-success">
@@ -165,11 +190,20 @@
                 <?= esc($booking['status'] ?? '') ?>
               </td>
               <td>
-                <button class="btn btn-info btn-sm" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#bookingModal<?= esc($booking['booking_id']) ?>">
-                  View
-                </button>
+                <div class="position-relative d-inline-block">
+                  <button class="btn btn-info btn-sm view-booking-btn" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#bookingModal<?= esc($booking['booking_id']) ?>"
+                          data-booking-id="<?= esc($booking['booking_id']) ?>">
+                    View
+                  </button>
+                  <?php if (!empty($booking['remarks'])): ?>
+                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle remark-notification" 
+                          id="notification-<?= esc($booking['booking_id']) ?>">
+                      <span class="visually-hidden">New remarks</span>
+                    </span>
+                  <?php endif; ?>
+                </div>
               </td>
             </tr>
 
@@ -219,6 +253,14 @@
                     <p><strong>Driving Distance (km):</strong> 
                       <span id="distanceDisplay<?= esc($booking['booking_id']) ?>"></span>
                     </p>
+
+                    <!-- Add this section for remarks -->
+                    <?php if (!empty($booking['remarks'])): ?>
+                      <div class="remarks-section mt-3 p-3 bg-light rounded">
+                        <h5>Remarks Updates</h5>
+                        <p><?= nl2br(esc($booking['remarks'])) ?></p>
+                      </div>
+                    <?php endif; ?>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -371,6 +413,44 @@
   </script>
 
   <script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Handle click on any view button
+      document.querySelectorAll('.view-booking-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const bookingId = this.getAttribute('data-booking-id');
+          const notificationDot = document.getElementById(`notification-${bookingId}`);
+          
+          // If there's a notification dot for this booking, remove it
+          if (notificationDot) {
+            notificationDot.remove();
+            
+            // Optional: Send AJAX request to mark remarks as seen on server
+            markRemarksAsSeen(bookingId);
+          }
+        });
+      });
+      
+      // Optional function to update server that remarks were seen
+      function markRemarksAsSeen(bookingId) {
+        fetch('/client/markRemarksSeen', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({ booking_id: bookingId })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Remarks marked as seen', data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      }
+    });
+    
   let pickupMap, pickupMarker, dropoffMap, dropoffMarker;
   let pickupAutocomplete, dropoffAutocomplete;
   let directionsService;

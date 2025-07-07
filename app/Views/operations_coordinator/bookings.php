@@ -271,7 +271,19 @@
                         <span class="fw-bold text-secondary">Drop-off Coordinates:</span>
                         <span id="dropoffCoords<?= esc($bId) ?>"></span>
                       </div>
+
+                      <!-- Remarks section -->
+                      <div class="p-3 mb-3 rounded-3 shadow-sm bg-light">
+                          <h6 class="fw-bold mb-3 text-primary">Remarks</h6>
+                          <div class="mb-3">
+                              <label class="form-label fw-bold">Add Remarks:</label>
+                              <textarea name="remarks" class="form-control" rows="3" placeholder="Enter any additional notes or remarks about this booking"><?= esc($booking['remarks'] ?? '') ?></textarea>
+                          </div>
+                      </div>
+                    
                     </div>
+
+                    
 
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
